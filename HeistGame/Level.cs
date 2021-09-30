@@ -124,6 +124,7 @@ namespace HeistGame
                 {
                     string element = grid[y, x];
                     SetCursorPosition(x + xOffset, y + yOffset);
+
                     if (element == SymbolsConfig.ExitChar.ToString())
                     {
                         if (IsLocked)
@@ -146,6 +147,10 @@ namespace HeistGame
                     else if (element == "☺")
                     {
                         ForegroundColor = ConsoleColor.DarkMagenta;
+                    }
+                    else if (element == SymbolsConfig.Light1char.ToString() || element == SymbolsConfig.Light2char.ToString() || element == SymbolsConfig.Light3char.ToString())
+                    {
+                        ForegroundColor = ConsoleColor.DarkBlue;
                     }
                     else
                     {

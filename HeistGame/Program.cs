@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HeistGame
+﻿namespace HeistGame
 {
     class Program
     {
