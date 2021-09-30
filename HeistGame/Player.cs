@@ -132,8 +132,6 @@ namespace HeistGame
                     default:
                         return true;
                 }
-
-
             }
             return true;
         }
@@ -160,6 +158,10 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
+            if (symbol == SymbolsConfig.Light1char.ToString() || symbol == SymbolsConfig.Light2char.ToString() || symbol == SymbolsConfig.Light3char.ToString())
+            {
+                ForegroundColor = ConsoleColor.DarkBlue;
+            }
             if (symbol == SymbolsConfig.ExitChar.ToString())
             {
                 if (level.IsLocked)

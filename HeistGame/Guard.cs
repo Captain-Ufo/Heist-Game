@@ -235,12 +235,19 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
-            if (symbol == "$")
+            if (symbol == SymbolsConfig.Light1char.ToString() || symbol == SymbolsConfig.Light2char.ToString() || symbol == SymbolsConfig.Light3char.ToString())
+            {
+                ForegroundColor = ConsoleColor.DarkBlue;
+            }
+            else if (symbol == SymbolsConfig.TreasureChar.ToString())
             {
                 ForegroundColor = ConsoleColor.Yellow;
             }
-
-            if (symbol == SymbolsConfig.ExitChar.ToString())
+            else if (symbol == SymbolsConfig.KeyChar.ToString())
+            {
+                ForegroundColor = ConsoleColor.DarkYellow;
+            }
+            else if (symbol == SymbolsConfig.ExitChar.ToString())
             {
                 if (level.IsLocked)
                 {
@@ -283,7 +290,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
                         && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + 1)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -303,7 +310,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - 1 && game.PlayerCharacter.X <= X + horizontalAggroDistance
                         && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -323,7 +330,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
                         && game.PlayerCharacter.Y >= Y - 1 && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -343,7 +350,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + 1
                         && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -475,52 +482,6 @@ namespace HeistGame
             {
                 game.CapturePlayer(this);
             }
-        }
-
-        private Vector2[] GetTilesBetweenGuardAndPlayer(int guardX, int guardY, int playerX, int playerY)
-        {
-            bool isLineSteep = Math.Abs(playerY - guardY) > Math.Abs(playerX - guardX);
-
-            if (isLineSteep)
-            {
-                int temp = guardX;
-                guardX = guardY;
-                guardY = temp;
-                temp = playerX;
-                playerX = playerY;
-                playerY = temp;
-            }
-
-            if (guardX > playerX)
-            {
-                int temp = guardX;
-                guardX = playerX;
-                playerX = temp;
-                temp = guardY;
-                guardY = playerY;
-                playerY = temp;
-            }
-
-            int deltaX = playerX - guardX;
-            int deltaY = Math.Abs(playerY - guardY);
-            int error = deltaX / 2;
-            int yStep = (guardY < playerY) ? 1 : -1;
-            int y = guardY;
-
-            List<Vector2> tilesBetweenGuardAndPlayer = new List<Vector2>();
-
-            for (int x = guardX; x <= playerX; x++)
-            {
-                tilesBetweenGuardAndPlayer.Add(new Vector2((isLineSteep ? y : x), (isLineSteep ? x : y)));
-                error = error - deltaY;
-                if (error < 0)
-                {
-                    y += yStep;
-                    error += deltaX;
-                }
-            }
-
-            return tilesBetweenGuardAndPlayer.ToArray();
         }
 
         private Vector2 Patrol()
