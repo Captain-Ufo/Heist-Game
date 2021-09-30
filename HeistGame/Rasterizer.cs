@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HeistGame
 {
+    /// <summary>
+    /// A helper class that contains methods which return the coordinates of each point on a rasterized line.
+    /// </summary>
     class Rasterizer
     {
+        /// <summary>
+        /// A method that calculates the coordinates of the points on a rasterized line.
+        /// </summary>
+        /// <param name="startX">X coordinate of the beginning point of the line.</param>
+        /// <param name="startY">Y coordinate of the beginning point of the line.</param>
+        /// <param name="finishX">X coordinates of the end point of the line.</param>
+        /// <param name="finishY">Y coordinates of the end point of the line.</param>
+        /// <returns>The integer coordinates of the points on the line.</returns>
         public static Vector2[] GetCellsAlongLine(int startX, int startY, int finishX, int finishY)
         {
             bool isLineSteep = Math.Abs(finishY - startY) > Math.Abs(finishX - startX);
@@ -54,7 +62,14 @@ namespace HeistGame
             return tilesBetweenGuardAndPlayer.ToArray();
         }
 
-        public static Vector2[] GetCellsAlongCircle(int centerX, int centerY, int radius)
+        /// <summary>
+        /// A method that calculates all the points on a rasterized circumference.
+        /// </summary>
+        /// <param name="centerX">The X coordinate of the center point of the circle</param>
+        /// <param name="centerY">The Y coordinate of the center point of the circle</param>
+        /// <param name="radius">The radius of the circle</param>
+        /// <returns>The integer coordinates of each point on the circumference.</returns>
+        public static Vector2[] GetCellsAlongCircumference(int centerX, int centerY, int radius)
         {
             List<Vector2> circumference = new List<Vector2>();
             int circumferencePointX = radius;
