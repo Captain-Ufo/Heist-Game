@@ -17,6 +17,8 @@ namespace HeistGame
         /// </summary>
         public Light[] WeakLights { get; private set; }
 
+        public HashSet<Vector2> FloorTiles { get; private set; }
+
         public Dictionary<Vector2, int> FloorTilesValues { get; private set; }
     }
 
@@ -24,7 +26,6 @@ namespace HeistGame
     class Light
     {
         private int radius;
-        private Vector2[] areaWithLight;
 
         /// <summary>
         /// The coordinates of the light.
@@ -39,43 +40,47 @@ namespace HeistGame
         {
             Position = new Vector2(x, y);
             this.radius = radius;
-            areaWithLight = Rasterizer.GetCellsAlongCircumference(x, y, radius);
             IlluminatedTiles = new Dictionary<Vector2, int>();
         }
 
         /// <summary>
         /// Just a test method to check if the tile assignment works.
         /// </summary>
-        public void TestIlluminatedTiles()
+        public void TestIlluminatedTiles1()
         {
-            List<Vector2> actualTiles = new List<Vector2>();
-
-            foreach (Vector2 point in areaWithLight)
+            for (int i = 0; i <= radius; i++)
             {
-                Vector2[] illuminatedTiles = Rasterizer.GetCellsAlongLine(Position.X, Position.Y, point.X, point.Y);
-                foreach (Vector2 tile in illuminatedTiles)
+                Vector2[] lightCircle = Rasterizer.GetCellsAlongEllipse(Position.X, Position.Y, i*2, i);
+
+                int lightValue = 0;
+                int threshold = radius / 3;
+                if (i <= threshold) { lightValue = 3; }
+                else if (i > threshold && i <= threshold * 2) { lightValue = 2; }
+                else { lightValue = 1; }
+
+                foreach (Vector2 tile in lightCircle)
                 {
-                    actualTiles.Add(tile);
+                    IlluminatedTiles[tile] = lightValue;
                 }
             }
+        }
 
-            foreach (Vector2 tile in actualTiles)
+        public void TestIlluminatedTiles2()
+        {
+            int threshold = radius / 3;
+
+            for (int i = 3; i > 0 ; i--)
             {
-                int absoluteX = Math.Abs(tile.X - Position.X);
-                int absoluteY = Math.Abs(tile.Y - Position.Y);
-                int threshold = radius / 3;
+                int thresholdRadius = threshold * i;
+                Vector2[] lightCircumference = Rasterizer.GetCellsAlongEllipse(Position.X, Position.Y, thresholdRadius * 2, thresholdRadius);
 
-                if (absoluteX <= threshold && absoluteY <= threshold)
+                foreach (Vector2 point in lightCircumference)
                 {
-                    IlluminatedTiles[tile] = 3;
-                }
-                else if ((absoluteX > threshold && absoluteX <= threshold * 2) && (absoluteY > threshold && absoluteY <= threshold * 2))
-                {
-                    IlluminatedTiles[tile] = 2;
-                }
-                else
-                {
-                    IlluminatedTiles[tile] = 1;
+                    Vector2[] points = Rasterizer.GetCellsAlongLine(Position.X, Position.Y, point.X, point.Y);
+                    foreach (Vector2 IlluminatedPoint in points)
+                    {
+                        IlluminatedTiles[IlluminatedPoint] = i;
+                    }
                 }
             }
         }
@@ -87,40 +92,6 @@ namespace HeistGame
         public void CalculateIlluminatedTiles(Level level)
         {
             List<Vector2> actualTiles = new List<Vector2>();
-
-            foreach (Vector2 point in areaWithLight)
-            {
-                Vector2[] illuminatedTiles = Rasterizer.GetCellsAlongLine(Position.X, Position.Y, point.X, point.Y);
-
-                foreach(Vector2 tile in illuminatedTiles)
-                {
-                    if (!level.IsTileTransparent(tile.X, tile.Y))
-                    {
-                        break;
-                    }
-                    actualTiles.Add(tile);
-                }
-            }
-
-            foreach (Vector2 tile in actualTiles)
-            {
-                int absoluteX = Math.Abs(tile.X - Position.X);
-                int absoluteY = Math.Abs(tile.Y - Position.Y);
-                int threshold = radius / 3;
-
-                if (absoluteX <= threshold || absoluteY <= threshold)
-                {
-                    IlluminatedTiles[tile] = 3;
-                }
-                else if ((absoluteX > threshold && absoluteX <= threshold * 2) || (absoluteY > threshold && absoluteY <= threshold * 2))
-                {
-                    IlluminatedTiles[tile] = 2;
-                }
-                else
-                {
-                    IlluminatedTiles[tile] = 1;
-                }
-            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace HeistGame
 {
@@ -36,7 +35,7 @@ namespace HeistGame
 
             List<Vector2> treasures = new List<Vector2>();
 
-            List<Vector2> floorTiles = new List<Vector2>();
+            HashSet<Vector2> floorTiles = new HashSet<Vector2>();
             List<Vector2> strongLights = new List<Vector2>();
             List<Vector2> weakLights = new List<Vector2>();
 
@@ -361,7 +360,7 @@ namespace HeistGame
             guard14.AssignPatrol(ArrangePatrolPoints(guard14, guard14Patrol).ToArray());
             guard15.AssignPatrol(ArrangePatrolPoints(guard15, guard15Patrol).ToArray());
 
-            LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles.ToArray(),
+            LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles,
                                                 strongLights.ToArray(), weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray());
 
             return levelInfo;
@@ -459,13 +458,13 @@ namespace HeistGame
         public int TotalGold { get; }
         public Vector2 Exit { get; }
         public Vector2[] Treasures { get; }
-        public Vector2[] FloorTiles { get; }
+        public HashSet<Vector2> FloorTiles { get; }
         public Vector2[] StrongLights { get; }
         public Vector2[] WeakLights { get; }
         public Dictionary<Vector2, Lever> LeversDictionary { get; }
         public Guard[] Guards { get; }
 
-        public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, Vector2[] floorTiles, 
+        public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
                          Vector2[]strongLights, Vector2[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards)
         {
             Grid = grid;
