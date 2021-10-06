@@ -9,9 +9,9 @@ namespace HeistGame
         {
             ConsoleHelper.SetConsole("Heist!", 180, 60, false, false, true, true, true);
 
-            Console.CursorVisible = false;
+            /*Console.CursorVisible = false;
 
-            Light testLight = new Light(90, 30, 6);
+            Light testLight = new Light(90, 30, 7);
 
             testLight.TestIlluminatedTiles2();
 
@@ -34,11 +34,10 @@ namespace HeistGame
                 }
             }
 
-            Console.ReadKey(true);
+            Console.ReadKey(true);*/
 
-            /*
             Game game = new Game();
-            game.Start();*/
+            game.Start();
         }
     }
 }

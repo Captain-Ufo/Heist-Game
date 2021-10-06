@@ -6,6 +6,9 @@
     <Version>1.5.0</Version>
     <Copyright>2021 Cristian Baldi</Copyright>
     <Description>A text based command prompt steath game.</Description>
+    <Authors>Cristian Baldi</Authors>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>

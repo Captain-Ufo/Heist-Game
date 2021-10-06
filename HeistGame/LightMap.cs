@@ -71,12 +71,13 @@ namespace HeistGame
 
             for (int i = 3; i > 0 ; i--)
             {
-                int thresholdRadius = threshold * i;
+                int thresholdRadius = threshold * i + 2;
                 Vector2[] lightCircumference = Rasterizer.GetCellsAlongEllipse(Position.X, Position.Y, thresholdRadius * 2, thresholdRadius);
 
                 foreach (Vector2 point in lightCircumference)
                 {
                     Vector2[] points = Rasterizer.GetCellsAlongLine(Position.X, Position.Y, point.X, point.Y);
+
                     foreach (Vector2 IlluminatedPoint in points)
                     {
                         IlluminatedTiles[IlluminatedPoint] = i;

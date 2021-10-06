@@ -83,18 +83,7 @@ namespace HeistGame
             if (!File.Exists(filePath))
             {
                 //Safeguard #1
-                Clear();
-                ForegroundColor = ConsoleColor.Red;
-                string warning = "!!* ERROR: invalid, misnamed or non existent campaign config file *!!";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 1);
-                WriteLine(warning);
-                ResetColor();
-                warning = "If this is a custom campaign, check the manual for instructions on how to create it correctly.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2);
-                WriteLine(warning);
-                SetCursorPosition(0, WindowHeight - 1);
-                Write("Press any key to return to main menu...");
-                ReadKey(true);
+                ErrorWarnings.InvalidCampaignFile(filePath);
                 RunMainMenu();
             }
 
@@ -108,23 +97,7 @@ namespace HeistGame
             catch (Exception e)
             {
                 //Safeguard #2
-                Clear();
-                ForegroundColor = ConsoleColor.Red;
-                string warning = "!!* ERROR: cannot extract campaign data from the campaign config file *!!";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                WriteLine(warning);
-                ResetColor();
-                warning = "The campaign file contains missing or incorrectly formatted data.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                WriteLine(warning);
-                warning = "If this is a custom campaign or you edited an existing campaign, please check the manual for instructions on how to create the config file correctly.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                WriteLine(warning);
-                SetCursorPosition((WindowWidth / 2) - (e.Message.Length / 2), WindowHeight / 2 - 1);
-                WriteLine(e.Message);
-                SetCursorPosition(0, WindowHeight - 1);
-                Write("Press any key to return to main menu...");
-                ReadKey(true);
+                ErrorWarnings.IncorrectCampaignData(filePath, e);
                 RunMainMenu();
             }
 
@@ -137,18 +110,7 @@ namespace HeistGame
                 if (!File.Exists(levelFilePath))
                 {
                     //safeguard #3
-                    Clear();
-                    ForegroundColor = ConsoleColor.Red;
-                    string warning = $"!!* ERROR: invalid, misnamed or non existent level file: {levelFile} *!!";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 1);
-                    WriteLine(warning);
-                    ResetColor();
-                    warning = "If this is a custom campaign, check that all the level names in the config file match the level files in the folder,";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2);
-                    WriteLine(warning);
-                    SetCursorPosition(0, WindowHeight - 1);
-                    Write("Press any key to return to main menu...");
-                    ReadKey(true);
+                    ErrorWarnings.MissingLevelFile(levelFile);
                     RunMainMenu();
                 }
 
@@ -163,27 +125,23 @@ namespace HeistGame
                 catch (Exception e)
                 {
                     //Safeguard #4
-                    Clear();
-                    ForegroundColor = ConsoleColor.Red;
-                    string warning = "!!* ERROR: cannot extract Level data from the level config file *!!";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                    WriteLine(warning);
-                    ResetColor();
-                    warning = "The campaign file contains missing or incorrectly formatted data.";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                    WriteLine(warning);
-                    warning = "If this is a custom mission or you edited an existing mission, please check the manual for instructions on how to create the config file correctly.";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                    WriteLine(warning);
-                    SetCursorPosition((WindowWidth / 2) - (e.Message.Length / 2), WindowHeight / 2 - 1);
-                    WriteLine(e.Message);
-                    SetCursorPosition(0, WindowHeight - 1);
-                    Write("Press any key to return to main menu...");
-                    ReadKey(true);
+                    ErrorWarnings.IncorrectLevelData(levelFile, e);
                     RunMainMenu();
                 }
 
                 LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(missionConfig.LevelMap, DifficultyLevel);
+
+                if (levelInfo.PlayerStartX < 0)
+                {
+                    ErrorWarnings.MissingPlayerStartingPoint(levelFile);
+                    RunMainMenu();
+                }
+
+                if (levelInfo.Exit.X < 0)
+                {
+                    ErrorWarnings.MissingExit(levelFile);
+                    RunMainMenu();
+                }
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
                                      levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
@@ -216,27 +174,23 @@ namespace HeistGame
             catch (Exception e)
             {
                 //Safeguard
-                Clear();
-                ForegroundColor = ConsoleColor.Red;
-                string warning = "!!* ERROR: cannot extract Level data from the level config file *!!";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                WriteLine(warning);
-                ResetColor();
-                warning = "The campaign file contains missing or incorrectly formatted data.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                WriteLine(warning);
-                warning = "If this is a custom mission or you edited an existing mission, please check the manual for instructions on how to create the config file correctly.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                WriteLine(warning);
-                SetCursorPosition((WindowWidth / 2) - (e.Message.Length / 2), WindowHeight / 2 - 1);
-                WriteLine(e.Message);
-                SetCursorPosition(0, WindowHeight - 1);
-                Write("Press any key to return to main menu...");
-                ReadKey(true);
+                ErrorWarnings.IncorrectLevelData(levelFile, e);
                 RunMainMenu();
             }
 
             LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(missionConfig.LevelMap, DifficultyLevel);
+
+            if (levelInfo.PlayerStartX < 0)
+            {
+                ErrorWarnings.MissingPlayerStartingPoint(levelFile);
+                RunMainMenu();
+            }
+
+            if (levelInfo.Exit.X < 0)
+            {
+                ErrorWarnings.MissingExit(levelFile);
+                RunMainMenu();
+            }
 
             levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
                                  levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing, missionConfig.Outro, MyStopwatch));

@@ -60,6 +60,7 @@ namespace HeistGame
             }
         }
 
+
         private static void DisplayConsoleSizeWarning()
         {
             WriteLine("Error setting the preferred console size.");

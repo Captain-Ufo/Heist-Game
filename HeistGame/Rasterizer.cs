@@ -46,11 +46,11 @@ namespace HeistGame
             int yStep = (startY < finishY) ? 1 : -1;
             int y = startY;
 
-            List<Vector2> tilesBetweenGuardAndPlayer = new List<Vector2>();
+            List<Vector2> tilesOnTheLine = new List<Vector2>();
 
             for (int x = startX; x <= finishX; x++)
             {
-                tilesBetweenGuardAndPlayer.Add(new Vector2((isLineSteep ? y : x), (isLineSteep ? x : y)));
+                tilesOnTheLine.Add(new Vector2((isLineSteep ? y : x), (isLineSteep ? x : y)));
                 error = error - deltaY;
                 if (error < 0)
                 {
@@ -59,7 +59,7 @@ namespace HeistGame
                 }
             }
 
-            return tilesBetweenGuardAndPlayer.ToArray();
+            return tilesOnTheLine.ToArray();
         }
 
         /// <summary>

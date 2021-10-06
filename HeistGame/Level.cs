@@ -440,7 +440,7 @@ namespace HeistGame
             {
                 if (lever.IsOn)
                 {
-                    lever.Toggle(this, xOffset, yOffset);
+                    lever.Toggle(this, xOffset, yOffset, false);
                 }
             }
         }

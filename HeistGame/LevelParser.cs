@@ -27,11 +27,11 @@ namespace HeistGame
             string[,] grid = new string[rows, columns];
 
             //bool hasKey = false;
-            int playerStartX = 0;
-            int playerStartY = 0;
+            int playerStartX = -1;
+            int playerStartY = -1;
             int totalGold = 0;
 
-            Vector2 exit = new Vector2(0, 0);
+            Vector2 exit = new Vector2(-1, -1);
 
             List<Vector2> treasures = new List<Vector2>();
 

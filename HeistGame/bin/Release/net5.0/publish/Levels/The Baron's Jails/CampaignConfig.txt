@@ -1,0 +1,11 @@
+{
+	"Name":"The Baron's Jails",
+
+	"LevelFiles":
+		[
+			"Deep Cells",
+			"High Security Confinement",
+			"Stolen Goods Vault",
+			"Guards Barracks"
+		]
+}
