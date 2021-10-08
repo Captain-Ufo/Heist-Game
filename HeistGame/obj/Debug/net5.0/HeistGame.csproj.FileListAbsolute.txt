@@ -21,3 +21,5 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net5.0\HeistGame.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net5.0\ref\HeistGame.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net5.0\HeistGame.pdb
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net5.0\HeistGame.genruntimeconfig.cache
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net5.0\HeistGame.csproj.AssemblyReference.cache
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net5.0\Levels\LightsTest.txt

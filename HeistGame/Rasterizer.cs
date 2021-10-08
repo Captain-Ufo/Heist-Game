@@ -62,6 +62,41 @@ namespace HeistGame
             return tilesOnTheLine.ToArray();
         }
 
+        public static Vector2[] PlotRasterizedLine(int x0, int y0, int x1, int y1)
+        {
+            int dx = Math.Abs(x0 - x1);
+            int dy = Math.Abs(y0 - y1);
+
+            int sx = x0 < x1 ? 1 : -1;
+            int sy = y0 < y1 ? 1 : -1;
+
+            int err = dx - dy;
+
+            List<Vector2> tilesOnTheLine = new List<Vector2>();
+
+            for (int i = 0; true; i++)
+            {
+                tilesOnTheLine.Add(new Vector2(x0, y0));
+
+                if (x0 == x1 && y0 == y1)
+                    break;
+
+                int e2 = err * 2;
+                if (e2 > -dy)
+                {
+                    err -= dy;
+                    x0 += sx;
+                }
+                else if (e2 < dx)
+                {
+                    err += dx;
+                    y0 += sy;
+                }
+            }
+
+            return tilesOnTheLine.ToArray();
+        }
+
         /// <summary>
         /// A method that calculates the coordinates of all the points on a rasterized circumference.
         /// </summary>

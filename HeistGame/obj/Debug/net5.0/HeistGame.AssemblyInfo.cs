@@ -11,7 +11,7 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("HeistGame")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("Cristian Baldi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("2021 Cristian Baldi")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("A text based command prompt steath game.")]

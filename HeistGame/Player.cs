@@ -158,16 +158,36 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
-            if (symbol == SymbolsConfig.Light1char.ToString() || symbol == SymbolsConfig.Light2char.ToString() || symbol == SymbolsConfig.Light3char.ToString())
+            if (symbol == SymbolsConfig.EmptySpace.ToString())
             {
+                Vector2 tile = new Vector2(X, Y);
+                int lightValue = level.GetLightLevelInItle(tile);
                 ForegroundColor = ConsoleColor.DarkBlue;
+                switch (lightValue)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        symbol = SymbolsConfig.Light1char.ToString();
+                        break;
+                    case 2:
+                        symbol = SymbolsConfig.Light2char.ToString();
+                        break;
+                    case 3:
+                        symbol = SymbolsConfig.Light3char.ToString();
+                        break;
+                }
             }
-            if (symbol == SymbolsConfig.ExitChar.ToString())
+            else if (symbol == SymbolsConfig.ExitChar.ToString())
             {
                 if (level.IsLocked)
                 {
                     ForegroundColor = ConsoleColor.Red;
                 }
+            }
+            else
+            {
+                ResetColor();
             }
 
             Write(symbol);

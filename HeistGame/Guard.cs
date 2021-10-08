@@ -22,6 +22,7 @@ namespace HeistGame
         private bool isAlerted;
         private bool isReturning;
         private int pivotTimer;
+        private int minTimeBetweenPivots;
         private string[] guardMarkersTable = new string[] { "^", ">", "V", "<" };
         private string guardMarker;
         private ConsoleColor guardSymbolColor = ConsoleColor.Black;
@@ -64,6 +65,7 @@ namespace HeistGame
             bribeTimerDuration = 50;
             alertTimer = 0;
             pivotTimer = rng.Next(201);
+            minTimeBetweenPivots = 0;
             timeBetweenMoves = walkingSpeed;
             direction = Directions.up;
             guardMarker = guardMarkersTable[(int)direction];
@@ -164,7 +166,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    Pivot(pivotTimer, 20);
+                    Pivot(pivotTimer, 20, 30);
 
                     if (pivotTimer == int.MaxValue) { pivotTimer = 0; }
                     else { pivotTimer += rng.Next(1, 5); }
@@ -235,9 +237,25 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
-            if (symbol == SymbolsConfig.Light1char.ToString() || symbol == SymbolsConfig.Light2char.ToString() || symbol == SymbolsConfig.Light3char.ToString())
+            if (symbol == SymbolsConfig.EmptySpace.ToString())
             {
+                Vector2 tile = new Vector2(X, Y);
+                int lightValue = level.GetLightLevelInItle(tile);
                 ForegroundColor = ConsoleColor.DarkBlue;
+                switch (lightValue)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        symbol = SymbolsConfig.Light1char.ToString();
+                        break;
+                    case 2:
+                        symbol = SymbolsConfig.Light2char.ToString();
+                        break;
+                    case 3:
+                        symbol = SymbolsConfig.Light3char.ToString();
+                        break;
+                }
             }
             else if (symbol == SymbolsConfig.TreasureChar.ToString())
             {
@@ -382,7 +400,7 @@ namespace HeistGame
 
             alertTimer++;
 
-            Pivot(alertTimer, 10);
+            Pivot(alertTimer, 10, 0);
 
             if (alertTimer > 50)
             {
@@ -505,8 +523,15 @@ namespace HeistGame
             return new Vector2(X, Y);
         }
 
-        private void Pivot(int timer, int frequency)
+        private void Pivot(int timer, int frequency, int minTime)
         {
+
+            if (minTimeBetweenPivots > 0)
+            {
+                minTimeBetweenPivots--;
+                return;
+            }
+
             if (timer % frequency == 0)
             {
                 if (direction == Directions.left)
@@ -519,6 +544,8 @@ namespace HeistGame
                 }
 
                 guardMarker = guardMarkersTable[(int)direction];
+
+                minTimeBetweenPivots = minTime;
             }
         }
 

@@ -36,8 +36,8 @@ namespace HeistGame
             List<Vector2> treasures = new List<Vector2>();
 
             HashSet<Vector2> floorTiles = new HashSet<Vector2>();
-            List<Vector2> strongLights = new List<Vector2>();
-            List<Vector2> weakLights = new List<Vector2>();
+            List<Light> strongLights = new List<Light>();
+            List<Light> weakLights = new List<Light>();
 
             LevelLock levLock = new LevelLock();
 
@@ -175,17 +175,18 @@ namespace HeistGame
                     switch (currentChar)
                     {
                         //lights and floors (for lighting purposes)
-                        case SymbolsConfig.EnclosedSpaceChar:
-                            currentChar = SymbolsConfig.EmptySpace;
-                            break;
                         case SymbolsConfig.EmptySpace:
                             floorTiles.Add(new Vector2(x, y));
                             break;
                         case SymbolsConfig.StrongLightChar:
-                            strongLights.Add(new Vector2(x, y));
+                            floorTiles.Add(new Vector2(x, y));
+                            strongLights.Add(new Light(x, y, 6));
+                            currentChar = SymbolsConfig.EmptySpace;
                             break;
                         case SymbolsConfig.WeakLightChar:
-                            weakLights.Add(new Vector2(x, y));
+                            floorTiles.Add(new Vector2(x, y));
+                            weakLights.Add(new Light(x, y, 4));
+                            currentChar = SymbolsConfig.EmptySpace;
                             break;
                         //player spawn point
                         case SymbolsConfig.SpawnChar:
@@ -459,13 +460,13 @@ namespace HeistGame
         public Vector2 Exit { get; }
         public Vector2[] Treasures { get; }
         public HashSet<Vector2> FloorTiles { get; }
-        public Vector2[] StrongLights { get; }
-        public Vector2[] WeakLights { get; }
+        public Light[] StrongLights { get; }
+        public Light[] WeakLights { get; }
         public Dictionary<Vector2, Lever> LeversDictionary { get; }
         public Guard[] Guards { get; }
 
         public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
-                         Vector2[]strongLights, Vector2[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards)
+                         Light[]strongLights, Light[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards)
         {
             Grid = grid;
             LevLock = levelLock;

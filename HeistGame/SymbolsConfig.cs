@@ -21,9 +21,9 @@ namespace HeistGame
         public const char EnclosedSpaceChar = '.';
         public const char StrongLightChar = '*';
         public const char WeakLightChar = '+';
-        public const char Light1char = '▓';
+        public const char Light1char = '░';
         public const char Light2char = '▒';
-        public const char Light3char = '░';
+        public const char Light3char = '▓';
 
         public const string OutroArt = @"
 

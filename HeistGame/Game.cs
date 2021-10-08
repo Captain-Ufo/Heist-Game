@@ -143,8 +143,11 @@ namespace HeistGame
                     RunMainMenu();
                 }
 
-                levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
-                                     levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
+                LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+                levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
+                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing,
+                                     missionConfig.Outro, MyStopwatch));
 
                 totalGold += levelInfo.TotalGold;
             }
@@ -192,8 +195,11 @@ namespace HeistGame
                 RunMainMenu();
             }
 
-            levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
-                                 levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
+            LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+            levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
+                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing,
+                                 missionConfig.Outro, MyStopwatch));
 
             totalGold += levelInfo.TotalGold;
 
@@ -213,8 +219,11 @@ namespace HeistGame
             {
                 LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(tutorial.TutorialLevels[i], DifficultyLevel);
 
-                levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
-                                     levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, null, null, MyStopwatch));
+                LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+                levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
+                                     levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, null,
+                                     null, MyStopwatch));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
@@ -403,7 +412,7 @@ namespace HeistGame
                 {
                     Clear();
                     MyStopwatch.Start();
-                    ActiveCampaign.Levels[currentLevel].Draw();
+                    hasDrawnBackground = false;
                     return true;
                 }
             }
@@ -790,7 +799,9 @@ namespace HeistGame
                 "  ",
                 "  ",
                 "  ",
-                "Thank you for playing!"
+                "Thank you for playing!",
+                "  ",
+                "Press Enter to continue..."
             };
 
             if (TimesCaught > 0)
@@ -820,9 +831,14 @@ namespace HeistGame
                 ResetColor();
             }
 
-            SetCursorPosition(0, WindowHeight - 2);
-            WriteLine("Press any key to continue...");
-            ReadKey(true);
+            while (true)
+            {
+                ConsoleKeyInfo info = ReadKey(true);
+                if (info.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+            }
             ResetGame(true);
             TunePlayer.StopTune();
             DisplayAboutInfo();
@@ -833,6 +849,7 @@ namespace HeistGame
         private void ResetGame(bool deleteSave)
         {
             playerHasBeenCaught = false;
+            hasDrawnBackground = false;
             TimesCaught = 0;
             TimesSpotted = 0;
             PlayerCharacter.Loot = 0;
@@ -1442,23 +1459,22 @@ namespace HeistGame
                 quitMenuPrompt[1] = "The game automatically saved the last level you played, but all your progress in the current level will be lost.";
             }
 
-            string[] options = { "Quit to Main Menu", "Quit to desktop", "Return to game" };
+            string[] options = { "Return to game", "Quit to Main Menu", "Quit to desktop" };
 
             Menu quitMenu = new Menu(quitMenuPrompt, options);
             int selection = quitMenu.Run(WindowWidth / 2, WindowHeight / 3, 2, 0, WindowWidth);
-            if (selection == 0)
+            switch (selection)
             {
-                RunMainMenu();
-                return true;
-            }
-            if (selection == 1)
-            {
-                Environment.Exit(0);
-                return true;
-            }
-            else
-            {
-                return false;
+                case 0:
+                    return false;
+                case 1:
+                    RunMainMenu();
+                    return true;
+                case 2:
+                    Environment.Exit(0);
+                    return true;
+                default:
+                    return false;
             }
         }
 
