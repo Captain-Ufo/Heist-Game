@@ -24,11 +24,15 @@ namespace HeistGame
         /// <summary>
         /// The current amount of collected treasure
         /// </summary>
-        public int Loot { get; set; }
+        public int Loot { get; private set; }
         /// <summary>
         /// Whether the player has moved in the current frame or not
         /// </summary>
         public bool HasMoved { get; set; }
+        /// <summary>
+        /// Describes how far the player can be seen (depends on the local tile's light level)
+        /// </summary>
+        public int Visibility { get; private set; }
 
         /// <summary>
         /// Instantiates a Player object
@@ -37,10 +41,12 @@ namespace HeistGame
         /// <param name="startingY">The initial Y position</param>
         /// <param name="marker">(Optional) The symbol that represents the player on the map</param>
         /// <param name="color">(Optional) The color of the player's symbol</param>
-        public Player(int startingX, int startingY, string marker = "☺", ConsoleColor color = ConsoleColor.Cyan)
-        {
-            X = startingX;
-            Y = startingY;
+        public Player(Level level, string marker = "☺", ConsoleColor color = ConsoleColor.Cyan)
+        { 
+            X = level.PlayerStartX;
+            Y = level.PlayerStartY;
+
+            SetVisibility(level.PlayerStartX, level.PlayerStartY, level);
 
             playerMarker = marker;
             playerColor = color;
@@ -88,6 +94,7 @@ namespace HeistGame
                             Y--;
                             Draw();
                             HasMoved = true;
+                            SetVisibility(X, Y, level);
                             timeSinceLastMove -= timeBetweenMoves;
                         }
                         return true;
@@ -100,6 +107,7 @@ namespace HeistGame
                             Y++;
                             Draw();
                             HasMoved = true;
+                            SetVisibility(X, Y, level);
                             timeSinceLastMove -= timeBetweenMoves;
                         }
                         return true;
@@ -112,6 +120,7 @@ namespace HeistGame
                             X--;
                             Draw();
                             HasMoved = true;
+                            SetVisibility(X, Y, level);
                             timeSinceLastMove -= timeBetweenMoves;
                         }
                         return true;
@@ -124,6 +133,7 @@ namespace HeistGame
                             X++;
                             Draw();
                             HasMoved = true;
+                            SetVisibility(X, Y, level);
                             timeSinceLastMove -= timeBetweenMoves;
                         }
                         return true;
@@ -192,6 +202,38 @@ namespace HeistGame
 
             Write(symbol);
             ResetColor();
+        }
+
+        /// <summary>
+        /// Sets the current player loot to the indicated amount (use ONLY to set the loot to a specified amount, or to reset it to 0)
+        /// </summary>
+        /// <param name="amount"></param>
+        public void SetLoot(int amount)
+        {
+            Loot = amount;
+        }
+
+        /// <summary>
+        /// Changes the value of the lood by the indicated amount. Input negative numbers to subtract from it.
+        /// </summary>
+        /// <param name="amount"></param>
+        public void ChangeLoot(int amount)
+        {
+            Loot += amount;
+        }
+
+        private void SetVisibility(int xPos, int yPos, Level level)
+        {
+            int visibilityLevel = level.GetLightLevelInItle(new Vector2(xPos, yPos));
+
+            if (visibilityLevel > 0)
+            {
+                Visibility = 3 * visibilityLevel;
+            }
+            else
+            {
+                Visibility = 1;
+            }
         }
     }
 

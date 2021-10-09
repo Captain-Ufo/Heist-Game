@@ -3,7 +3,6 @@
 
 	"Briefing":
 		[
-			"You are Gareth, the non-copyright infringing master thief.",
 			"The last heist you were tasked to do turned out to be a trap set up by the Watch.",
 			"You have been captured and locked deep in the dungeon of the Baron\u0027s castle.",
 			"They stripped you of all your gear, but they didn\u0027t check your clothes in depth. That was a mistake on their part.",

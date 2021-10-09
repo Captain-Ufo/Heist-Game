@@ -266,6 +266,11 @@ namespace HeistGame
                 tile.Y -= yOffset;
             }
 
+            if (grid[tile.Y, tile.X] == "-" || grid[tile.Y, tile.X] == "|")
+            {
+                return 0;
+            }
+
             return Lights.FloorTilesValues[tile];
         }
 
@@ -555,6 +560,7 @@ namespace HeistGame
                 }
 
                 Write(symbol);
+                ResetColor();
             }
         }
 

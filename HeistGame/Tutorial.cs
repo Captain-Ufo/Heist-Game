@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System;
+using static System.Console;
 
 namespace HeistGame
 {
@@ -206,8 +207,13 @@ namespace HeistGame
             DisplaytextCentered(endMessage);
 
             SetCursorPosition(0, WindowHeight - 3);
-            WriteLine("Press any key to return to the main menu...");
-            ReadKey(true);
+            WriteLine("Press Enter to return to the main menu...");
+            ConsoleKeyInfo info;
+            do
+            {
+                info = ReadKey(true);
+            }
+            while (info.Key != ConsoleKey.Enter);
         }
     }
 }

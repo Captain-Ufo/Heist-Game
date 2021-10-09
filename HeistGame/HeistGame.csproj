@@ -36,9 +36,6 @@
     <None Update="Levels\The Baron%27s Jails\Stolen Goods Vault.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Levels\LightsTest.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

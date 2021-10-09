@@ -13,13 +13,12 @@ namespace HeistGame
         private Directions direction = Directions.down;
         private Vector2[] patrolPath;
         private int nextPatrolPoint;
-        private int verticalAggroDistance = 5;
-        private int horizontalAggroDistance = 10;
         private int bribeTimer;
         private int bribeTimerDuration;
         private bool isBribed;
         private int alertTimer;
         private bool isAlerted;
+        private bool firstSighted;
         private bool isReturning;
         private int pivotTimer;
         private int minTimeBetweenPivots;
@@ -59,6 +58,7 @@ namespace HeistGame
             nextPatrolPoint = 0;
             isBribed = false;
             isAlerted = false;
+            firstSighted = true;
             isReturning = false;
             TimesBribed = 0;
             bribeTimer = 0;
@@ -133,7 +133,7 @@ namespace HeistGame
 
             if (SpotPlayer(game, level))
             {
-                if (!isAlerted)
+                if (firstSighted)
                 {
                     game.TunePlayer.PlaySFX(1200, 600);
                     game.TimesSpotted++;
@@ -142,6 +142,7 @@ namespace HeistGame
                 guardTileColor = ConsoleColor.Red;
                 lastKnownPlayerPosition = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
                 isAlerted = true;
+                firstSighted = false;
                 isReturning = false;
                 timeBetweenMoves = runningSpeed;
                 MoveTowards(lastKnownPlayerPosition, level);
@@ -149,6 +150,7 @@ namespace HeistGame
             else if (isAlerted)
             {
                 guardTileColor = ConsoleColor.Magenta;
+                firstSighted = true;
                 AlertedBehavior(level);
             }
             else if (isReturning)
@@ -301,6 +303,10 @@ namespace HeistGame
             {
                 return false;
             }
+
+            int verticalAggroDistance = game.PlayerCharacter.Visibility;
+            if (verticalAggroDistance <= 0) { verticalAggroDistance = 1; }
+            int horizontalAggroDistance = verticalAggroDistance * 2;
 
             switch (direction)
             {

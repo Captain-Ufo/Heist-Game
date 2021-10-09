@@ -154,8 +154,8 @@ namespace HeistGame
 
             ActiveCampaign = new Campaign(config.Name, levels.ToArray());
 
-            PlayerCharacter = new Player(ActiveCampaign.Levels[startLevel].PlayerStartX, ActiveCampaign.Levels[startLevel].PlayerStartY);
-            PlayerCharacter.Loot = startBooty;
+            PlayerCharacter = new Player(ActiveCampaign.Levels[startLevel]);
+            PlayerCharacter.SetLoot(startBooty);
         }
 
 
@@ -205,8 +205,8 @@ namespace HeistGame
 
             ActiveCampaign = new Campaign(levelFile, levels.ToArray());
 
-            PlayerCharacter = new Player(levels[0].PlayerStartX, levels[0].PlayerStartY);
-            PlayerCharacter.Loot = 0;
+            PlayerCharacter = new Player(levels[0]);
+            PlayerCharacter.SetLoot(0);
         }
 
 
@@ -228,8 +228,8 @@ namespace HeistGame
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
 
-            PlayerCharacter = new Player(ActiveCampaign.Levels[0].PlayerStartX, ActiveCampaign.Levels[0].PlayerStartY);
-            PlayerCharacter.Loot = 0;
+            PlayerCharacter = new Player(ActiveCampaign.Levels[0]);
+            PlayerCharacter.SetLoot(0);
         }
         #endregion
 
@@ -326,7 +326,7 @@ namespace HeistGame
                     TunePlayer.PlaySFX(1000, 100);
                     ActiveCampaign.Levels[CurrentRoom].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.EmptySpace.ToString());
                     PlayerCharacter.Draw();
-                    PlayerCharacter.Loot += 100;
+                    PlayerCharacter.ChangeLoot(100);
                 }
                 else if (elementAtPlayerPosition == SymbolsConfig.KeyChar.ToString())
                 {
@@ -447,10 +447,37 @@ namespace HeistGame
             }
             WriteLine("");
             Write($"   {ActiveCampaign.Levels[currentLevel].Name}");
-            SetCursorPosition(35, CursorTop);
-            Write($"Difficulty Level: {DifficultyLevel}");
+            SetCursorPosition(32, CursorTop);
+            Write($"Difficulty: {DifficultyLevel}");
+            SetCursorPosition(54, CursorTop);
+            Write($"Loot: ${PlayerCharacter.Loot}");
             SetCursorPosition(70, CursorTop);
-            Write($"Loot collected: $ {PlayerCharacter.Loot}");
+            Write("Visibility: [ ");
+            int visibilityLevel = PlayerCharacter.Visibility / 4;
+            string visibilityDisplay = "";
+            switch (visibilityLevel)
+            {
+                default:
+                case 0:
+                    visibilityDisplay = "   ";
+                    break;
+                case 1:
+                    ForegroundColor = ConsoleColor.White;
+                    visibilityDisplay = "*  ";
+                    break;
+                case 2:
+                    ForegroundColor = ConsoleColor.DarkYellow;
+                    visibilityDisplay = "** ";
+                    break;
+                case 3:
+                    ForegroundColor = ConsoleColor.Yellow;
+                    visibilityDisplay = "***";
+                    break;
+            }
+            Write(visibilityDisplay);
+            ResetColor();
+            Write(" ]");
+
             string quitInfo = "Press Escape to quit.";
             SetCursorPosition(WindowWidth - quitInfo.Length - 3, WindowHeight - 2);
             Write(quitInfo);
@@ -603,7 +630,7 @@ namespace HeistGame
                         message = "'I won't be so kind next time.'";
                         SetCursorPosition(xPos - message.Length / 2, CursorTop);
                         WriteLine(message);
-                        PlayerCharacter.Loot -= bribeCost;
+                        PlayerCharacter.ChangeLoot(-bribeCost);
                         ReadKey(true);
                         return true;
                     }
@@ -852,7 +879,7 @@ namespace HeistGame
             hasDrawnBackground = false;
             TimesCaught = 0;
             TimesSpotted = 0;
-            PlayerCharacter.Loot = 0;
+            PlayerCharacter.SetLoot(0);
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[0].PlayerStartX, ActiveCampaign.Levels[0].PlayerStartY);
             CurrentRoom = 0;
             totalGold = 0;
@@ -1371,12 +1398,19 @@ namespace HeistGame
                 SetCursorPosition((WindowWidth / 2) - 2, CursorTop);
                 WriteLine("~··~");
 
-                string t = "Press any key to continue...";
-
+                string t = "Press Enter to continue...";
                 SetCursorPosition((WindowWidth / 2) - (t.Length / 2), CursorTop);
+                ForegroundColor = ConsoleColor.Green;
                 WriteLine(t);
+                ResetColor();
 
-                ReadKey(true);
+                ConsoleKeyInfo info;
+                do
+                {
+                    info = ReadKey(true);
+                }
+                while (info.Key != ConsoleKey.Enter);
+
                 Clear();
 
                 firstLineToDisplay += 48;
@@ -1559,7 +1593,7 @@ namespace HeistGame
             TimesSpotted = saveGame.TimesSpotted;
             TimesCaught = saveGame.TimesCaught;
             DifficultyLevel = saveGame.DifficultyLevel;
-            PlayerCharacter.Loot = saveGame.Booty;
+            PlayerCharacter.SetLoot(saveGame.Booty);
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartX, ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartY);
             ActiveCampaign.Levels[saveGame.CurrentLevel].Reset();
             RunGameLoop(saveGame.CurrentLevel);
