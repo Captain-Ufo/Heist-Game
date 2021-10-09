@@ -453,7 +453,7 @@ namespace HeistGame
             Write($"Loot: ${PlayerCharacter.Loot}");
             SetCursorPosition(70, CursorTop);
             Write("Visibility: [ ");
-            int visibilityLevel = PlayerCharacter.Visibility / 4;
+            int visibilityLevel = PlayerCharacter.Visibility / 3;
             string visibilityDisplay = "";
             switch (visibilityLevel)
             {
@@ -462,16 +462,16 @@ namespace HeistGame
                     visibilityDisplay = "   ";
                     break;
                 case 1:
-                    ForegroundColor = ConsoleColor.White;
-                    visibilityDisplay = "*  ";
+                    ForegroundColor = ConsoleColor.DarkGray;
+                    visibilityDisplay = "░░░";
                     break;
                 case 2:
-                    ForegroundColor = ConsoleColor.DarkYellow;
-                    visibilityDisplay = "** ";
+                    ForegroundColor = ConsoleColor.Yellow;
+                    visibilityDisplay = "▒▒▒";
                     break;
                 case 3:
                     ForegroundColor = ConsoleColor.Yellow;
-                    visibilityDisplay = "***";
+                    visibilityDisplay = "▓▓▓";
                     break;
             }
             Write(visibilityDisplay);

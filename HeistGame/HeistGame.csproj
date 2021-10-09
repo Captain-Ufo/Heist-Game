@@ -36,6 +36,21 @@
     <None Update="Levels\The Baron%27s Jails\Stolen Goods Vault.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Levels\The Baron's Jails D\CampaignConfig.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\Deep Cells.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\Guards Barracks.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\High Security Confinement.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\Stolen Goods Vault.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

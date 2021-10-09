@@ -42,6 +42,17 @@ namespace HeistGame
 
                 foreach (KeyValuePair<Vector2, int> tile in strongLight.IlluminatedTiles)
                 {
+                    if (!FloorTilesValues.ContainsKey(tile.Key))
+                    {
+                        Console.WriteLine("Warning: Invalid tile!");
+                        Console.WriteLine($"Tile coordinates (X: { tile.Key.X }, Y: {tile.Key.Y})");
+                        Console.WriteLine("Strong Light");
+                        Console.WriteLine($"Light coordinates (X: {strongLight.Position.X}, Y: {strongLight.Position.Y})");
+                        Console.WriteLine($"Level: {level.Name}");
+
+                        Console.ReadKey(true);
+                    }
+
                     if (FloorTilesValues[tile.Key] < tile.Value)
                     {
                         FloorTilesValues[tile.Key] = tile.Value;
@@ -55,6 +66,16 @@ namespace HeistGame
 
                 foreach (KeyValuePair<Vector2, int> tile in weakLight.IlluminatedTiles)
                 {
+                    if (!FloorTilesValues.ContainsKey(tile.Key))
+                    {
+                        Console.WriteLine("Warning: Invalid tile!");
+                        Console.WriteLine($"Tile coordinates (X: { tile.Key.X }, Y: {tile.Key.Y})");
+                        Console.WriteLine("Weak Light");
+                        Console.WriteLine($"Light coordinates (X: {weakLight.Position.X}, Y: {weakLight.Position.Y})");
+                        Console.WriteLine($"Level: {level.Name}");
+
+                        Console.ReadKey(true);
+                    }
 
                     if (FloorTilesValues[tile.Key] < tile.Value)
                     {

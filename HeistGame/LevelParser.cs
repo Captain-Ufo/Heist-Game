@@ -176,6 +176,7 @@ namespace HeistGame
                     {
                         //lights and floors (for lighting purposes)
                         case SymbolsConfig.EmptySpace:
+                        case SymbolsConfig.EntranceChar:
                             floorTiles.Add(new Vector2(x, y));
                             break;
                         case SymbolsConfig.StrongLightChar:
