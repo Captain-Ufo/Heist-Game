@@ -44,13 +44,7 @@ namespace HeistGame
                 {
                     if (!FloorTilesValues.ContainsKey(tile.Key))
                     {
-                        Console.WriteLine("Warning: Invalid tile!");
-                        Console.WriteLine($"Tile coordinates (X: { tile.Key.X }, Y: {tile.Key.Y})");
-                        Console.WriteLine("Strong Light");
-                        Console.WriteLine($"Light coordinates (X: {strongLight.Position.X}, Y: {strongLight.Position.Y})");
-                        Console.WriteLine($"Level: {level.Name}");
-
-                        Console.ReadKey(true);
+                        throw new Exception($"Error! Invalid lightmap tile: {tile.Key} in {level.Name}");
                     }
 
                     if (FloorTilesValues[tile.Key] < tile.Value)
@@ -68,13 +62,7 @@ namespace HeistGame
                 {
                     if (!FloorTilesValues.ContainsKey(tile.Key))
                     {
-                        Console.WriteLine("Warning: Invalid tile!");
-                        Console.WriteLine($"Tile coordinates (X: { tile.Key.X }, Y: {tile.Key.Y})");
-                        Console.WriteLine("Weak Light");
-                        Console.WriteLine($"Light coordinates (X: {weakLight.Position.X}, Y: {weakLight.Position.Y})");
-                        Console.WriteLine($"Level: {level.Name}");
-
-                        Console.ReadKey(true);
+                        throw new Exception($"Error! Invalid lightmap tile: {tile.Key} in {level.Name}");
                     }
 
                     if (FloorTilesValues[tile.Key] < tile.Value)
