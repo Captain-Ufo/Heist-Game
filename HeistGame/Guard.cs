@@ -18,9 +18,12 @@ namespace HeistGame
         private bool isBribed;
         private int alertTimer;
         private bool isAlerted;
+        private bool isSearching;
         private bool firstSighted;
         private bool isReturning;
         private int pivotTimer;
+        private int searchPivotTimer;
+        private int searchPivotDuration = 30;
         private int minTimeBetweenPivots;
         private string[] guardMarkersTable = new string[] { "^", ">", "V", "<" };
         private string guardMarker;
@@ -33,7 +36,7 @@ namespace HeistGame
         private int timeSinceLastMove = 0;
         private Vector2 originPoint;
         private Vector2 lastPatrolPoint;
-        private Vector2 lastKnownPlayerPosition;
+        private Vector2 searchTarget;
         private Random rng;
 
         /// <summary>
@@ -59,6 +62,7 @@ namespace HeistGame
             nextPatrolPoint = 0;
             isBribed = false;
             isAlerted = false;
+            isSearching = false;
             firstSighted = true;
             isReturning = false;
             TimesBribed = 0;
@@ -66,6 +70,7 @@ namespace HeistGame
             bribeTimerDuration = 50;
             alertTimer = 0;
             pivotTimer = rng.Next(201);
+            searchPivotTimer = searchPivotDuration;
             minTimeBetweenPivots = 0;
             timeBetweenMoves = walkingSpeed;
             direction = Directions.up;
@@ -125,6 +130,8 @@ namespace HeistGame
         {
             timeSinceLastMove += deltaTimeMS;
 
+            CatchPlayer(game);
+
             if (timeSinceLastMove < timeBetweenMoves)
             {
                 return;
@@ -141,12 +148,12 @@ namespace HeistGame
                 }
 
                 guardTileColor = ConsoleColor.Red;
-                lastKnownPlayerPosition = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
                 isAlerted = true;
                 firstSighted = false;
                 isReturning = false;
                 timeBetweenMoves = runningSpeed;
-                MoveTowards(lastKnownPlayerPosition, level);
+                MoveTowards(searchTarget, level);
             }
             else if (isAlerted)
             {
@@ -178,15 +185,12 @@ namespace HeistGame
                 lastPatrolPoint.Y = Y;
             }
 
-            CatchPlayer(game);
-
             timeSinceLastMove -= timeBetweenMoves;
         }
 
         /// <summary>
         /// Prevents a Game Over
         /// </summary>
-        /// <param name="IsGameEasy">Sets the flag that is used to determine how many times a guard can be bribed</param>
         public void BribeGuard()
         {
             isBribed = true;
@@ -207,8 +211,10 @@ namespace HeistGame
             isBribed = false;
             alertTimer = 0;
             isAlerted = false;
+            isSearching = false;
             isReturning = false;
             pivotTimer = rng.Next(201);
+            searchPivotTimer = 20;
             X = originPoint.X;
             Y = originPoint.Y;
             timeSinceLastMove = 0;
@@ -396,26 +402,81 @@ namespace HeistGame
 
         private void AlertedBehavior(Level level)
         {
-            if (X != lastKnownPlayerPosition.X || Y != lastKnownPlayerPosition.Y)
+            if (X != searchTarget.X && Y != searchTarget.Y)
             {
-                if (MoveTowards(lastKnownPlayerPosition, level))
+                if (MoveTowards(searchTarget, level))
                 {
                     alertTimer = 0;
                     return;
                 }
+                else
+                {
+                    searchTarget.X = X;
+                    searchTarget.Y = Y;
+                }
+            }
+
+            if (!isSearching)
+            {
+                timeBetweenMoves = searchingSpeed;
+
+                switch (direction)
+                {
+                    case Directions.up:
+                        searchTarget.Y -= 6;
+                        break;
+                    case Directions.right:
+                        searchTarget.X += 6;
+                        break;
+                    case Directions.down:
+                        searchTarget.Y += 6;
+                        break;
+                    case Directions.left:
+                        searchTarget.X -= 6;
+                        break;
+                }
+
+                isSearching = true;
+                return;
             }
 
             alertTimer++;
 
-            Pivot(alertTimer, 10, 0);
+            SearchPlayer(level);
 
-            if (alertTimer > 50)
+            if (alertTimer > 100)
             {
                 alertTimer = 0;
                 isAlerted = false;
+                isSearching = false;
                 guardTileColor = ConsoleColor.DarkRed;
                 timeBetweenMoves = walkingSpeed;
                 isReturning = true;
+            }
+        }
+
+        private void SearchPlayer(Level level)
+        {
+            if (!Pivot(alertTimer, 10, 0, true))
+            {
+                bool hasValidTarget;
+                do
+                {
+                    hasValidTarget = true;
+                    searchTarget.X = rng.Next(X - 6, X + 7);
+                    searchTarget.Y = rng.Next(Y - 6, Y + 7);
+
+                    Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, searchTarget.X, searchTarget.Y);
+                    foreach(Vector2 tile in tilesToTarget)
+                    {
+                        if (!level.IsPositionWalkable(tile.X, tile.Y))
+                        {
+                            hasValidTarget = false;
+                            break;
+                        }
+                    }
+                }
+                while (!hasValidTarget);
             }
         }
 
@@ -530,13 +591,13 @@ namespace HeistGame
             return new Vector2(X, Y);
         }
 
-        private void Pivot(int timer, int frequency, int minTime)
+        private bool Pivot(int timer, int frequency, int minTime, bool limitedDuration = false)
         {
 
             if (minTimeBetweenPivots > 0)
             {
                 minTimeBetweenPivots--;
-                return;
+                return true;
             }
 
             if (timer % frequency == 0)
@@ -554,6 +615,18 @@ namespace HeistGame
 
                 minTimeBetweenPivots = minTime;
             }
+
+            if (limitedDuration)
+            { 
+                searchPivotTimer--;
+                if (searchPivotTimer == 0) 
+                {
+                    searchPivotTimer = searchPivotDuration;
+                    return false; 
+                }
+            }
+
+            return true;
         }
 
         private void Move(Level level, Vector2 tileToMoveTo)
