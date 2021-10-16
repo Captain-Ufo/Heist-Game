@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System;
+using static System.Console;
 
 namespace HeistGame
 {
@@ -11,19 +12,19 @@ namespace HeistGame
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         |         ║",
-            "║         ║         ║                             ║         ║",
+            "║    +    ║    +    ║    +         +         +    ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X                 ║                   ║                 Ð ║",
+            "║ X       *         ║         *         ║              *  Ð ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠════-════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
-            "║         ║                             ║                   ║",
+            "║         ║    +         +         +    ║    +         +    ║",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
@@ -34,19 +35,19 @@ namespace HeistGame
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
             "║         ║         ║         ║    $    ║         |         ║",
-            "║    2    ║       $ ║                        $    ║         ║",
-            "║         ║         ║  $      ║         ║         ║         ║",
+            "║    +    ║    +  $ ║    +         +         +$   ║         ║",
+            "║    2    ║         ║  $      ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X                 ║                   ║                 Ð ║",
+            "║ X       *         ║         *         ║              *  Ð ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠════-════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
             "║         ║         ║         ║      $  ║         ║         ║",
-            "║         ║         ║         ║         ║         ║    1    ║",
-            "║         ║    $                        ║                   ║",
+            "║         ║     $   ║         ║         ║         ║    1    ║",
+            "║         ║    +         +         +    ║    +         +    ║",
             "║         ║         ║    $    ║         ║   $     ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
@@ -57,20 +58,20 @@ namespace HeistGame
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         o    $    ║",
-            "║         ║         e         è         à         ║         ║",
+            "║    +    ║    +    e    +    è    +    à    +    ║    +    ║",
             "║    A    ║         ║         ║         ║         ║    $    ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╠═════════╩════ ════╬════ì════╩════ì════╬════ì════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X                 ║         E         ║         i       Ð ║",
+            "║ X       *         ║ E       *         ║         i    *  Ð ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠════a════╦════a════╬════ì════╦════ì════╬════ ════╬═════════╣",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║    I    ║",
-            "║    O    ║         è                   ║                   ║",
-            "║         ║         ║         ║         ║         ║         ║",
+            "║    +    ║    +    è    +         +    ║    +              ║",
+            "║    O    ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
@@ -79,21 +80,21 @@ namespace HeistGame
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║    $              ║         ║         ║         ║         ║",
-            "║         ║         ║         ║         ║         |         ║",
-            "║    G    ║    $    |    b         b              ║         ║",
-            "║         ║         ║         ║         ║         ║         ║",
+            "║         ║    $    ║    +    ║    +    ║         |         ║",
+            "║    G    ║         |    b         b         +    ║         ║",
+            "║    +    ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║ $       $       $ ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X                 ║                   ║                 Ð ║",
+            "║ X       *         ║         *         ║              *  Ð ║",
             "║                   ║                   ║         ║         ║",
             "║ $       $       $ ║                   ║         ║         ║",
             "╠═════════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
             "║         ║         ║         ║         ║         ║    $    ║",
             "║         ║         ║         ║         ║         ║         ║",
-            "║ c    C                 b  B      b  c ║    D              ║",
-            "║         ║         ║         ║         ║         ║         ║",
+            "║ c  + C       +         b  B      b  c ║    D              ║",
+            "║         ║         ║    +    ║    +    ║    +    ║         ║",
             "║         ║         ║         ║         ║         ║    $    ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
@@ -151,8 +152,11 @@ namespace HeistGame
                     instructions = new string[]
                     {
                          "Beware of Guards! They patrol the grounds, or stand in place and look around.",
+                         "Be careful of how illuminated the place you're standing in is.",
+                         "Shadows are your friends: the darker the area, the closer a guard has to be to spot you.",
                          "If they see you, they'll get alerted and chase you until they loose sight of you. You may be able to safely hide in some closets.",
-                         "They can't see right behind them, of course, but be careful; they are still aware of what happens in their immediate viciniy.",
+                         "They can't see right behind them, of course, but be careful; they are still aware of what happens in their immediate viciniy,",
+                         "even in full darkness.",
                          "Study their activity well before trying to make your move, and don't get too close no matter where they are looking.",
                          "Depending on the difficulty level you chose at the beginning of your adventure, you might be able to bribe them to look the other way.",
                          "It will get more expansive the more you do it, so don't be too cocky!",
@@ -198,16 +202,22 @@ namespace HeistGame
             Clear();
             string[] endMessage = new string[]
             {
+                " ",
+                " ",
                 "Congratulations, you completed the training course!",
-                "With your master thief skills refreshed, you are ready to start new adventures."
-
+                "With your master thief skills refreshed, you are ready to start new adventures.",
+                " ",
+                "Press Enter to return to the main menu..."
             };
 
             DisplaytextCentered(endMessage);
 
-            SetCursorPosition(0, WindowHeight - 3);
-            WriteLine("Press any key to return to the main menu...");
-            ReadKey(true);
+            ConsoleKeyInfo info;
+            do
+            {
+                info = ReadKey(true);
+            }
+            while (info.Key != ConsoleKey.Enter);
         }
     }
 }

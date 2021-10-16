@@ -13,20 +13,21 @@ namespace HeistGame
         private Directions direction = Directions.down;
         private Vector2[] patrolPath;
         private int nextPatrolPoint;
-        private int verticalAggroDistance = 5;
-        private int horizontalAggroDistance = 10;
         private int bribeTimer;
         private int bribeTimerDuration;
         private bool isBribed;
         private int alertTimer;
         private bool isAlerted;
+        private bool firstSighted;
         private bool isReturning;
         private int pivotTimer;
+        private int minTimeBetweenPivots;
         private string[] guardMarkersTable = new string[] { "^", ">", "V", "<" };
         private string guardMarker;
         private ConsoleColor guardSymbolColor = ConsoleColor.Black;
         private ConsoleColor guardTileColor = ConsoleColor.DarkRed;
-        private int walkingSpeed = 150;
+        private int walkingSpeed = 160;
+        private int searchingSpeed = 90;
         private int runningSpeed = 120;
         private int timeBetweenMoves;
         private int timeSinceLastMove = 0;
@@ -58,12 +59,14 @@ namespace HeistGame
             nextPatrolPoint = 0;
             isBribed = false;
             isAlerted = false;
+            firstSighted = true;
             isReturning = false;
             TimesBribed = 0;
             bribeTimer = 0;
             bribeTimerDuration = 50;
             alertTimer = 0;
             pivotTimer = rng.Next(201);
+            minTimeBetweenPivots = 0;
             timeBetweenMoves = walkingSpeed;
             direction = Directions.up;
             guardMarker = guardMarkersTable[(int)direction];
@@ -131,7 +134,7 @@ namespace HeistGame
 
             if (SpotPlayer(game, level))
             {
-                if (!isAlerted)
+                if (firstSighted)
                 {
                     game.TunePlayer.PlaySFX(1200, 600);
                     game.TimesSpotted++;
@@ -140,6 +143,7 @@ namespace HeistGame
                 guardTileColor = ConsoleColor.Red;
                 lastKnownPlayerPosition = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
                 isAlerted = true;
+                firstSighted = false;
                 isReturning = false;
                 timeBetweenMoves = runningSpeed;
                 MoveTowards(lastKnownPlayerPosition, level);
@@ -147,6 +151,7 @@ namespace HeistGame
             else if (isAlerted)
             {
                 guardTileColor = ConsoleColor.Magenta;
+                firstSighted = true;
                 AlertedBehavior(level);
             }
             else if (isReturning)
@@ -164,7 +169,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    Pivot(pivotTimer, 20);
+                    Pivot(pivotTimer, 20, 30);
 
                     if (pivotTimer == int.MaxValue) { pivotTimer = 0; }
                     else { pivotTimer += rng.Next(1, 5); }
@@ -235,12 +240,35 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
-            if (symbol == "$")
+            if (symbol == SymbolsConfig.EmptySpace.ToString())
+            {
+                Vector2 tile = new Vector2(X, Y);
+                int lightValue = level.GetLightLevelInItle(tile);
+                ForegroundColor = ConsoleColor.DarkBlue;
+                switch (lightValue)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        symbol = SymbolsConfig.Light1char.ToString();
+                        break;
+                    case 2:
+                        symbol = SymbolsConfig.Light2char.ToString();
+                        break;
+                    case 3:
+                        symbol = SymbolsConfig.Light3char.ToString();
+                        break;
+                }
+            }
+            else if (symbol == SymbolsConfig.TreasureChar.ToString())
             {
                 ForegroundColor = ConsoleColor.Yellow;
             }
-
-            if (symbol == SymbolsConfig.ExitChar.ToString())
+            else if (symbol == SymbolsConfig.KeyChar.ToString())
+            {
+                ForegroundColor = ConsoleColor.DarkYellow;
+            }
+            else if (symbol == SymbolsConfig.ExitChar.ToString())
             {
                 if (level.IsLocked)
                 {
@@ -277,13 +305,17 @@ namespace HeistGame
                 return false;
             }
 
+            int verticalAggroDistance = game.PlayerCharacter.Visibility;
+            if (verticalAggroDistance <= 0) { verticalAggroDistance = 1; }
+            int horizontalAggroDistance = verticalAggroDistance * 2;
+
             switch (direction)
             {
                 case Directions.up:
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
                         && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + 1)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -303,7 +335,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - 1 && game.PlayerCharacter.X <= X + horizontalAggroDistance
                         && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -323,7 +355,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
                         && game.PlayerCharacter.Y >= Y - 1 && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -343,7 +375,7 @@ namespace HeistGame
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + 1
                         && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
                     {
-                        Vector2[] tilesBetweenGuardAndPlayer = GetTilesBetweenGuardAndPlayer(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
                         foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
                         {
@@ -375,7 +407,7 @@ namespace HeistGame
 
             alertTimer++;
 
-            Pivot(alertTimer, 10);
+            Pivot(alertTimer, 10, 0);
 
             if (alertTimer > 50)
             {
@@ -477,52 +509,6 @@ namespace HeistGame
             }
         }
 
-        private Vector2[] GetTilesBetweenGuardAndPlayer(int guardX, int guardY, int playerX, int playerY)
-        {
-            bool isLineSteep = Math.Abs(playerY - guardY) > Math.Abs(playerX - guardX);
-
-            if (isLineSteep)
-            {
-                int temp = guardX;
-                guardX = guardY;
-                guardY = temp;
-                temp = playerX;
-                playerX = playerY;
-                playerY = temp;
-            }
-
-            if (guardX > playerX)
-            {
-                int temp = guardX;
-                guardX = playerX;
-                playerX = temp;
-                temp = guardY;
-                guardY = playerY;
-                playerY = temp;
-            }
-
-            int deltaX = playerX - guardX;
-            int deltaY = Math.Abs(playerY - guardY);
-            int error = deltaX / 2;
-            int yStep = (guardY < playerY) ? 1 : -1;
-            int y = guardY;
-
-            List<Vector2> tilesBetweenGuardAndPlayer = new List<Vector2>();
-
-            for (int x = guardX; x <= playerX; x++)
-            {
-                tilesBetweenGuardAndPlayer.Add(new Vector2((isLineSteep ? y : x), (isLineSteep ? x : y)));
-                error = error - deltaY;
-                if (error < 0)
-                {
-                    y += yStep;
-                    error += deltaX;
-                }
-            }
-
-            return tilesBetweenGuardAndPlayer.ToArray();
-        }
-
         private Vector2 Patrol()
         {
             if (X != patrolPath[nextPatrolPoint].X || Y != patrolPath[nextPatrolPoint].Y)
@@ -544,8 +530,15 @@ namespace HeistGame
             return new Vector2(X, Y);
         }
 
-        private void Pivot(int timer, int frequency)
+        private void Pivot(int timer, int frequency, int minTime)
         {
+
+            if (minTimeBetweenPivots > 0)
+            {
+                minTimeBetweenPivots--;
+                return;
+            }
+
             if (timer % frequency == 0)
             {
                 if (direction == Directions.left)
@@ -558,6 +551,8 @@ namespace HeistGame
                 }
 
                 guardMarker = guardMarkersTable[(int)direction];
+
+                minTimeBetweenPivots = minTime;
             }
         }
 

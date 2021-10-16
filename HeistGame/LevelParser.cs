@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace HeistGame
 {
@@ -27,18 +26,17 @@ namespace HeistGame
 
             string[,] grid = new string[rows, columns];
 
-            //bool hasKey = false;
-            int playerStartX = 0;
-            int playerStartY = 0;
+            int playerStartX = -1;
+            int playerStartY = -1;
             int totalGold = 0;
 
-            Vector2 exit = new Vector2(0, 0);
+            Vector2 exit = new Vector2(-1, -1);
 
             List<Vector2> treasures = new List<Vector2>();
 
-            List<Vector2> floorTiles = new List<Vector2>();
-            List<Vector2> strongLights = new List<Vector2>();
-            List<Vector2> weakLights = new List<Vector2>();
+            HashSet<Vector2> floorTiles = new HashSet<Vector2>();
+            List<Light> strongLights = new List<Light>();
+            List<Light> weakLights = new List<Light>();
 
             LevelLock levLock = new LevelLock();
 
@@ -176,17 +174,19 @@ namespace HeistGame
                     switch (currentChar)
                     {
                         //lights and floors (for lighting purposes)
-                        case SymbolsConfig.EnclosedSpaceChar:
-                            currentChar = SymbolsConfig.EmptySpace;
-                            break;
                         case SymbolsConfig.EmptySpace:
+                        case SymbolsConfig.EntranceChar:
                             floorTiles.Add(new Vector2(x, y));
                             break;
                         case SymbolsConfig.StrongLightChar:
-                            strongLights.Add(new Vector2(x, y));
+                            floorTiles.Add(new Vector2(x, y));
+                            strongLights.Add(new Light(x, y, 6));
+                            currentChar = SymbolsConfig.EmptySpace;
                             break;
                         case SymbolsConfig.WeakLightChar:
-                            weakLights.Add(new Vector2(x, y));
+                            floorTiles.Add(new Vector2(x, y));
+                            weakLights.Add(new Light(x, y, 4));
+                            currentChar = SymbolsConfig.EmptySpace;
                             break;
                         //player spawn point
                         case SymbolsConfig.SpawnChar:
@@ -361,7 +361,7 @@ namespace HeistGame
             guard14.AssignPatrol(ArrangePatrolPoints(guard14, guard14Patrol).ToArray());
             guard15.AssignPatrol(ArrangePatrolPoints(guard15, guard15Patrol).ToArray());
 
-            LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles.ToArray(),
+            LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles,
                                                 strongLights.ToArray(), weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray());
 
             return levelInfo;
@@ -376,11 +376,11 @@ namespace HeistGame
         public static List<Vector2> ArrangePatrolPoints(Guard guard, List<Vector2> guardPatrol)
         {
             //I'm pretty sure the rearrange happens in the least efficient way possible (but this is what I could come up with)
-            //by finding the closest one in an orthogonal direction compared to a starting point (which, at the beginning is the starting
+            //by finding the closest one in an orthogonal direction compared to a starting point (which at the beginning is the starting
             //position of the guard  - not included in the patrol points, so if the designer wants, the guard can start in a different position
-            //than the path it will follow for the rest of the level, as long as it's orthogonal to at least one of the patrol points - and in
-            //each iteration becomes the previously found patrol point.
-            //the loop continues until the newly created lis includes as much entries as the original one.
+            //than the path they will follow for the rest of the level, as long as it's orthogonal to at least one of the patrol points) and in
+            //each iteration it becomes the previously found patrol point.
+            //The loop continues until the newly created list includes as many entries as the original one.
             //Considering that this is done only at the beginning, as the game loads the levels (and that it doesn't seem to slow down loading in any
             //significant way), I reckon it's an acceptable solution.
 
@@ -459,14 +459,14 @@ namespace HeistGame
         public int TotalGold { get; }
         public Vector2 Exit { get; }
         public Vector2[] Treasures { get; }
-        public Vector2[] FloorTiles { get; }
-        public Vector2[] StrongLights { get; }
-        public Vector2[] WeakLights { get; }
+        public HashSet<Vector2> FloorTiles { get; }
+        public Light[] StrongLights { get; }
+        public Light[] WeakLights { get; }
         public Dictionary<Vector2, Lever> LeversDictionary { get; }
         public Guard[] Guards { get; }
 
-        public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, Vector2[] floorTiles, 
-                         Vector2[]strongLights, Vector2[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards)
+        public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
+                         Light[]strongLights, Light[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards)
         {
             Grid = grid;
             LevLock = levelLock;

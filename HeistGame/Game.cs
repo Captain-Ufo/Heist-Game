@@ -21,7 +21,7 @@ namespace HeistGame
         private bool hasDrawnBackground;
         private int totalGold;
         private string levelFilesPath;
-        private string gameVersion = "1.5";
+        private string gameVersion = "1.6.0";
         private Menu mainMenu;
         private Menu bribeMenu;
         private Menu campaignsMenu;
@@ -83,18 +83,7 @@ namespace HeistGame
             if (!File.Exists(filePath))
             {
                 //Safeguard #1
-                Clear();
-                ForegroundColor = ConsoleColor.Red;
-                string warning = "!!* ERROR: invalid, misnamed or non existent campaign config file *!!";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 1);
-                WriteLine(warning);
-                ResetColor();
-                warning = "If this is a custom campaign, check the manual for instructions on how to create it correctly.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2);
-                WriteLine(warning);
-                SetCursorPosition(0, WindowHeight - 1);
-                Write("Press any key to return to main menu...");
-                ReadKey(true);
+                ErrorWarnings.InvalidCampaignFile(filePath);
                 RunMainMenu();
             }
 
@@ -108,23 +97,7 @@ namespace HeistGame
             catch (Exception e)
             {
                 //Safeguard #2
-                Clear();
-                ForegroundColor = ConsoleColor.Red;
-                string warning = "!!* ERROR: cannot extract campaign data from the campaign config file *!!";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                WriteLine(warning);
-                ResetColor();
-                warning = "The campaign file contains missing or incorrectly formatted data.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                WriteLine(warning);
-                warning = "If this is a custom campaign or you edited an existing campaign, please check the manual for instructions on how to create the config file correctly.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                WriteLine(warning);
-                SetCursorPosition((WindowWidth / 2) - (e.Message.Length / 2), WindowHeight / 2 - 1);
-                WriteLine(e.Message);
-                SetCursorPosition(0, WindowHeight - 1);
-                Write("Press any key to return to main menu...");
-                ReadKey(true);
+                ErrorWarnings.IncorrectCampaignData(filePath, e);
                 RunMainMenu();
             }
 
@@ -137,18 +110,7 @@ namespace HeistGame
                 if (!File.Exists(levelFilePath))
                 {
                     //safeguard #3
-                    Clear();
-                    ForegroundColor = ConsoleColor.Red;
-                    string warning = $"!!* ERROR: invalid, misnamed or non existent level file: {levelFile} *!!";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 1);
-                    WriteLine(warning);
-                    ResetColor();
-                    warning = "If this is a custom campaign, check that all the level names in the config file match the level files in the folder,";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2);
-                    WriteLine(warning);
-                    SetCursorPosition(0, WindowHeight - 1);
-                    Write("Press any key to return to main menu...");
-                    ReadKey(true);
+                    ErrorWarnings.MissingLevelFile(levelFile);
                     RunMainMenu();
                 }
 
@@ -163,38 +125,37 @@ namespace HeistGame
                 catch (Exception e)
                 {
                     //Safeguard #4
-                    Clear();
-                    ForegroundColor = ConsoleColor.Red;
-                    string warning = "!!* ERROR: cannot extract Level data from the level config file *!!";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                    WriteLine(warning);
-                    ResetColor();
-                    warning = "The campaign file contains missing or incorrectly formatted data.";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                    WriteLine(warning);
-                    warning = "If this is a custom mission or you edited an existing mission, please check the manual for instructions on how to create the config file correctly.";
-                    SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                    WriteLine(warning);
-                    SetCursorPosition((WindowWidth / 2) - (e.Message.Length / 2), WindowHeight / 2 - 1);
-                    WriteLine(e.Message);
-                    SetCursorPosition(0, WindowHeight - 1);
-                    Write("Press any key to return to main menu...");
-                    ReadKey(true);
+                    ErrorWarnings.IncorrectLevelData(levelFile, e);
                     RunMainMenu();
                 }
 
                 LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(missionConfig.LevelMap, DifficultyLevel);
 
-                levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
-                                     levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
+                if (levelInfo.PlayerStartX < 0)
+                {
+                    ErrorWarnings.MissingPlayerStartingPoint(levelFile);
+                    RunMainMenu();
+                }
+
+                if (levelInfo.Exit.X < 0)
+                {
+                    ErrorWarnings.MissingExit(levelFile);
+                    RunMainMenu();
+                }
+
+                LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+                levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
+                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing,
+                                     missionConfig.Outro, MyStopwatch));
 
                 totalGold += levelInfo.TotalGold;
             }
 
             ActiveCampaign = new Campaign(config.Name, levels.ToArray());
 
-            PlayerCharacter = new Player(ActiveCampaign.Levels[startLevel].PlayerStartX, ActiveCampaign.Levels[startLevel].PlayerStartY);
-            PlayerCharacter.Loot = startBooty;
+            PlayerCharacter = new Player(ActiveCampaign.Levels[startLevel]);
+            PlayerCharacter.SetLoot(startBooty);
         }
 
 
@@ -216,37 +177,36 @@ namespace HeistGame
             catch (Exception e)
             {
                 //Safeguard
-                Clear();
-                ForegroundColor = ConsoleColor.Red;
-                string warning = "!!* ERROR: cannot extract Level data from the level config file *!!";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                WriteLine(warning);
-                ResetColor();
-                warning = "The campaign file contains missing or incorrectly formatted data.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                WriteLine(warning);
-                warning = "If this is a custom mission or you edited an existing mission, please check the manual for instructions on how to create the config file correctly.";
-                SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                WriteLine(warning);
-                SetCursorPosition((WindowWidth / 2) - (e.Message.Length / 2), WindowHeight / 2 - 1);
-                WriteLine(e.Message);
-                SetCursorPosition(0, WindowHeight - 1);
-                Write("Press any key to return to main menu...");
-                ReadKey(true);
+                ErrorWarnings.IncorrectLevelData(levelFile, e);
                 RunMainMenu();
             }
 
             LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(missionConfig.LevelMap, DifficultyLevel);
 
-            levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
-                                 levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
+            if (levelInfo.PlayerStartX < 0)
+            {
+                ErrorWarnings.MissingPlayerStartingPoint(levelFile);
+                RunMainMenu();
+            }
+
+            if (levelInfo.Exit.X < 0)
+            {
+                ErrorWarnings.MissingExit(levelFile);
+                RunMainMenu();
+            }
+
+            LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+            levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
+                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing,
+                                 missionConfig.Outro, MyStopwatch));
 
             totalGold += levelInfo.TotalGold;
 
             ActiveCampaign = new Campaign(levelFile, levels.ToArray());
 
-            PlayerCharacter = new Player(levels[0].PlayerStartX, levels[0].PlayerStartY);
-            PlayerCharacter.Loot = 0;
+            PlayerCharacter = new Player(levels[0]);
+            PlayerCharacter.SetLoot(0);
         }
 
 
@@ -259,14 +219,17 @@ namespace HeistGame
             {
                 LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(tutorial.TutorialLevels[i], DifficultyLevel);
 
-                levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.LevLock, levelInfo.Exit,
-                                     levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, null, null, MyStopwatch));
+                LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+                levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
+                                     levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, null,
+                                     null, MyStopwatch));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
 
-            PlayerCharacter = new Player(ActiveCampaign.Levels[0].PlayerStartX, ActiveCampaign.Levels[0].PlayerStartY);
-            PlayerCharacter.Loot = 0;
+            PlayerCharacter = new Player(ActiveCampaign.Levels[0]);
+            PlayerCharacter.SetLoot(0);
         }
         #endregion
 
@@ -363,7 +326,7 @@ namespace HeistGame
                     TunePlayer.PlaySFX(1000, 100);
                     ActiveCampaign.Levels[CurrentRoom].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.EmptySpace.ToString());
                     PlayerCharacter.Draw();
-                    PlayerCharacter.Loot += 100;
+                    PlayerCharacter.ChangeLoot(100);
                 }
                 else if (elementAtPlayerPosition == SymbolsConfig.KeyChar.ToString())
                 {
@@ -449,7 +412,7 @@ namespace HeistGame
                 {
                     Clear();
                     MyStopwatch.Start();
-                    ActiveCampaign.Levels[currentLevel].Draw();
+                    hasDrawnBackground = false;
                     return true;
                 }
             }
@@ -484,10 +447,37 @@ namespace HeistGame
             }
             WriteLine("");
             Write($"   {ActiveCampaign.Levels[currentLevel].Name}");
-            SetCursorPosition(35, CursorTop);
-            Write($"Difficulty Level: {DifficultyLevel}");
+            SetCursorPosition(32, CursorTop);
+            Write($"Difficulty: {DifficultyLevel}");
+            SetCursorPosition(54, CursorTop);
+            Write($"Loot: ${PlayerCharacter.Loot}");
             SetCursorPosition(70, CursorTop);
-            Write($"Loot collected: $ {PlayerCharacter.Loot}");
+            Write("Visibility: [ ");
+            int visibilityLevel = PlayerCharacter.Visibility / 3;
+            string visibilityDisplay = "";
+            switch (visibilityLevel)
+            {
+                default:
+                case 0:
+                    visibilityDisplay = "   ";
+                    break;
+                case 1:
+                    ForegroundColor = ConsoleColor.DarkGray;
+                    visibilityDisplay = "░░░";
+                    break;
+                case 2:
+                    ForegroundColor = ConsoleColor.Yellow;
+                    visibilityDisplay = "▒▒▒";
+                    break;
+                case 3:
+                    ForegroundColor = ConsoleColor.Yellow;
+                    visibilityDisplay = "▓▓▓";
+                    break;
+            }
+            Write(visibilityDisplay);
+            ResetColor();
+            Write(" ]");
+
             string quitInfo = "Press Escape to quit.";
             SetCursorPosition(WindowWidth - quitInfo.Length - 3, WindowHeight - 2);
             Write(quitInfo);
@@ -640,7 +630,7 @@ namespace HeistGame
                         message = "'I won't be so kind next time.'";
                         SetCursorPosition(xPos - message.Length / 2, CursorTop);
                         WriteLine(message);
-                        PlayerCharacter.Loot -= bribeCost;
+                        PlayerCharacter.ChangeLoot(-bribeCost);
                         ReadKey(true);
                         return true;
                     }
@@ -836,7 +826,9 @@ namespace HeistGame
                 "  ",
                 "  ",
                 "  ",
-                "Thank you for playing!"
+                "Thank you for playing!",
+                "  ",
+                "Press Enter to continue..."
             };
 
             if (TimesCaught > 0)
@@ -866,9 +858,14 @@ namespace HeistGame
                 ResetColor();
             }
 
-            SetCursorPosition(0, WindowHeight - 2);
-            WriteLine("Press any key to continue...");
-            ReadKey(true);
+            while (true)
+            {
+                ConsoleKeyInfo info = ReadKey(true);
+                if (info.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+            }
             ResetGame(true);
             TunePlayer.StopTune();
             DisplayAboutInfo();
@@ -879,9 +876,10 @@ namespace HeistGame
         private void ResetGame(bool deleteSave)
         {
             playerHasBeenCaught = false;
+            hasDrawnBackground = false;
             TimesCaught = 0;
             TimesSpotted = 0;
-            PlayerCharacter.Loot = 0;
+            PlayerCharacter.SetLoot(0);
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[0].PlayerStartX, ActiveCampaign.Levels[0].PlayerStartY);
             CurrentRoom = 0;
             totalGold = 0;
@@ -1400,12 +1398,19 @@ namespace HeistGame
                 SetCursorPosition((WindowWidth / 2) - 2, CursorTop);
                 WriteLine("~··~");
 
-                string t = "Press any key to continue...";
-
+                string t = "Press Enter to continue...";
                 SetCursorPosition((WindowWidth / 2) - (t.Length / 2), CursorTop);
+                ForegroundColor = ConsoleColor.Green;
                 WriteLine(t);
+                ResetColor();
 
-                ReadKey(true);
+                ConsoleKeyInfo info;
+                do
+                {
+                    info = ReadKey(true);
+                }
+                while (info.Key != ConsoleKey.Enter);
+
                 Clear();
 
                 firstLineToDisplay += 48;
@@ -1423,7 +1428,7 @@ namespace HeistGame
         private void DisplayAboutInfo()
         {
             Clear();
-            string authorName = "Bear789";
+            string authorName = "Cristian Baldi";
             string[] credits = new string[]
             {
                 " ",
@@ -1431,7 +1436,7 @@ namespace HeistGame
                 "~·~ CREDITS: ~·~",
                 " ",
                 " ",
-                $"Heist!, a commnd line stealth game by {authorName}",
+                $"Heist!, a commnd prompt stealth game by {authorName}",
                 " ",
                 $"Programming: {authorName}",
                 "Shoutout to Micheal Hadley's \"Intro To Programming in C#\" course:",
@@ -1451,7 +1456,14 @@ namespace HeistGame
                 "Ascii art from Ascii Art Archive (https://www.asciiart.eu/):",
                 "Guard art based on 'Orc' by Randall Nortman and Tua Xiong",
                 "Win screen art by Henry Segerman",
-                "Game over screen art based on art by Jgs"
+                "Game over screen art based on art by Jgs",
+                " ",
+                " ",
+                "~·~ TESTING and SPECIAL THANKS: ~·~",
+                "Izzy",
+                "Charlie & Daisy",
+                "Lone",
+                "Giorgio"
             };
 
             foreach (string credit in credits)
@@ -1488,23 +1500,22 @@ namespace HeistGame
                 quitMenuPrompt[1] = "The game automatically saved the last level you played, but all your progress in the current level will be lost.";
             }
 
-            string[] options = { "Quit to Main Menu", "Quit to desktop", "Return to game" };
+            string[] options = { "Return to game", "Quit to Main Menu", "Quit to desktop" };
 
             Menu quitMenu = new Menu(quitMenuPrompt, options);
             int selection = quitMenu.Run(WindowWidth / 2, WindowHeight / 3, 2, 0, WindowWidth);
-            if (selection == 0)
+            switch (selection)
             {
-                RunMainMenu();
-                return true;
-            }
-            if (selection == 1)
-            {
-                Environment.Exit(0);
-                return true;
-            }
-            else
-            {
-                return false;
+                case 0:
+                    return false;
+                case 1:
+                    RunMainMenu();
+                    return true;
+                case 2:
+                    Environment.Exit(0);
+                    return true;
+                default:
+                    return false;
             }
         }
 
@@ -1589,7 +1600,7 @@ namespace HeistGame
             TimesSpotted = saveGame.TimesSpotted;
             TimesCaught = saveGame.TimesCaught;
             DifficultyLevel = saveGame.DifficultyLevel;
-            PlayerCharacter.Loot = saveGame.Booty;
+            PlayerCharacter.SetLoot(saveGame.Booty);
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartX, ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartY);
             ActiveCampaign.Levels[saveGame.CurrentLevel].Reset();
             RunGameLoop(saveGame.CurrentLevel);

@@ -1,4 +1,7 @@
-﻿namespace HeistGame
+﻿using System;
+using System.Collections.Generic;
+
+namespace HeistGame
 {
     class Program
     {

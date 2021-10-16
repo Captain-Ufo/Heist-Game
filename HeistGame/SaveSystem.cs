@@ -18,7 +18,7 @@ namespace HeistGame
         /// </summary>
         public SaveSystem()
         {
-            saveGamesPath = Directory.GetCurrentDirectory() + "/Saves";
+            saveGamesPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/HeistGame/Saves";
 
             if (!Directory.Exists(saveGamesPath))
             {

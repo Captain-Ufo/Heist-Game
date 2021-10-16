@@ -3,14 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>1.5.0</Version>
+    <Version>1.6.0</Version>
     <Copyright>2021 Cristian Baldi</Copyright>
     <Description>A text based command prompt steath game.</Description>
+    <Authors>Cristian Baldi</Authors>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Levels\" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Update="Levels\Labyrinth.txt">
@@ -35,6 +34,21 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Levels\The Baron%27s Jails\Stolen Goods Vault.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\CampaignConfig.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\Deep Cells.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\Guards Barracks.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\High Security Confinement.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\The Baron's Jails D\Stolen Goods Vault.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

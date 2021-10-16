@@ -50,6 +50,14 @@ namespace HeistGame
         /// The Y coordinate of the player's starting position
         /// </summary>
         public int PlayerStartY { get; private set; }
+        /// <summary>
+        /// The set of all walkable tiles on the floor, including those under gates, levers, treasures and keys
+        /// </summary>
+        public HashSet<Vector2> FloorTiles { get; private set; }
+        /// <summary>
+        /// The lightmap of the level
+        /// </summary>
+        public LightMap Lights { get; private set; }
 
         /// <summary>
         /// Instantiates a World object
@@ -58,6 +66,7 @@ namespace HeistGame
         /// <param name="grid">The grid of sumbols that represents the level, in the form of a bi-dimensional string array</param>
         /// <param name="startX">The player's starting X coordinate, int format</param>
         /// <param name="startY">The player's starting Y coordinate, int format</param>
+        /// <param name="floorTiles">The collection of all walkable tiles in the level</param>
         /// <param name="levelLock">The System that handles keys in the level, as a LevelLock object</param>
         /// <param name="exit">The coordinates of the exit point</param>
         /// <param name="treasures">The array containing the coordinates of all the treasures in the level</param>
@@ -66,7 +75,7 @@ namespace HeistGame
         /// <param name="briefing">The intro text to the level; an array of strings, one per each line.</param>
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
-        public Level(string name, string[,] grid, int startX, int startY, LevelLock levelLock, Vector2 exit,
+        public Level(string name, string[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
                      Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, string[] briefing, string[] outro, Stopwatch stopwatch)
         {
             Name = name;
@@ -111,6 +120,11 @@ namespace HeistGame
 
             PlayerStartX = startX + xOffset;
             PlayerStartY = startY + yOffset;
+
+            FloorTiles = floorTiles;
+            Lights = lightmap;
+
+            Lights.CalculateLightMap(this);
         }
 
         /// <summary>
@@ -125,7 +139,31 @@ namespace HeistGame
                     string element = grid[y, x];
                     SetCursorPosition(x + xOffset, y + yOffset);
 
-                    if (element == SymbolsConfig.ExitChar.ToString())
+                    if (element == SymbolsConfig.EnclosedSpaceChar.ToString())
+                    {
+                        element = SymbolsConfig.EmptySpace.ToString();
+                    }
+                    else if (element == SymbolsConfig.EmptySpace.ToString())
+                    {
+                        Vector2 tile = new Vector2(x, y);
+                        int lightValue = Lights.FloorTilesValues[tile];
+                        ForegroundColor = ConsoleColor.DarkBlue;
+                        switch (lightValue)
+                        {
+                            case 0:
+                                break;
+                            case 1:
+                                element = SymbolsConfig.Light1char.ToString();
+                                break;
+                            case 2:
+                                element = SymbolsConfig.Light2char.ToString();
+                                break;
+                            case 3:
+                                element = SymbolsConfig.Light3char.ToString();
+                                break;
+                        }
+                    }
+                    else if (element == SymbolsConfig.ExitChar.ToString())
                     {
                         if (IsLocked)
                         {
@@ -148,10 +186,6 @@ namespace HeistGame
                     {
                         ForegroundColor = ConsoleColor.DarkMagenta;
                     }
-                    else if (element == SymbolsConfig.Light1char.ToString() || element == SymbolsConfig.Light2char.ToString() || element == SymbolsConfig.Light3char.ToString())
-                    {
-                        ForegroundColor = ConsoleColor.DarkBlue;
-                    }
                     else
                     {
                         ForegroundColor = ConsoleColor.Gray;
@@ -167,7 +201,27 @@ namespace HeistGame
         private void DrawTile(int x, int y, string element)
         {
             SetCursorPosition(x, y);
-            if (element == SymbolsConfig.ExitChar.ToString())
+            if (element == SymbolsConfig.EmptySpace.ToString())
+            {
+                Vector2 tile = new Vector2(x, y);
+                int lightValue = GetLightLevelInItle(tile);
+                ForegroundColor = ConsoleColor.DarkBlue;
+                switch (lightValue)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        element = SymbolsConfig.Light1char.ToString();
+                        break;
+                    case 2:
+                        element = SymbolsConfig.Light2char.ToString();
+                        break;
+                    case 3:
+                        element = SymbolsConfig.Light3char.ToString();
+                        break;
+                }
+            }
+            else if (element == SymbolsConfig.ExitChar.ToString())
             {
                 if (IsLocked)
                 {
@@ -198,7 +252,27 @@ namespace HeistGame
             ResetColor();
         }
 
+        /// <summary>
+        /// Returns the light level at the tile's coordinates
+        /// </summary>
+        /// <param name="tile">The coordinates of the tile to be checked, as a Vector2</param>
+        /// <param name="withOffset">Set to true if the coordinates provided are with the centering offsets</param>
+        /// <returns></returns>
+        public int GetLightLevelInItle(Vector2 tile, bool withOffset = true)
+        {
+            if (withOffset)
+            {
+                tile.X -= xOffset;
+                tile.Y -= yOffset;
+            }
 
+            if (grid[tile.Y, tile.X] == "-" || grid[tile.Y, tile.X] == "|")
+            {
+                return 0;
+            }
+
+            return Lights.FloorTilesValues[tile];
+        }
 
         /// <summary>
         /// Checks if a certain position on the grid contains a symbol that can be traversed by the player or the guards
@@ -230,10 +304,20 @@ namespace HeistGame
                    grid[y, x] == SymbolsConfig.LeverOnChar.ToString();
         }
 
-        public bool IsTileTransparent(int x, int y)
+        /// <summary>
+        /// Checks if the given position in the grid contains a symbols that allows sight and light to pass through.
+        /// </summary>
+        /// <param name="x">The X coordinate of the position to check</param>
+        /// <param name="y">The Y coordinate of the position to check</param>
+        /// <param name="removeOffset">Indicates whether the check must be performed with or without the offsets used to center the map on the screen</param>
+        /// <returns></returns>
+        public bool IsTileTransparent(int x, int y, bool removeOffset = true)
         {
-            x -= xOffset;
-            y -= yOffset;
+            if (removeOffset)
+            {
+                x -= xOffset;
+                y -= yOffset;
+            }
 
             if (x < 0 || y < 0 || x >= columns || y >= rows)
             {
@@ -316,6 +400,7 @@ namespace HeistGame
             ResetGuards();
             ResetKeys();
             ResetTreasures();
+            Lights.CalculateLightMap(this);
         }
 
         /// <summary>
@@ -378,6 +463,8 @@ namespace HeistGame
                 lever.Toggle(this, xOffset, yOffset);
             }
 
+            Lights.CalculateLightMap(this);
+            RedrawFloors();
             stopwatch.Start();
         }
 
@@ -426,6 +513,57 @@ namespace HeistGame
             }
         }
 
+        private void RedrawFloors()
+        {
+            HashSet<Vector2> guardsPositions = new HashSet<Vector2>();
+            for (int i = 0; i < levelGuards.Length; i++)
+            {
+                Vector2 guardPos = new Vector2(levelGuards[i].X, levelGuards[i].Y);
+                guardsPositions.Add(guardPos);
+            }
+
+            foreach (Vector2 tile in FloorTiles)
+            {
+                if (GetElementAt(tile.X, tile.Y, false) != SymbolsConfig.EmptySpace.ToString())
+                {
+                    continue;
+                }
+
+                Vector2 tileWithOffset = new Vector2(tile.X + xOffset, tile.Y + yOffset);
+
+                if (guardsPositions.Contains(tileWithOffset))
+                {
+                    //skips tiles with guards to prevent flickering. The guard's update will take care of redrawing the tile once they move.
+                    continue;
+                }
+
+                SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
+
+                char symbol = SymbolsConfig.EmptySpace;
+
+                int lightValue = GetLightLevelInItle(tile, false);
+
+                ForegroundColor = ConsoleColor.DarkBlue;
+                switch (lightValue)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        symbol = SymbolsConfig.Light1char;
+                        break;
+                    case 2:
+                        symbol = SymbolsConfig.Light2char;
+                        break;
+                    case 3:
+                        symbol = SymbolsConfig.Light3char;
+                        break;
+                }
+
+                Write(symbol);
+                ResetColor();
+            }
+        }
+
         private void ResetTreasures()
         {
             foreach (Vector2 treasure in treasures)
@@ -440,7 +578,7 @@ namespace HeistGame
             {
                 if (lever.IsOn)
                 {
-                    lever.Toggle(this, xOffset, yOffset);
+                    lever.Toggle(this, xOffset, yOffset, false);
                 }
             }
         }
