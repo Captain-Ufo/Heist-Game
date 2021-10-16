@@ -76,7 +76,7 @@ namespace HeistGame
                 new Vector2(840, 100),
                 new Vector2(890, 120),
                 new Vector2(940, 140),
-                new Vector2(990, 1500),
+                new Vector2(990, 1000),
             };
 
             for (int i = 0; i < tune.Length; i++)

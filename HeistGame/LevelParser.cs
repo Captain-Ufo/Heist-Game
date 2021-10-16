@@ -26,7 +26,6 @@ namespace HeistGame
 
             string[,] grid = new string[rows, columns];
 
-            //bool hasKey = false;
             int playerStartX = -1;
             int playerStartY = -1;
             int totalGold = 0;
@@ -377,11 +376,11 @@ namespace HeistGame
         public static List<Vector2> ArrangePatrolPoints(Guard guard, List<Vector2> guardPatrol)
         {
             //I'm pretty sure the rearrange happens in the least efficient way possible (but this is what I could come up with)
-            //by finding the closest one in an orthogonal direction compared to a starting point (which, at the beginning is the starting
+            //by finding the closest one in an orthogonal direction compared to a starting point (which at the beginning is the starting
             //position of the guard  - not included in the patrol points, so if the designer wants, the guard can start in a different position
-            //than the path it will follow for the rest of the level, as long as it's orthogonal to at least one of the patrol points - and in
-            //each iteration becomes the previously found patrol point.
-            //the loop continues until the newly created lis includes as much entries as the original one.
+            //than the path they will follow for the rest of the level, as long as it's orthogonal to at least one of the patrol points) and in
+            //each iteration it becomes the previously found patrol point.
+            //The loop continues until the newly created list includes as many entries as the original one.
             //Considering that this is done only at the beginning, as the game loads the levels (and that it doesn't seem to slow down loading in any
             //significant way), I reckon it's an acceptable solution.
 

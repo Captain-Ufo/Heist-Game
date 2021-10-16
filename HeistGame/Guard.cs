@@ -26,7 +26,8 @@ namespace HeistGame
         private string guardMarker;
         private ConsoleColor guardSymbolColor = ConsoleColor.Black;
         private ConsoleColor guardTileColor = ConsoleColor.DarkRed;
-        private int walkingSpeed = 150;
+        private int walkingSpeed = 160;
+        private int searchingSpeed = 90;
         private int runningSpeed = 120;
         private int timeBetweenMoves;
         private int timeSinceLastMove = 0;

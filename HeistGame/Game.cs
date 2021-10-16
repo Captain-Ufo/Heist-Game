@@ -21,7 +21,7 @@ namespace HeistGame
         private bool hasDrawnBackground;
         private int totalGold;
         private string levelFilesPath;
-        private string gameVersion = "1.5";
+        private string gameVersion = "1.6.0";
         private Menu mainMenu;
         private Menu bribeMenu;
         private Menu campaignsMenu;
@@ -1428,7 +1428,7 @@ namespace HeistGame
         private void DisplayAboutInfo()
         {
             Clear();
-            string authorName = "Bear789";
+            string authorName = "Cristian Baldi";
             string[] credits = new string[]
             {
                 " ",
@@ -1436,7 +1436,7 @@ namespace HeistGame
                 "~·~ CREDITS: ~·~",
                 " ",
                 " ",
-                $"Heist!, a commnd line stealth game by {authorName}",
+                $"Heist!, a commnd prompt stealth game by {authorName}",
                 " ",
                 $"Programming: {authorName}",
                 "Shoutout to Micheal Hadley's \"Intro To Programming in C#\" course:",
@@ -1456,7 +1456,14 @@ namespace HeistGame
                 "Ascii art from Ascii Art Archive (https://www.asciiart.eu/):",
                 "Guard art based on 'Orc' by Randall Nortman and Tua Xiong",
                 "Win screen art by Henry Segerman",
-                "Game over screen art based on art by Jgs"
+                "Game over screen art based on art by Jgs",
+                " ",
+                " ",
+                "~·~ TESTING and SPECIAL THANKS: ~·~",
+                "Izzy",
+                "Charlie & Daisy",
+                "Lone",
+                "Giorgio"
             };
 
             foreach (string credit in credits)

@@ -156,7 +156,7 @@ namespace HeistGame
                          "Shadows are your friends: the darker the area, the closer a guard has to be to spot you.",
                          "If they see you, they'll get alerted and chase you until they loose sight of you. You may be able to safely hide in some closets.",
                          "They can't see right behind them, of course, but be careful; they are still aware of what happens in their immediate viciniy,",
-                         "Even in full darkness.",
+                         "even in full darkness.",
                          "Study their activity well before trying to make your move, and don't get too close no matter where they are looking.",
                          "Depending on the difficulty level you chose at the beginning of your adventure, you might be able to bribe them to look the other way.",
                          "It will get more expansive the more you do it, so don't be too cocky!",

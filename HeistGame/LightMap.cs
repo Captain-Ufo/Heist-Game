@@ -27,6 +27,10 @@ namespace HeistGame
             FloorTilesValues = new Dictionary<Vector2, int>();
         }
 
+        /// <summary>
+        /// Calculates the light values for each walkable floor on the map
+        /// </summary>
+        /// <param name="level">The level the lightmap belongs to</param>
         public void CalculateLightMap(Level level)
         {
             FloorTilesValues.Clear();
@@ -96,7 +100,7 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Checks which tiles are illuminated (depending on whether they can be reached by the light), and how much
+        /// Checks which tiles are illuminated (depending on whether they can be reached by the light), and how much (depending on distance from the source)
         /// </summary>
         /// <param name="level"></param>
         public void CalculateLightAreas(Level Level)
