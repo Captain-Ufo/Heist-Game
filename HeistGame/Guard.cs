@@ -30,7 +30,7 @@ namespace HeistGame
         private ConsoleColor guardSymbolColor = ConsoleColor.Black;
         private ConsoleColor guardTileColor = ConsoleColor.DarkRed;
         private int walkingSpeed = 160;
-        private int searchingSpeed = 90;
+        private int searchingSpeed = 200;
         private int runningSpeed = 120;
         private int timeBetweenMoves;
         private int timeSinceLastMove = 0;
@@ -402,12 +402,15 @@ namespace HeistGame
 
         private void AlertedBehavior(Level level)
         {
-            if (X != searchTarget.X && Y != searchTarget.Y)
+            if (X != searchTarget.X | Y != searchTarget.Y)
             {
                 if (MoveTowards(searchTarget, level))
                 {
-                    alertTimer = 0;
-                    return;
+                    if (!isSearching)
+                    {
+                        alertTimer = 0;
+                        return;
+                    }
                 }
                 else
                 {
@@ -415,36 +418,51 @@ namespace HeistGame
                     searchTarget.Y = Y;
                 }
             }
-
-            if (!isSearching)
-            {
+            else if (!isSearching) 
+            { 
                 timeBetweenMoves = searchingSpeed;
+                int x = X;
+                int y = Y;
 
                 switch (direction)
                 {
                     case Directions.up:
-                        searchTarget.Y -= 6;
+                        y -= 10;
                         break;
                     case Directions.right:
-                        searchTarget.X += 6;
+                        x += 10;
                         break;
                     case Directions.down:
-                        searchTarget.Y += 6;
+                        y += 10;
                         break;
                     case Directions.left:
-                        searchTarget.X -= 6;
+                        x -= 10;
                         break;
                 }
+
+                Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, x, y);
+                foreach (Vector2 tile in tilesToTarget)
+                {
+                    if (!level.IsPositionWalkable(tile.X, tile.Y))
+                    {
+                        break;
+                    }
+
+                    x = tile.X;
+                    y = tile.Y;
+                }
+
+                searchTarget.X = x;
+                searchTarget.Y = y;
 
                 isSearching = true;
                 return;
             }
+            else { SearchPlayer(level); }
 
             alertTimer++;
 
-            SearchPlayer(level);
-
-            if (alertTimer > 100)
+            if (alertTimer > 350)
             {
                 alertTimer = 0;
                 isAlerted = false;
@@ -463,8 +481,8 @@ namespace HeistGame
                 do
                 {
                     hasValidTarget = true;
-                    searchTarget.X = rng.Next(X - 6, X + 7);
-                    searchTarget.Y = rng.Next(Y - 6, Y + 7);
+                    searchTarget.X = rng.Next(X - 8, X + 9);
+                    searchTarget.Y = rng.Next(Y - 8, Y + 9);
 
                     Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, searchTarget.X, searchTarget.Y);
                     foreach(Vector2 tile in tilesToTarget)
