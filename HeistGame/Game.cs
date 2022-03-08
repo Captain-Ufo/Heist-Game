@@ -1107,7 +1107,7 @@ namespace HeistGame
 
             Menu loadSaveMenu = new Menu(prompt, options.ToArray());
 
-            int selectedIndex = loadSaveMenu.Run(WindowWidth / 2, 10, 2, 0, WindowWidth);
+            int selectedIndex = loadSaveMenu.RunWithScrollingOptions(WindowWidth / 2, 10, 2, 0, WindowWidth, 30);
 
             switch (selectedIndex)
             {
@@ -1123,20 +1123,7 @@ namespace HeistGame
                     if (!Directory.Exists(levelFilesPath + "/" + saveGame.CampaignName))
                     {
                         Clear();
-                        ForegroundColor = ConsoleColor.Red;
-                        string warning = "!!* ERROR: cannot find the correct campaign folder *!!";
-                        SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 5);
-                        WriteLine(warning);
-                        ResetColor();
-                        warning = "The campaign might have been deleted, or its folder renamed.";
-                        SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 4);
-                        WriteLine(warning);
-                        warning = "Please check that the campaign folder is in the correct place, or delete the save file";
-                        SetCursorPosition((WindowWidth / 2) - (warning.Length / 2), WindowHeight / 2 - 3);
-                        WriteLine(warning);
-                        SetCursorPosition(0, WindowHeight - 1);
-                        Write("Press any key to return to main menu...");
-                        ReadKey(true);
+                        ErrorWarnings.MissingCampaignFolder();
                         RunMainMenu();
                         return;
                     }

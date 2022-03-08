@@ -268,7 +268,7 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Updates prompt and options in an already instantiated Menu object
+        /// Updates prompt and options in an already instantiated Menu object; use for multi-line prompts
         /// </summary>
         /// <param name="prompt">The new prompt, as a string array</param>
         /// <param name="options">The new array of options</param>
@@ -279,7 +279,7 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Updates prompt and options in an already instantiated Menu object
+        /// Updates prompt and options in an already instantiated Menu object; use for single string prompts
         /// </summary>
         /// <param name="prompt">The new prompt, as a single string</param>
         /// <param name="options">The new array of options</param>
@@ -290,7 +290,7 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Updates the prompt alone in an already instantiated Menu object
+        /// Updates the prompt alone in an already instantiated Menu object; use for a multi-line prompt
         /// </summary>
         /// <param name="prompt">The new prompt, as a string array</param>
         public void UpdateMenuPrompt(string[] prompt)
@@ -299,7 +299,7 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Updates the options alone in an already instantiated Menu object
+        /// Updates the options alone in an already instantiated Menu object; use for a single string prompt
         /// </summary>
         /// <param name="prompt">The new prompt, as a single string</param>
         public void UpdateMenuPrompt(string prompt)
