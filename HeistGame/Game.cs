@@ -1095,7 +1095,12 @@ namespace HeistGame
         {
             Clear();
 
-            string prompt = "~·~ Which game do you want to load? ~·~";
+            string[] prompt =
+            { 
+                "~·~ Which game do you want to load? ~·~",
+                "",
+                "Press Delete or Backspace if you want to cancel the save file."
+            };
 
             List<string> options = new List<string>();
             options.Add("Back");
@@ -1107,7 +1112,66 @@ namespace HeistGame
 
             Menu loadSaveMenu = new Menu(prompt, options.ToArray());
 
-            int selectedIndex = loadSaveMenu.RunWithScrollingOptions(WindowWidth / 2, 10, 2, 0, WindowWidth, 30);
+            bool cancelFile;
+            int selectedIndex;
+
+            string[] deletePrompt =
+            {
+                "╔═════════════════════════════════════════════╗",
+                "║                                             ║",
+                "║  Are you sure you want to delete the save?  ║",
+                "║                                             ║",
+                "║                                             ║",
+                "╚═════════════════════════════════════════════╝"
+            };
+
+            string[] deleteOptions = 
+            { 
+                "                      No                       ", 
+                "                      Yes                      " 
+            };
+
+            Menu confirmDeleteFile = new Menu(deletePrompt, deleteOptions);
+
+            do
+            {
+                cancelFile = false;
+
+                MenuSelection selection = loadSaveMenu.RunWithDeleteEntry(WindowWidth / 2, 8, 2, 0, WindowWidth, 30);
+
+                cancelFile = selection.cancel;
+                selectedIndex = selection.selectedIndex;
+
+                if (cancelFile && selectedIndex > 0)
+                {
+                    int deleteSelection = confirmDeleteFile.Run(WindowWidth / 2, (WindowHeight / 2) - 5, 2, 0, WindowWidth);
+
+                    if (deleteSelection == 1)
+                    {
+
+                        saveSystem.DeleteSaveGame(availableSaves[selectedIndex - 1]);
+
+                        options.Clear();
+                        options.Add("Back");
+                        availableSaves = saveSystem.CheckForSavedGames();
+
+                        if (availableSaves.Length == 0)
+                        {
+                            Clear();
+                            RunMainMenu();
+                            return;
+                        }
+                        foreach (string s in availableSaves)
+                        {
+                            options.Add(s);
+                        }
+
+                        loadSaveMenu.UpdateMenuOptions(options.ToArray());
+                    }
+                    Clear();
+                }
+            }
+            while (cancelFile);
 
             switch (selectedIndex)
             {

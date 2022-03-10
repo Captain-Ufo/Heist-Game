@@ -13,7 +13,6 @@ namespace HeistGame
             game.Start();
 
             //TODO:
-            // - 'Delete savegame' menu or functionality
             // - knock out guards
             // - player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
             // - awake guards can spot and revive unconscious guards (same visibility as player)

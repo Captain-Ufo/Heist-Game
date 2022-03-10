@@ -47,7 +47,7 @@ namespace HeistGame
         /// <param name="xPos">Horizontal position of the menu (prompt and options) on the screen. Input 0 for the left side of the screen, 
         /// any other number to center the menu around that position</param>
         /// <param name="yPos">Vertical position of the prompt on the screen. Input 0 for the very top of the screen</param>
-        /// <param name="optionsOffset">The verticfal distance between the menu prompt and the option list</param>
+        /// <param name="optionsOffset">The vertical distance between the menu prompt and the option list</param>
         /// <param name="lineStart">The X coordinate that indicates where each line in the menu starts (so that part of the screen can remain
         /// uneffected by the updates of the various parts). Use 0 for the left edge of the screen</param>
         /// <param name="lineEnd">The X coordinate that indicates where each line in the menu ends (so that part of the screen can remain
@@ -56,6 +56,7 @@ namespace HeistGame
         public int Run(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd)
         {
             ConsoleKey keyPressed;
+            selectedIndex = 0;
 
             do
             {
@@ -203,6 +204,7 @@ namespace HeistGame
 
                 switch (keyPressed)
                 {
+
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.NumPad8:
                     case ConsoleKey.W:
@@ -265,6 +267,126 @@ namespace HeistGame
             while (keyPressed != ConsoleKey.Enter);
 
             return selectedIndex;
+        }
+
+        /// <summary>
+        /// Displays only a subset of all the menu options, scrolling to a new subset (if available) when needed. Also returns whether delete or cancel are pressed on an
+        /// entry, so tha the rest of the program can deal with deleting the entry.
+        /// </summary>
+        /// <param name="xPos">Horizontal position of the menu (prompt and options) on the screen. Input 0 for the left side of the screen, 
+        /// any other number to center the menu around that position</param>
+        /// <param name="yPos">Vertical position of the prompt on the screen. Input 0 for the very top of the screen</param>
+        /// <param name="optionsOffset">The verticfal distance between the menu prompt and the option list</param>
+        /// <param name="lineStart">The X coordinate that indicates where each line in the menu starts (so that part of the screen can remain
+        /// uneffected by the updates of the various parts). Use 0 for the left edge of the screen</param>
+        /// <param name="lineEnd">The X coordinate that indicates where each line in the menu ends (so that part of the screen can remain
+        /// uneffected by the updates of the various parts). Use WindowWidth for the right edge of the screen</param>
+        /// <param name="numberOfDisplayedOptions">The number of ptions to be displayed per screen; counting from 1
+        /// (so 3, for example translates to an options range of 0-2)</param>
+        /// <returns>The index of the chosen option, after the user selects one and hits enter</returns>
+        public MenuSelection RunWithDeleteEntry(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions)
+        {
+            bool cancel = false;
+            MenuSelection selection;
+
+            ConsoleKey keyPressed;
+
+            int firstShownOption = 0;
+            int lastShownOption;
+
+            if (options.Length < numberOfDisplayedOptions)
+            {
+                lastShownOption = options.Length - 1;
+            }
+            else
+            {
+                lastShownOption = numberOfDisplayedOptions - 1;
+            }
+
+            do
+            {
+                SetCursorPosition(0, 0);
+                DisplayPrompt(xPos, yPos, lineStart, lineEnd);
+                DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
+
+                ConsoleKeyInfo info = ReadKey(true);
+                keyPressed = info.Key;
+
+                switch (keyPressed)
+                {
+                    case ConsoleKey.Backspace:
+                    case ConsoleKey.Delete:
+
+                        cancel = true;
+                        ctp.PlaySFX(1000, 200);
+                        while (KeyAvailable) { ReadKey(true); }
+                        break;
+
+                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.NumPad8:
+                    case ConsoleKey.W:
+
+                        selectedIndex--;
+                        if (selectedIndex < 0)
+                        {
+                            if (numberOfDisplayedOptions >= options.Length)
+                            {
+                                selectedIndex = options.Length - 1;
+                            }
+                            else
+                            {
+                                selectedIndex = lastShownOption;
+                            }
+                        }
+                        else if (selectedIndex < firstShownOption)
+                        {
+                            firstShownOption -= numberOfDisplayedOptions;
+                            lastShownOption = firstShownOption + numberOfDisplayedOptions - 1;
+
+                            if (firstShownOption < 0)
+                            {
+                                firstShownOption = 0;
+                                lastShownOption = numberOfDisplayedOptions - 1;
+                            }
+                        }
+
+                        ctp.PlaySFX(1000, 100);
+                        while (KeyAvailable) { ReadKey(true); }
+                        break;
+
+                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.NumPad2:
+                    case ConsoleKey.S:
+
+                        selectedIndex++;
+                        if (selectedIndex > lastShownOption)
+                        {
+                            if (selectedIndex < options.Length)
+                            {
+                                firstShownOption += numberOfDisplayedOptions;
+                                lastShownOption += numberOfDisplayedOptions;
+                                if (lastShownOption >= options.Length)
+                                {
+                                    Clear();
+                                    lastShownOption = options.Length - 1;
+                                }
+                            }
+                            else if (selectedIndex == options.Length)
+                            {
+                                selectedIndex = firstShownOption;
+                            }
+                        }
+                        ctp.PlaySFX(1000, 100);
+                        while (KeyAvailable) { ReadKey(true); }
+                        break;
+                }
+            }
+            while (keyPressed != ConsoleKey.Enter && keyPressed != ConsoleKey.Backspace && keyPressed != ConsoleKey.Delete);
+
+            selection.cancel = cancel;
+            selection.selectedIndex = selectedIndex;
+
+            return selection;
         }
 
         /// <summary>
@@ -433,5 +555,11 @@ namespace HeistGame
             }
             CursorVisible = false;
         }
+    }
+
+    public struct MenuSelection
+    {
+        public bool cancel;
+        public int selectedIndex;
     }
 }

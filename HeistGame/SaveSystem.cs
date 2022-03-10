@@ -85,13 +85,32 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Deletes a save file
+        /// Deletes the save file for the currently active game
         /// </summary>
         /// <param name="game">the current game, from which the method access the difficulty level in order to chose which file to delete</param>
         public void DeleteSaveGame(Game game)
         {
             string saveGameName = "/" + game.ActiveCampaign.Name + "_" + game.DifficultyLevel + ".sav";
             string saveFilePath = saveGamesPath + saveGameName;
+            if (File.Exists(saveFilePath))
+            {
+                File.Delete(saveFilePath);
+            }
+        }
+
+        /// <summary>
+        /// Deletes a save file
+        /// </summary>
+        /// <param name="fileName">The name of the savefile to be deleted</param>
+        public void DeleteSaveGame(string saveGameName)
+        {
+            if (!Directory.Exists(saveGamesPath))
+            {
+                throw new Exception("Cannote delete file: save file directory does not exists!");
+            }
+
+            string saveFilePath = saveGamesPath + "/" + saveGameName;
+
             if (File.Exists(saveFilePath))
             {
                 File.Delete(saveFilePath);
