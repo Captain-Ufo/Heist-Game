@@ -127,13 +127,13 @@ namespace HeistGame
                     {
                         $"Loot ({SymbolsConfig.TreasureChar}) are optional collectibles in each floor.",
                         " ",
-                        "If the exit is green, it means it's open and you are free to exit (assuming no other obstacles prevent you to reach it).",
-                        $"If the exit is red, it means instead that you will need to find one or more Keys ({SymbolsConfig.KeyChar}) to unlock it.",
+                        "If the exit is green, it means it's open and you are free to leave the location (assuming no other obstacles are in the way.)",
+                        $"If the exit is red, you will need to find one or more Keys ({SymbolsConfig.KeyChar}) to unlock it.",
                         " ",
-                        "When you are on a mission, you may have limited knowledge of the locations layouts: you will know where to look for some of the keys,",
+                        "When you are on a heist, you may have limited knowledge of the locations layouts: you will know where to look for some of the keys,",
                         "but as you collect the known ones, you might find that there are others hidden about the floor.",
                         " ",
-                        "If the exit doesn't turn green when you collect the last key, check the map to see if you did not discovered the location of another one."
+                        "If the exit doesn't turn green when you collect the last key, check the wwhole map in case you discovered the location of another one."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -143,7 +143,7 @@ namespace HeistGame
                     {
                          $"Levers (\\) open and close gates ({SymbolsConfig.GateChar}) throughout the level.",
                          "They may open optional rooms and passages, or clear the way to your destination.",
-                         "Levers can open multiple gates. They may also close gates that start open when you first enter a location",
+                         "Levers can be linked to multiple gates. They may also close gates that start open when you first enter an area",
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -152,7 +152,7 @@ namespace HeistGame
                     instructions = new string[]
                     {
                          "Beware of Guards! They patrol the grounds, or stand in place and look around.",
-                         "Be careful of how illuminated the place you're standing in is.",
+                         "Be careful of how illuminated the spot you're standing in is.",
                          "Shadows are your friends: the darker the area, the closer a guard has to be to spot you.",
                          "If they see you, they'll get alerted and chase you until they loose sight of you. You may be able to safely hide in some closets.",
                          "They can't see right behind them, of course, but be careful; they are still aware of what happens in their immediate viciniy,",

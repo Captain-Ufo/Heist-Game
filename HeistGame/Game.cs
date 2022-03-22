@@ -1117,13 +1117,16 @@ namespace HeistGame
 
             string[] deletePrompt =
             {
-                "╔═════════════════════════════════════════════╗",
-                "║                                             ║",
-                "║  Are you sure you want to delete the save?  ║",
-                "║                                             ║",
-                "║                                             ║",
-                "╚═════════════════════════════════════════════╝"
+                "╔══════════════════════════════════════════════════════════════════════════════════════════╗",
+                "║                                                                                          ║",
+                "║                        Are you sure you want to delete this save?                        ║",
+                "║                                                                                          ║",
+                "║                                                                                          ║",
+                "║                                                                                          ║",
+                "╚══════════════════════════════════════════════════════════════════════════════════════════╝"
             };
+
+            string confirmMenuLine = deletePrompt[4];
 
             string[] deleteOptions = 
             { 
@@ -1144,6 +1147,26 @@ namespace HeistGame
 
                 if (cancelFile && selectedIndex > 0)
                 {
+                    // Inserting the savename in the menu for clarity
+                    string saveName = availableSaves[selectedIndex - 1];
+
+                    if (saveName.Length >= confirmMenuLine.Length)
+                    {
+                        //Shortening the savegame name if it's longer than the menu promp
+                        saveName = saveName.Remove(confirmMenuLine.Length - 8, saveName.Length - 1);
+                        saveName = saveName + "...";
+                    }
+
+                    int insertCount = ((confirmMenuLine.Length - saveName.Length) / 2) - 1;
+                    int targetStringLenght = confirmMenuLine.Length;
+                    int trimStartIndex = targetStringLenght - insertCount - 1;
+                    confirmMenuLine = confirmMenuLine.Insert(insertCount, saveName);
+                    int newStringExcess = confirmMenuLine.Length - targetStringLenght;
+                    confirmMenuLine = confirmMenuLine.Remove(trimStartIndex, newStringExcess);
+                    deletePrompt[4] = confirmMenuLine;
+                    confirmDeleteFile.UpdateMenuPrompt(deletePrompt);
+
+                    // Confirming deletion
                     int deleteSelection = confirmDeleteFile.Run(WindowWidth / 2, (WindowHeight / 2) - 5, 2, 0, WindowWidth);
 
                     if (deleteSelection == 1)
@@ -1161,6 +1184,7 @@ namespace HeistGame
                             RunMainMenu();
                             return;
                         }
+
                         foreach (string s in availableSaves)
                         {
                             options.Add(s);

@@ -116,6 +116,8 @@ namespace HeistGame
         /// <returns>The index of the chosen option, after the user selects one and hits enter</returns>
         public int RunWithUpdatingPrompt(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, string[][] updatedPrompts)
         {
+            selectedIndex = 0;
+
             ConsoleKey keyPressed;
 
             do
@@ -179,6 +181,8 @@ namespace HeistGame
         /// <returns>The index of the chosen option, after the user selects one and hits enter</returns>
         public int RunWithScrollingOptions(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions)
         {
+            selectedIndex = 0;
+
             ConsoleKey keyPressed;
 
             int firstShownOption = 0;
@@ -286,6 +290,8 @@ namespace HeistGame
         /// <returns>The index of the chosen option, after the user selects one and hits enter</returns>
         public MenuSelection RunWithDeleteEntry(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions)
         {
+            selectedIndex = 0;
+
             bool cancel = false;
             MenuSelection selection;
 
