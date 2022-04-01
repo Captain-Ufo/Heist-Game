@@ -1130,8 +1130,8 @@ namespace HeistGame
 
             string[] deleteOptions = 
             { 
-                "                      No                       ", 
-                "                      Yes                      " 
+                "                          No                           ", 
+                "                          Yes                          " 
             };
 
             Menu confirmDeleteFile = new Menu(deletePrompt, deleteOptions);

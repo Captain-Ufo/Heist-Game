@@ -7,6 +7,9 @@ using static System.Console;
 
 namespace HeistGame
 {
+    /// <summary>
+    /// A collection of custom errors, specific for the game, for ease of use. None of these throw exceptions
+    /// </summary>
     class ErrorWarnings
     {
         public static void InvalidCampaignFile(string campaignPath)
