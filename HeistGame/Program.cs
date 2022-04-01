@@ -11,6 +11,14 @@ namespace HeistGame
 
             Game game = new Game();
             game.Start();
+
+            //TODO:
+            // - knock out guards
+            // - player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
+            // - awake guards can spot and revive unconscious guards (same visibility as player)
+            // - in-level messages/notes using numbers for location
+            // - (previous point requires extending MissionConfig file: numbers indicate location, then dictionary pairs location with message)
+            // - move keys to use keysymbol, ¹, ² and ³ for keys, to free up 1,2,3,4 for messages.
         }
     }
 }

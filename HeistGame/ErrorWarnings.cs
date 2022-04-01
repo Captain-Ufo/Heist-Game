@@ -7,6 +7,9 @@ using static System.Console;
 
 namespace HeistGame
 {
+    /// <summary>
+    /// A collection of custom errors, specific for the game, for ease of use. None of these throw exceptions
+    /// </summary>
     class ErrorWarnings
     {
         public static void InvalidCampaignFile(string campaignPath)
@@ -53,6 +56,21 @@ namespace HeistGame
             ResetColor();
             warning = "If this is a custom campaign, check that all the level names in the config file match the level files in the folder.";
             DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            Write("Press any key to return to main menu...");
+            ReadKey(true);
+        }
+
+        public static void MissingCampaignFolder()
+        {
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: cannot find the correct campaign folder *!!";
+            DisplayWarning(warning, -5);
+            ResetColor();
+            warning = "The campaign might have been deleted, or its folder renamed.";
+            DisplayWarning(warning, -4);
+            warning = "Please check that the campaign folder is in the correct place, or delete the save file";
+            DisplayWarning(warning, -3);
             SetCursorPosition(0, WindowHeight - 1);
             Write("Press any key to return to main menu...");
             ReadKey(true);
