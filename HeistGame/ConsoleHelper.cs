@@ -43,6 +43,7 @@ namespace HeistGame
         /// <param name="title">The title that appears in the console window bar.</param>
         /// <param name="width">The console window's width.</param>
         /// <param name="height">The console window's height.</param>
+        /// <param name="center">Set to True to center the window on screen</param>
         /// <param name="blockClosing">Set to true to disable the close button.</param>
         /// <param name="blockMinimize">Set to true to disable the minimize button.</param>
         /// <param name="blockMaximize">Set to true to disable the maximize button. Note that it won't prevent automatic mazimization
@@ -50,7 +51,7 @@ namespace HeistGame
         /// <param name="blockResize">Set to true to prevent manual resizing of the window via dragging the edges.</param>
         /// <param name="blockScrolling">Set to true to prevent manual scrolling. Note that the window will automatically scroll anyway if the displayed text
         /// is larger than the window size.</param>
-        public static void SetConsole(string title, int width, int height, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
+        public static void SetConsole(string title, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
         {
             IntPtr handle = GetConsoleWindow();
             IntPtr sysMenu = GetSystemMenu(handle, false);
@@ -77,7 +78,7 @@ namespace HeistGame
                 DisplayConsoleSizeWarning();
             }
 
-            CenterWindow();
+            if (center) { CenterWindow(); }
         }
 
         private static Size GetScreenSize() => new Size(GetSystemMetrics(0), GetSystemMetrics(1));

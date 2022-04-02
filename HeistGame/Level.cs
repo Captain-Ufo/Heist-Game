@@ -89,7 +89,6 @@ namespace HeistGame
 
             xOffset = (WindowWidth / 2) - (columns / 2);
             yOffset = ((WindowHeight - 5) / 2) - (rows / 2);
-            //yOffset = 0;
 
             this.stopwatch = stopwatch;
 

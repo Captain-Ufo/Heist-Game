@@ -78,10 +78,13 @@ namespace HeistGame
 
             if (KeyAvailable)
             {
-                ConsoleKeyInfo keyInfo = ReadKey(true);
-                ConsoleKey key = keyInfo.Key;
-
-                while (KeyAvailable) { ReadKey(true); }
+                ConsoleKey key;
+                do
+                {
+                    ConsoleKeyInfo keyInfo = ReadKey(true);
+                    key = keyInfo.Key;
+                }
+                while (KeyAvailable);
 
                 switch (key)
                 {

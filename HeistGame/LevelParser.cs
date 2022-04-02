@@ -390,7 +390,7 @@ namespace HeistGame
 
             while (arrangedPatrolPoints.Count < guardPatrol.Count)
             {
-                int currentMinDistance = 1000;
+                int currentMinDistance = 1000; //Arbitrary huge number
                 int closestPatrolX = 0;
                 int closestPatrolY = 0;
 
