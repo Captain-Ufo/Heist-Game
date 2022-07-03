@@ -32,6 +32,7 @@ namespace HeistGame
         private int walkingSpeed = 160;
         private int searchingSpeed = 200;
         private int runningSpeed = 120;
+        private int hearingRange = 9;
         private int timeBetweenMoves;
         private int timeSinceLastMove = 0;
         private Vector2 originPoint;
@@ -143,7 +144,7 @@ namespace HeistGame
             {
                 if (firstSighted)
                 {
-                    game.TunePlayer.PlaySFX(1200, 600);
+                    game.TunePlayer.PlaySFX(800, 600);
                     game.TimesSpotted++;
                 }
 
@@ -198,6 +199,26 @@ namespace HeistGame
             {
                 isAlerted = false;
                 isReturning = true;
+            }
+        }
+
+        /// <summary>
+        /// Used to alert the guard while out of their line of sight
+        /// </summary>
+        /// <param name="expectedTarget">The place they'll investigate while alerted</param>
+        public void AlertGuard(Vector2 expectedTarget)
+        {
+            if (isBribed)
+            {
+                return;
+            }
+
+            int horizontalHearingRange = hearingRange * 2;
+            if (expectedTarget.X >= X - horizontalHearingRange && expectedTarget.X <= X + horizontalHearingRange &&
+                expectedTarget.Y >= Y - hearingRange && expectedTarget.Y <= Y + hearingRange)
+            {
+                searchTarget = expectedTarget;
+                isAlerted = true;
             }
         }
 

@@ -5,7 +5,7 @@ namespace HeistGame
 {
     class Tutorial
     {
-        public string[][] TutorialLevels { get; private set; } = new string[4][];
+        public string[][] TutorialLevels { get; private set; } = new string[5][];
 
         string[] tutorialLevel1 =
         {
@@ -99,12 +99,36 @@ namespace HeistGame
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
 
+        string[] tutorialLevel5 =
+        {
+            "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
+            "║         à         ║         ║         ║         ║    $    ║",
+            "║         ║    +    ║    +    ║    +    ║         i         ║",
+            "║    E    ║    C    e    d         d    a         ║         ║",
+            "║         ║         ║         ║         ║         ║         ║",
+            "║         ║         ║         ║         ║         ║    $    ║",
+            "╠═════════╩════à════╬════ ════╩════ ════╬════ ════╬═════════╣",
+            "║                   ║                   ║         ║         ║",
+            "║                   ║                   ║         ║         ║",
+            "║ X       *         ║    d    *D   d A  ║    +  B      *  Ð ║",
+            "║                   ║                   ║         ║         ║",
+            "║                   ║                   ║         ║         ║",
+            "╠═════════╦════à════╬════ ════╦════d════╬════ ════╬═════════╣",
+            "║         ║         ║         ║         ║         ║    $    ║",
+            "║         ║         ║         ║         ║         ║         ║",
+            "║ I  +         +    e    d         d    a         i         ║",
+            "║         ║         ║    +    ║    +    ║         ║         ║",
+            "║         ║         ║         ║         ║         ║    $    ║",
+            "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
+        };
+
         public Tutorial()
         {
             TutorialLevels[0] = tutorialLevel1;
             TutorialLevels[1] = tutorialLevel2;
             TutorialLevels[2] = tutorialLevel3;
             TutorialLevels[3] = tutorialLevel4;
+            TutorialLevels[4] = tutorialLevel5;
         }
 
         public void DisplayTutorialInstructions(int index)
@@ -117,7 +141,7 @@ namespace HeistGame
                     instructions = new string[]
                     {
                         "You are Gareth, the non-copyright infringing Master Thief. This is the training course you built in your hideout.",
-                        $"Use arrow keys, WASD or numpad keys to move around the map; reach the exit ({SymbolsConfig.ExitChar}) to complete the level."
+                        $"Use athe ARROW KEYS, WASD or NUMPAD 4,8,6,2 to move around the map; reach the exit ({SymbolsConfig.ExitChar}) to complete the level."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -161,6 +185,17 @@ namespace HeistGame
                          "Depending on the difficulty level you chose at the beginning of your adventure, you might be able to bribe them to look the other way.",
                          "It will get more expansive the more you do it, so don't be too cocky!",
                          "Feel free to experiment here. This is just training: you will be able to retry as many times as you need."
+                    };
+                    DisplaytextCentered(instructions);
+                    break;
+                case 4:
+                    instructions = new string[]
+                    {
+                        "Sometimes guards cannot be sneaked past no matter what. Maybe they stand in the way of your objective, or the room is too lit.",
+                        "If you are within their hearing range, You can make noises (by pressing the SPACEBAR or the KEYPAD ENTER KEY to attract them to",
+                        "a different part of the location and take advantage of the time they'll spend investigating the noise to sneak past them.",
+                        "You cannot control which guard will hear the noise, so beware of how it will effect other guards nearby.",
+                        "You wouldn't want to trap yourself!"
                     };
                     DisplaytextCentered(instructions);
                     break;

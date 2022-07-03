@@ -11,7 +11,8 @@ namespace HeistGame
         private int timeBetweenMoves;
         private int timeSinceLastMove;
         private string playerMarker;
-        private ConsoleColor playerColor;
+        private ConsoleColor playerBaseColor;
+        private ConsoleColor playerCurrentColor;
 
         /// <summary>
         /// The player's current X position
@@ -49,7 +50,7 @@ namespace HeistGame
             SetVisibility(level.PlayerStartX, level.PlayerStartY, level);
 
             playerMarker = marker;
-            playerColor = color;
+            playerBaseColor = color;
 
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
@@ -72,9 +73,10 @@ namespace HeistGame
         /// <param name="level">The level the player is moving in</param>
         /// <param name="direction">The direction of the movement</param>
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
-        public bool HandlePlayerControls(Level level, int deltaTimeMS)
+        public bool HandlePlayerControls(Level level, Game game, int deltaTimeMS)
         {
             timeSinceLastMove += deltaTimeMS;
+            playerCurrentColor = playerBaseColor;
 
             if (KeyAvailable)
             {
@@ -140,6 +142,10 @@ namespace HeistGame
                             timeSinceLastMove -= timeBetweenMoves;
                         }
                         return true;
+                    case ConsoleKey.Spacebar:
+                    case ConsoleKey.Enter:
+                        MakeNoise(level, game);
+                        return true;
                     case ConsoleKey.Escape:
                         return false;
                     default:
@@ -155,7 +161,7 @@ namespace HeistGame
         public void Draw()
         {
             ConsoleColor previousColor = ForegroundColor;
-            ForegroundColor = playerColor;
+            ForegroundColor = playerCurrentColor;
             SetCursorPosition(X, Y);
             Write(playerMarker);
             ForegroundColor = previousColor;
@@ -237,6 +243,14 @@ namespace HeistGame
             {
                 Visibility = 1;
             }
+        }
+
+        private void MakeNoise(Level level, Game game)
+        {
+            playerCurrentColor = ConsoleColor.White;
+            Draw();
+            game.TunePlayer.PlaySFX(1000, 600);
+            level.AlertGuards(new Vector2(X, Y));
         }
     }
 

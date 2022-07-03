@@ -96,7 +96,7 @@ namespace HeistGame
 
         private static void CenterWindow()
         {
-            IntPtr window = Process.GetCurrentProcess().MainWindowHandle;
+            IntPtr window = GetConsoleWindow();//Process.GetCurrentProcess().MainWindowHandle;
 
             if (window == IntPtr.Zero)
             {

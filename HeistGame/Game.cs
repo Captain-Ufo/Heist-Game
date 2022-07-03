@@ -401,7 +401,7 @@ namespace HeistGame
 
         private bool HandleInputs(int currentLevel, int deltaTimeMS)
         {
-            if (!PlayerCharacter.HandlePlayerControls(ActiveCampaign.Levels[currentLevel], deltaTimeMS))
+            if (!PlayerCharacter.HandlePlayerControls(ActiveCampaign.Levels[currentLevel], this, deltaTimeMS))
             {
                 MyStopwatch.Stop();
                 if (QuitGame())
@@ -1503,7 +1503,7 @@ namespace HeistGame
         private void DisplayAboutInfo()
         {
             Clear();
-            string authorName = "Cristian Baldi";
+            string authorName = "Cristian";
             string[] credits = new string[]
             {
                 " ",
@@ -1538,7 +1538,10 @@ namespace HeistGame
                 "Izzy",
                 "Charlie & Daisy",
                 "Lone",
-                "Giorgio"
+                "Giorgio",
+                " ",
+                " ",
+                "Thank you for playing!"
             };
 
             foreach (string credit in credits)

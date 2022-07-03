@@ -499,6 +499,21 @@ namespace HeistGame
         }
 
         /// <summary>
+        /// Alerts guards of comething out of their line of sight
+        /// </summary>
+        /// <param name="targetPosition">The position the guards will investigate</param>
+        public void AlertGuards(Vector2 targetPosition)
+        {
+            if (levelGuards.Length > 0)
+            {
+                foreach (Guard guard in levelGuards)
+                {
+                    guard.AlertGuard(targetPosition);
+                }
+            }
+        }
+
+        /// <summary>
         /// Draws all guards
         /// </summary>
         public void DrawGuards()
