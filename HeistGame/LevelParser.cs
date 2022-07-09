@@ -202,22 +202,21 @@ namespace HeistGame
                             break;
                         //keys
                         case SymbolsConfig.KeyChar:
-                        case '1':
                             currentChar = SymbolsConfig.KeyChar;
                             levLock.AddKey(x, y, 1);
                             floorTiles.Add(new Vector2(x, y));
                             break;
-                        case '2':
+                        case '¹':
                             currentChar = SymbolsConfig.EmptySpace;
                             levLock.AddKey(x, y, 2);
                             floorTiles.Add(new Vector2(x, y));
                             break;
-                        case '3':
+                        case '²':
                             currentChar = SymbolsConfig.EmptySpace;
                             levLock.AddKey(x, y, 3);
                             floorTiles.Add(new Vector2(x, y));
                             break;
-                        case '4':
+                        case '³':
                             currentChar = SymbolsConfig.EmptySpace;
                             levLock.AddKey(x, y, 4);
                             floorTiles.Add(new Vector2(x, y));

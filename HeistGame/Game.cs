@@ -21,7 +21,7 @@ namespace HeistGame
         private bool hasDrawnBackground;
         private int totalGold;
         private string levelFilesPath;
-        private string gameVersion = "1.6.0";
+        private string gameVersion = "1.6.1";
         private Menu mainMenu;
         private Menu bribeMenu;
         private Menu campaignsMenu;
@@ -481,6 +481,13 @@ namespace HeistGame
             string quitInfo = "Press Escape to quit.";
             SetCursorPosition(WindowWidth - quitInfo.Length - 3, WindowHeight - 2);
             Write(quitInfo);
+        }
+
+
+
+        public void DisplayMessage(string message)
+        {
+            
         }
 
 

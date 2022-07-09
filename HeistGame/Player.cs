@@ -143,7 +143,7 @@ namespace HeistGame
                         }
                         return true;
                     case ConsoleKey.Spacebar:
-                    case ConsoleKey.Enter:
+                    case ConsoleKey.Add:
                         MakeNoise(level, game);
                         return true;
                     case ConsoleKey.Escape:
