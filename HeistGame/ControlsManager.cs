@@ -5,7 +5,7 @@ namespace HeistGame
 {
     internal static class ControlsManager
     {
-        public static bool HandleInputs()
+        public static bool HandleInputs(Level level, Game game, int deltaTimeMS)
         {
             if (KeyAvailable)
             {
@@ -22,30 +22,30 @@ namespace HeistGame
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
                     case ConsoleKey.NumPad8:
-                        //Tell player  to move up
+                        game.PlayerCharacter.Move(Directions.up, level, game, deltaTimeMS);
                         //Stop lockpicking if in progress
                         return true;
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
                     case ConsoleKey.NumPad2:
-                        //Tell Player to move down
+                        game.PlayerCharacter.Move(Directions.down, level, game, deltaTimeMS);
                         //Stop lockpicking if in progress
                         return true;
                     case ConsoleKey.LeftArrow:
                     case ConsoleKey.A:
                     case ConsoleKey.NumPad4:
-                        //Tell Player to move left
+                        game.PlayerCharacter.Move(Directions.left, level, game, deltaTimeMS);
                         //Stop lockpicking if in progress
                         return true;
                     case ConsoleKey.RightArrow:
                     case ConsoleKey.D:
                     case ConsoleKey.NumPad6:
-                        //Tell Player to move right
+                        game.PlayerCharacter.Move(Directions.right, level, game, deltaTimeMS);
                         //Stop lockpicking if in progress
                         return true;
                     case ConsoleKey.Spacebar:
                     case ConsoleKey.Add:
-                        //Tell Player to make noise
+                        game.PlayerCharacter.MakeNoise(level, game);
                         //Stop lockpicking if in progress
                         return true;
                     case ConsoleKey.E:

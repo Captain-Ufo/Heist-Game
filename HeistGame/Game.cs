@@ -401,7 +401,7 @@ namespace HeistGame
 
         private bool HandleInputs(int currentLevel, int deltaTimeMS)
         {
-            if (!PlayerCharacter.HandlePlayerControls(ActiveCampaign.Levels[currentLevel], this, deltaTimeMS))
+            if (!ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this, deltaTimeMS))
             {
                 MyStopwatch.Stop();
                 if (QuitGame())
@@ -563,6 +563,7 @@ namespace HeistGame
 
             ReadKey();
             Clear();
+            hasDrawnBackground = false;
 
             int EvaluateMessageLength()
             {

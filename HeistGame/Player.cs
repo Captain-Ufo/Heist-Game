@@ -51,6 +51,7 @@ namespace HeistGame
 
             playerMarker = marker;
             playerBaseColor = color;
+            playerCurrentColor = color;
 
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
@@ -70,89 +71,70 @@ namespace HeistGame
         /// <summary>
         /// Updates the player's coordinates, moving them by one tile at a time
         /// </summary>
+        /// <param name="direction">The direction of movement, sing the Directions enum</param>
         /// <param name="level">The level the player is moving in</param>
-        /// <param name="direction">The direction of the movement</param>
+        /// <param name="game">The current game</param>
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
-        public bool HandlePlayerControls(Level level, Game game, int deltaTimeMS)
+        public void Move(Directions direction, Level level, Game game, int deltaTimeMS)
         {
             timeSinceLastMove += deltaTimeMS;
             playerCurrentColor = playerBaseColor;
 
-            if (KeyAvailable)
+            switch (direction)
             {
-                ConsoleKey key;
-                do
-                {
-                    ConsoleKeyInfo keyInfo = ReadKey(true);
-                    key = keyInfo.Key;
-                }
-                while (KeyAvailable);
-
-                switch (key)
-                {
-                    case ConsoleKey.UpArrow:
-                    case ConsoleKey.W:
-                    case ConsoleKey.NumPad8:
-                        if (level.IsPositionWalkable(X, Y - 1) && timeSinceLastMove >= timeBetweenMoves)
-                        {
-                            Clear(level);
-                            Y--;
-                            Draw();
-                            HasMoved = true;
-                            SetVisibility(X, Y, level);
-                            timeSinceLastMove -= timeBetweenMoves;
-                        }
-                        return true;
-                    case ConsoleKey.DownArrow:
-                    case ConsoleKey.S:
-                    case ConsoleKey.NumPad2:
-                        if (level.IsPositionWalkable(X, Y + 1) && timeSinceLastMove >= timeBetweenMoves)
-                        {
-                            Clear(level);
-                            Y++;
-                            Draw();
-                            HasMoved = true;
-                            SetVisibility(X, Y, level);
-                            timeSinceLastMove -= timeBetweenMoves;
-                        }
-                        return true;
-                    case ConsoleKey.LeftArrow:
-                    case ConsoleKey.A:
-                    case ConsoleKey.NumPad4:
-                        if (level.IsPositionWalkable(X - 1, Y) && timeSinceLastMove >= timeBetweenMoves)
-                        {
-                            Clear(level);
-                            X--;
-                            Draw();
-                            HasMoved = true;
-                            SetVisibility(X, Y, level);
-                            timeSinceLastMove -= timeBetweenMoves;
-                        }
-                        return true;
-                    case ConsoleKey.RightArrow:
-                    case ConsoleKey.D:
-                    case ConsoleKey.NumPad6:
-                        if (level.IsPositionWalkable(X + 1, Y) && timeSinceLastMove >= timeBetweenMoves)
-                        {
-                            Clear(level);
-                            X++;
-                            Draw();
-                            HasMoved = true;
-                            SetVisibility(X, Y, level);
-                            timeSinceLastMove -= timeBetweenMoves;
-                        }
-                        return true;
-                    case ConsoleKey.Spacebar:
-                    case ConsoleKey.Add:
-                        MakeNoise(level, game);
-                        return true;
-                    case ConsoleKey.Escape:
-                        return false;
-                    default:
-                        return true;
-                }
+                case Directions.up:
+                    if (level.IsPositionWalkable(X, Y - 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    {
+                        Clear(level);
+                        Y--;
+                        Draw();
+                        HasMoved = true;
+                        SetVisibility(X, Y, level);
+                        timeSinceLastMove -= timeBetweenMoves;
+                    }
+                    break;
+                case Directions.down:
+                    if (level.IsPositionWalkable(X, Y + 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    {
+                        Clear(level);
+                        Y++;
+                        Draw();
+                        HasMoved = true;
+                        SetVisibility(X, Y, level);
+                        timeSinceLastMove -= timeBetweenMoves;
+                    }
+                    break;
+                case Directions.left:
+                    if (level.IsPositionWalkable(X - 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    {
+                        Clear(level);
+                        X--;
+                        Draw();
+                        HasMoved = true;
+                        SetVisibility(X, Y, level);
+                        timeSinceLastMove -= timeBetweenMoves;
+                    }
+                    break;
+                case Directions.right:
+                    if (level.IsPositionWalkable(X + 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    {
+                        Clear(level);
+                        X++;
+                        Draw();
+                        HasMoved = true;
+                        SetVisibility(X, Y, level);
+                        timeSinceLastMove -= timeBetweenMoves;
+                    }
+                    break;
             }
-            return true;
+        }
+
+        public void MakeNoise(Level level, Game game)
+        {
+            playerCurrentColor = ConsoleColor.White;
+            Draw();
+            game.TunePlayer.PlaySFX(1000, 600);
+            level.AlertGuards(new Vector2(X, Y));
         }
 
         /// <summary>
@@ -243,14 +225,6 @@ namespace HeistGame
             {
                 Visibility = 1;
             }
-        }
-
-        private void MakeNoise(Level level, Game game)
-        {
-            playerCurrentColor = ConsoleColor.White;
-            Draw();
-            game.TunePlayer.PlaySFX(1000, 600);
-            level.AlertGuards(new Vector2(X, Y));
         }
     }
 
