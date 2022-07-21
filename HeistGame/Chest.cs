@@ -1,28 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HeistGame
 {
-    internal class Chest
+    internal class Chest : Unlockable
     {
         private int treasure = 0;
 
-        public Lock ChestLock { get; private set; }
 
         public Chest(int lockLevel, int treasure)
         {
-            ChestLock = new Lock(lockLevel);
+            LockProp = new Lock(lockLevel);
             this.treasure = treasure;
         }
 
-        public void Open(Game game)
+        public override void Unlock(Game game)
         {
-            if (ChestLock.IsLocked())
+            if (LockProp.IsLocked())
             {
-                ChestLock.Unlock();
+                LockProp.Unlock();
+                return;
             }
             
             if (treasure > 0)
@@ -32,7 +28,7 @@ namespace HeistGame
             }
             else
             {
-                game.DisplayMessage("The chest is empty.");
+                game.DisplayMessage(new string[] { "The chest doesn't contain anything of value." });
             }
         }
     }

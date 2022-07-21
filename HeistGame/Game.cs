@@ -485,9 +485,98 @@ namespace HeistGame
 
 
 
-        public void DisplayMessage(string message)
+        public void DisplayMessage(string [] message)
         {
-            
+            int messageLength = EvaluateMessageLength() + 2;
+            int xOffset = messageLength / 2;
+            int x1 = WindowWidth / 2;
+            int x = x1 - xOffset;
+
+            int yOffset = message.Length / 2;
+            int y1 = WindowHeight / 2;
+            int y = y1 - yOffset;
+
+            string firstLine = string.Empty;
+            string lastLine = string.Empty;
+
+            for (int i = 0; i <= messageLength + 1; i++)
+            {
+                char symbol1;
+                char symbol2;
+
+                if (i == 0)
+                {
+                    symbol1 = '┌';
+                    symbol2 = '└';
+                }
+                else if (i == messageLength + 1)
+                {
+                    symbol1 = '┐';
+                    symbol2 = '┘';
+                }
+                else
+                {
+                    symbol1 = '─';
+                    symbol2 = '─';
+                }
+                firstLine += symbol1;
+                lastLine += symbol2;
+            }
+
+            int lines = message.Length + 2;
+
+            for (int i = 0; i < lines; i++)
+            {
+                SetCursorPosition(x, y + i);
+                if (i == 0)
+                {
+                    Write(firstLine);
+                }
+                else if (i == lines - 1)
+                {
+                    Write(lastLine);
+                }
+                else
+                {
+                    Write("|");
+                    int lengthDifference = messageLength - message[i-1].Length;
+                    int half = lengthDifference / 2;
+                    if (lengthDifference > 0)
+                    {
+                        for (int j = 1; j <= half; j++)
+                        {
+                            Write(" ");
+                        }
+                    }
+                    Write(message[i - 1]);
+                    if (lengthDifference > 0)
+                    {
+                        lengthDifference -= half;
+                        for (int j = 1; j <= lengthDifference; j++)
+                        {
+                            Write(" ");
+                        }
+                    }
+                    Write("|");
+                }
+            }
+
+            ReadKey();
+            Clear();
+
+            int EvaluateMessageLength()
+            {
+                int messageLength = 0;
+                for (int i = 0; i < message.Length; i++)
+                {
+                    int length = message[i].Length;
+                    if (length > messageLength)
+                    {
+                        messageLength = length;
+                    }
+                }
+                return messageLength;
+            }
         }
 
 
@@ -675,7 +764,7 @@ namespace HeistGame
                     "You can't be here!",
                     "You are not allowed here!",
                     "Thief!",
-                    "Show's over, thief!",
+                    "You luck's over, thief!",
                     "Who goes there?!"
                 };
 

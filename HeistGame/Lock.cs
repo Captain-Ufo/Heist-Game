@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HeistGame
 {
@@ -21,12 +17,17 @@ namespace HeistGame
 
         public bool IsLocked()
         {
-            return currentLockLevel <= 0;
+            return currentLockLevel > 0;
+        }
+
+        public int GetLockLevel()
+        {
+            return currentLockLevel;
         }
 
         public void Unlock()
         {
-
+            Console.WriteLine("Unlocked!");
         }
     }
 }

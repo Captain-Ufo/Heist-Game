@@ -1,25 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HeistGame
 {
-    internal class Door
+    internal class Door : Unlockable
     {
-        public Lock DoorLock { get; private set; }
-
         public Door(int lockLevel)
         {
-            DoorLock = new Lock(lockLevel);
+            LockProp = new Lock(lockLevel);
         }
 
-        public void Open()
+        public override void Unlock(Game game)
         {
-            if (DoorLock.IsLocked())
+            if (LockProp.IsLocked())
             {
-                DoorLock.Unlock();
+                LockProp.Unlock();
             }
         }
     }
