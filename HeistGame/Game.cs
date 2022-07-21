@@ -21,7 +21,6 @@ namespace HeistGame
         private bool hasDrawnBackground;
         private int totalGold;
         private string levelFilesPath;
-        private string gameVersion = "1.6.1";
         private Menu mainMenu;
         private Menu bribeMenu;
         private Menu campaignsMenu;
@@ -37,6 +36,7 @@ namespace HeistGame
         public int TimesCaught { get; private set; }
         public Stopwatch MyStopwatch { get; private set; }
         public ChiptunePlayer TunePlayer { get; private set; }
+        public Unlockable ActiveUnlockable { get; set; }
 
         /// <summary>
         /// Initializes all the required elements and runs the game
@@ -370,6 +370,11 @@ namespace HeistGame
                     }
                 }
 
+                if (ActiveUnlockable != null)
+                {
+                    ActiveUnlockable.Unlock(this);
+                }
+
                 Thread.Sleep(20);
             }
 
@@ -401,7 +406,8 @@ namespace HeistGame
 
         private bool HandleInputs(int currentLevel, int deltaTimeMS)
         {
-            if (!ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this, deltaTimeMS))
+            ControlState state = ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this, deltaTimeMS);
+            if ( state == ControlState.Escape)
             {
                 MyStopwatch.Stop();
                 if (QuitGame())
@@ -1101,7 +1107,7 @@ namespace HeistGame
             Clear();
             string[] saveFiles = saveSystem.CheckForSavedGames();
 
-            string gameVersionText = "Version " + gameVersion;
+            string gameVersionText = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             SetCursorPosition(WindowWidth - 5 - gameVersionText.Length, WindowHeight - 2);
             WriteLine(gameVersionText);
@@ -1682,14 +1688,17 @@ namespace HeistGame
             switch (selection)
             {
                 case 0:
+                    ControlsManager.State = ControlState.Idle;
                     return false;
                 case 1:
+                    ControlsManager.State = ControlState.Idle;
                     RunMainMenu();
                     return true;
                 case 2:
                     Environment.Exit(0);
                     return true;
                 default:
+                    ControlsManager.State = ControlState.Idle;
                     return false;
             }
         }

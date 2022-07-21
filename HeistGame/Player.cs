@@ -29,6 +29,7 @@ namespace HeistGame
         /// <summary>
         /// Whether the player has moved in the current frame or not
         /// </summary>
+        public bool IsStill { get; set; }
         public bool HasMoved { get; set; }
         /// <summary>
         /// Describes how far the player can be seen (depends on the local tile's light level)
@@ -48,6 +49,8 @@ namespace HeistGame
             Y = level.PlayerStartY;
 
             SetVisibility(level.PlayerStartX, level.PlayerStartY, level);
+
+            IsStill = true;
 
             playerMarker = marker;
             playerBaseColor = color;
@@ -80,53 +83,40 @@ namespace HeistGame
             timeSinceLastMove += deltaTimeMS;
             playerCurrentColor = playerBaseColor;
 
+            Clear(level);
+
             switch (direction)
             {
                 case Directions.up:
                     if (level.IsPositionWalkable(X, Y - 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
-                        Clear(level);
                         Y--;
-                        Draw();
-                        HasMoved = true;
-                        SetVisibility(X, Y, level);
-                        timeSinceLastMove -= timeBetweenMoves;
                     }
                     break;
                 case Directions.down:
                     if (level.IsPositionWalkable(X, Y + 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
-                        Clear(level);
                         Y++;
-                        Draw();
-                        HasMoved = true;
-                        SetVisibility(X, Y, level);
-                        timeSinceLastMove -= timeBetweenMoves;
                     }
                     break;
                 case Directions.left:
                     if (level.IsPositionWalkable(X - 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
-                        Clear(level);
                         X--;
-                        Draw();
-                        HasMoved = true;
-                        SetVisibility(X, Y, level);
-                        timeSinceLastMove -= timeBetweenMoves;
                     }
                     break;
                 case Directions.right:
                     if (level.IsPositionWalkable(X + 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
-                        Clear(level);
                         X++;
-                        Draw();
-                        HasMoved = true;
-                        SetVisibility(X, Y, level);
-                        timeSinceLastMove -= timeBetweenMoves;
                     }
                     break;
             }
+
+            Draw();
+            HasMoved = true;
+            SetVisibility(X, Y, level);
+            timeSinceLastMove -= timeBetweenMoves;
         }
 
         public void MakeNoise(Level level, Game game)

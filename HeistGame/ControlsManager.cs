@@ -5,7 +5,9 @@ namespace HeistGame
 {
     internal static class ControlsManager
     {
-        public static bool HandleInputs(Level level, Game game, int deltaTimeMS)
+        public static ControlState State { get; set; }
+
+        public static ControlState HandleInputs(Level level, Game game, int deltaTimeMS)
         {
             if (KeyAvailable)
             {
@@ -22,44 +24,83 @@ namespace HeistGame
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
                     case ConsoleKey.NumPad8:
-                        game.PlayerCharacter.Move(Directions.up, level, game, deltaTimeMS);
+                        if (State != ControlState.Interact)
+                        {
+                            game.PlayerCharacter.Move(Directions.up, level, game, deltaTimeMS);
+                            State = ControlState.Move;
+                        }
                         //Stop lockpicking if in progress
-                        return true;
+                        break;
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
                     case ConsoleKey.NumPad2:
-                        game.PlayerCharacter.Move(Directions.down, level, game, deltaTimeMS);
+                        if (State != ControlState.Interact)
+                        {
+                            game.PlayerCharacter.Move(Directions.down, level, game, deltaTimeMS);
+                            State = ControlState.Move;
+                        }
                         //Stop lockpicking if in progress
-                        return true;
+                        break;
                     case ConsoleKey.LeftArrow:
                     case ConsoleKey.A:
                     case ConsoleKey.NumPad4:
-                        game.PlayerCharacter.Move(Directions.left, level, game, deltaTimeMS);
+                        if (State != ControlState.Interact)
+                        {
+                            game.PlayerCharacter.Move(Directions.left, level, game, deltaTimeMS);
+                            State = ControlState.Move;
+                        }
                         //Stop lockpicking if in progress
-                        return true;
+                        break;
                     case ConsoleKey.RightArrow:
                     case ConsoleKey.D:
                     case ConsoleKey.NumPad6:
-                        game.PlayerCharacter.Move(Directions.right, level, game, deltaTimeMS);
+                        if (State != ControlState.Interact)
+                        {
+                            game.PlayerCharacter.Move(Directions.right, level, game, deltaTimeMS);
+                            State = ControlState.Move;
+                        }
                         //Stop lockpicking if in progress
-                        return true;
+                        break;
                     case ConsoleKey.Spacebar:
                     case ConsoleKey.Add:
-                        game.PlayerCharacter.MakeNoise(level, game);
+                        if (State != ControlState.Interact)
+                        {
+                            game.PlayerCharacter.MakeNoise(level, game);
+                            State = ControlState.Yell;
+                        }
                         //Stop lockpicking if in progress
-                        return true;
+                        break;
                     case ConsoleKey.E:
                     case ConsoleKey.Enter:
+                        if (State != ControlState.Interact)
+                        {
+                            State = ControlState.Interact;
+                        }
+                        else
+                        {
+                            State = ControlState.Idle;
+                        }
                         //Interact with items
-                        //Stock lockpicking if in progress
-                        return true;
+                        //Stoplockpicking if in progress
+                        break;
                     case ConsoleKey.Escape:
-                        return false;
+                        if (State != ControlState.Interact)
+                        {
+                            State = ControlState.Escape;
+                        }
+                        else
+                        {
+                            State = ControlState.Idle;
+                        }
+                        break;
                     default:
-                        return true;
+                        State = ControlState.Idle;
+                        break;
                 }
             }
-            return true;
+            return State;
         }
     }
+
+    internal enum ControlState { Move, Interact, Yell, Escape, Idle }
 }
