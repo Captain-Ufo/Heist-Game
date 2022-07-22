@@ -28,6 +28,7 @@ namespace HeistGame
         private SaveSystem saveSystem;
         private Random rng;
 
+        public TileSelector Selector { get; private set; }
         public Campaign ActiveCampaign { get; private set; }
         public Player PlayerCharacter { get; private set; }
         public Difficulty DifficultyLevel { get; private set; }
@@ -47,7 +48,7 @@ namespace HeistGame
             TunePlayer = new ChiptunePlayer();
             MyStopwatch = new Stopwatch();
             rng = new Random();
-            //levels = new List<Level>();
+            Selector = new TileSelector(this);
 
             playerHasBeenCaught = false;
             TimesCaught = 0;
@@ -437,6 +438,7 @@ namespace HeistGame
             }
             ActiveCampaign.Levels[currentRoom].DrawGuards();
             DrawUI(currentRoom);
+            if (Selector.IsActive) { Selector.Draw(); }
             CursorVisible = false;
         }
 
@@ -591,6 +593,7 @@ namespace HeistGame
         public void CapturePlayer(Guard guard)
         {
             MyStopwatch.Stop();
+            if (Selector.IsActive) { Selector.Deactivate(); }
 
             bool canBeBribed = DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.VeryEasy || guard.TimesBribed < 1;
 

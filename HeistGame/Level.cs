@@ -197,14 +197,17 @@ namespace HeistGame
         }
 
 
-        private void DrawTile(int x, int y, string element)
+        public void DrawTile(int x, int y, string element, bool highlighted = false)
         {
+            if (highlighted) { BackgroundColor = ConsoleColor.White; }
+
             SetCursorPosition(x, y);
             if (element == SymbolsConfig.EmptySpace.ToString())
             {
                 Vector2 tile = new Vector2(x, y);
                 int lightValue = GetLightLevelInItle(tile);
-                ForegroundColor = ConsoleColor.DarkBlue;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.DarkBlue; }
                 switch (lightValue)
                 {
                     case 0:
@@ -224,28 +227,34 @@ namespace HeistGame
             {
                 if (IsLocked)
                 {
-                    ForegroundColor = ConsoleColor.Red;
+                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                    else { ForegroundColor = ConsoleColor.Red; }
                 }
                 else
                 {
-                    ForegroundColor = ConsoleColor.Green;
+                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                    else { ForegroundColor = ConsoleColor.Green; }
                 }
             }
             else if (element == SymbolsConfig.KeyChar.ToString())
             {
-                ForegroundColor = ConsoleColor.DarkYellow;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.DarkYellow; }
             }
             else if (element == SymbolsConfig.TreasureChar.ToString())
             {
-                ForegroundColor = ConsoleColor.Yellow;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.Yellow; }
             }
             else if (element == "☺")
             {
-                ForegroundColor = ConsoleColor.DarkMagenta;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.DarkMagenta; }
             }
             else
             {
-                ForegroundColor = ConsoleColor.Gray;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.Gray; }
             }
             Write(element);
             ResetColor();
@@ -358,6 +367,32 @@ namespace HeistGame
             return grid[y, x];
         }
 
+        public bool InteractWithElementAt(int x, int y, Game game)
+        {
+            string element = GetElementAt (x, y);
+
+            if (element == SymbolsConfig.EmptySpace.ToString()) { return false; }
+            if (element == SymbolsConfig.TreasureChar.ToString()) 
+            {
+                game.TunePlayer.PlaySFX(1000, 100);
+                game.PlayerCharacter.ChangeLoot(100);
+                ChangeElementAt(x, y, SymbolsConfig.EmptySpace.ToString());
+            }
+            if (element == SymbolsConfig.KeyChar.ToString())
+            {
+                game.TunePlayer.PlaySFX(800, 100);
+                CollectKeyPiece(x, y);
+            }
+            if (element == SymbolsConfig.LeverOffChar.ToString() || element == SymbolsConfig.LeverOnChar.ToString())
+            {
+                game.TunePlayer.PlaySFX(100, 100);
+                ToggleLever(x, y);
+                game.PlayerCharacter.Draw();
+            }
+            return true;
+
+        }
+
         /// <summary>
         /// Replaces a symbol in a given location
         /// </summary>
@@ -450,7 +485,7 @@ namespace HeistGame
         /// </summary>
         /// <param name="x">The X coordinate on the grid of the level to toggle</param>
         /// <param name="y">The Y coordinate on the grid of the level to toggle</param>
-        public void ToggleLever(int x, int y)
+        public void ToggleLever(int x, int y, bool withOffset = true)
         {
             stopwatch.Stop();
 
@@ -459,7 +494,14 @@ namespace HeistGame
             if (leversDictionary.ContainsKey(leverCoord))
             {
                 Lever lever = leversDictionary[leverCoord];
-                lever.Toggle(this, xOffset, yOffset);
+                int xOffsetLocal = 0;
+                int yOffsetLocal = 0;
+                if (withOffset)
+                {
+                    xOffsetLocal = xOffset;
+                    yOffsetLocal = yOffset;
+                }
+                lever.Toggle(this, xOffsetLocal, yOffsetLocal);
             }
 
             Lights.CalculateLightMap(this);

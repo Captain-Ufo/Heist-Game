@@ -29,6 +29,10 @@ namespace HeistGame
                             game.PlayerCharacter.Move(Directions.up, level, game, deltaTimeMS);
                             State = ControlState.Move;
                         }
+                        else
+                        {
+                            game.Selector.Move(Directions.up);
+                        }
                         //Stop lockpicking if in progress
                         break;
                     case ConsoleKey.DownArrow:
@@ -38,6 +42,10 @@ namespace HeistGame
                         {
                             game.PlayerCharacter.Move(Directions.down, level, game, deltaTimeMS);
                             State = ControlState.Move;
+                        }
+                        else
+                        {
+                            game.Selector.Move(Directions.down);
                         }
                         //Stop lockpicking if in progress
                         break;
@@ -49,6 +57,10 @@ namespace HeistGame
                             game.PlayerCharacter.Move(Directions.left, level, game, deltaTimeMS);
                             State = ControlState.Move;
                         }
+                        else
+                        {
+                            game.Selector.Move(Directions.left);
+                        }
                         //Stop lockpicking if in progress
                         break;
                     case ConsoleKey.RightArrow:
@@ -59,6 +71,10 @@ namespace HeistGame
                             game.PlayerCharacter.Move(Directions.right, level, game, deltaTimeMS);
                             State = ControlState.Move;
                         }
+                        else
+                        {
+                            game.Selector.Move(Directions.right);
+                        }
                         //Stop lockpicking if in progress
                         break;
                     case ConsoleKey.Spacebar:
@@ -68,6 +84,14 @@ namespace HeistGame
                             game.PlayerCharacter.MakeNoise(level, game);
                             State = ControlState.Yell;
                         }
+                        else
+                        {
+                            if (!game.ActiveCampaign.Levels[game.CurrentRoom].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
+                            {
+                                State = ControlState.Idle;
+                                game.Selector.Deactivate();
+                            }
+                        }
                         //Stop lockpicking if in progress
                         break;
                     case ConsoleKey.E:
@@ -75,10 +99,16 @@ namespace HeistGame
                         if (State != ControlState.Interact)
                         {
                             State = ControlState.Interact;
+                            game.Selector.Activate();
                         }
                         else
                         {
-                            State = ControlState.Idle;
+
+                            if (!game.ActiveCampaign.Levels[game.CurrentRoom].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
+                            { 
+                                State = ControlState.Idle;
+                                game.Selector.Deactivate(); 
+                            }
                         }
                         //Interact with items
                         //Stoplockpicking if in progress
@@ -91,6 +121,9 @@ namespace HeistGame
                         else
                         {
                             State = ControlState.Idle;
+                            //NO INTERACTION! This just cancels it
+                            game.Selector.Deactivate();
+                            //Stop lockpicking if in progress
                         }
                         break;
                     default:
