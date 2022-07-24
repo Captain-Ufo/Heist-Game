@@ -149,7 +149,7 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
-            if (symbol == SymbolsConfig.EmptySpace.ToString())
+            if (symbol == SymbolsConfig.Empty.ToString())
             {
                 Vector2 tile = new Vector2(X, Y);
                 int lightValue = level.GetLightLevelInItle(tile);
@@ -159,17 +159,17 @@ namespace HeistGame
                     case 0:
                         break;
                     case 1:
-                        symbol = SymbolsConfig.Light1char.ToString();
+                        symbol = SymbolsConfig.Light1.ToString();
                         break;
                     case 2:
-                        symbol = SymbolsConfig.Light2char.ToString();
+                        symbol = SymbolsConfig.Light2.ToString();
                         break;
                     case 3:
-                        symbol = SymbolsConfig.Light3char.ToString();
+                        symbol = SymbolsConfig.Light3.ToString();
                         break;
                 }
             }
-            else if (symbol == SymbolsConfig.ExitChar.ToString())
+            else if (symbol == SymbolsConfig.Exit.ToString())
             {
                 if (level.IsLocked)
                 {

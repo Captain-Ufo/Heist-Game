@@ -28,7 +28,7 @@ namespace HeistGame
             }
             else
             {
-                game.DisplayMessage(new string[] { "The chest doesn't contain anything of value." });
+                game.UserInterface.DisplayMessageOnLable(new string[] { "The chest doesn't contain anything of value." });
             }
         }
     }

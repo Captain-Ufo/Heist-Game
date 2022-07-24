@@ -110,8 +110,7 @@ namespace HeistGame
                                 game.Selector.Deactivate(); 
                             }
                         }
-                        //Interact with items
-                        //Stoplockpicking if in progress
+                        //Stop lockpicking if in progress
                         break;
                     case ConsoleKey.Escape:
                         if (State != ControlState.Interact)
@@ -132,6 +131,12 @@ namespace HeistGame
                 }
             }
             return State;
+        }
+
+        public static void ResetControlState(Game game)
+        {
+            game.Selector.Deactivate();
+            State = ControlState.Idle;
         }
     }
 

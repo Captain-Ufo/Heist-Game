@@ -67,7 +67,7 @@ namespace HeistGame
         {
             anchorX = x;
             anchorY = y;
-            X = anchorX - 1;
+            X = anchorX;
             Y = anchorY - 1;
         }
 

@@ -1,29 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HeistGame
+﻿namespace HeistGame
 {
     /// <summary>
     /// A helper class that holds in a centralized place all the gameplay relevant symbols
     /// </summary>
     public static class SymbolsConfig
     {
-        public const char ExitChar = 'Ð';
-        public const char EntranceChar = '≡';
-        public const char KeyChar = '¶';
-        public const char SpawnChar = 'X';
-        public const char EmptySpace = ' ';
-        public const char TreasureChar = '$';
-        public const char LeverOffChar = '\\';
-        public const char LeverOnChar = '/';
-        public const char GateChar = '#';
-        public const char EnclosedSpaceChar = '.';
-        public const char StrongLightChar = '*';
-        public const char WeakLightChar = '+';
-        public const char Light1char = '░';
-        public const char Light2char = '▒';
-        public const char Light3char = '▓';
+        public const char Exit = 'Ω';
+
+        public const char Entrance = '≡';
+
+        public const char Key = '¶';
+
+        public const char Spawn = 'X';
+
+        public const char Empty = ' ';
+
+        public const char Treasure = '$';
+
+        public const char LeverOff = '\\';
+        public const char LeverOn = '/';
+        public const char Gate = '#';
+
+        public const char EnclosedSpace = '.';
+        public const char StrongLight = '*';
+        public const char WeakLight = '+';
+        public const char Light1 = '░';
+        public const char Light2 = '▒';
+        public const char Light3 = '▓';
+
+        public const char Signpost = 'ȹ';
+
+        public const char ChestClosed = '◙';
+        public const char ChestOpened = '◘';
+        public const char ChestEmpty = 'Ͻ';
+        public const char ChestWithTreasure = 'Ͼ';
+        public const char ChestWithRandomTresture = 'Ͽ';
 
         public const string OutroArt = @"
 

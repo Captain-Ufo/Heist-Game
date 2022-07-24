@@ -18,7 +18,6 @@ namespace HeistGame
         private string[] availableMissions;
         private string[] availableCampaigns;
         private bool playerHasBeenCaught;
-        private bool hasDrawnBackground;
         private int totalGold;
         private string levelFilesPath;
         private Menu mainMenu;
@@ -28,6 +27,8 @@ namespace HeistGame
         private SaveSystem saveSystem;
         private Random rng;
 
+        public UI UserInterface { get; private set; }
+        public bool HasDrawnBackground { get; set; }
         public TileSelector Selector { get; private set; }
         public Campaign ActiveCampaign { get; private set; }
         public Player PlayerCharacter { get; private set; }
@@ -44,6 +45,7 @@ namespace HeistGame
         /// </summary>
         public void Start()
         {
+            UserInterface = new UI(this);
             saveSystem = new SaveSystem();
             TunePlayer = new ChiptunePlayer();
             MyStopwatch = new Stopwatch();
@@ -63,20 +65,6 @@ namespace HeistGame
 
 
         #region SetUp
-        private void DisplayLoading()
-        {
-            string loadingText = "...Loading...";
-            int posY = WindowHeight / 2;
-            int halfX = WindowWidth / 2;
-            int textOffset = loadingText.Length / 2;
-            int posX = halfX - textOffset;
-
-            SetCursorPosition(posX, posY);
-            WriteLine(loadingText);
-        }
-
-
-
         private void InstantiateCampaignEntities(string configFileDir, int startBooty, int startLevel)
         {
             string filePath = levelFilesPath + "/" + configFileDir + "/CampaignConfig.txt";
@@ -130,7 +118,7 @@ namespace HeistGame
                     RunMainMenu();
                 }
 
-                LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(missionConfig.LevelMap, DifficultyLevel);
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
 
                 if (levelInfo.PlayerStartX < 0)
                 {
@@ -147,7 +135,7 @@ namespace HeistGame
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
-                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing,
+                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, missionConfig.Briefing,
                                      missionConfig.Outro, MyStopwatch));
 
                 totalGold += levelInfo.TotalGold;
@@ -182,7 +170,7 @@ namespace HeistGame
                 RunMainMenu();
             }
 
-            LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(missionConfig.LevelMap, DifficultyLevel);
+            LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
 
             if (levelInfo.PlayerStartX < 0)
             {
@@ -199,7 +187,7 @@ namespace HeistGame
             LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
             levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
-                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, missionConfig.Briefing,
+                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, missionConfig.Briefing,
                                  missionConfig.Outro, MyStopwatch));
 
             totalGold += levelInfo.TotalGold;
@@ -218,12 +206,12 @@ namespace HeistGame
 
             for (int i = 0; i < tutorial.TutorialLevels.Length; i++)
             {
-                LevelInfo levelInfo = LevelParser.ParseFileToLevelInfo(tutorial.TutorialLevels[i], DifficultyLevel);
+                LevelInfo levelInfo = LevelParser.ParseMapToLevelInfo(tutorial.TutorialLevels[i], DifficultyLevel);
 
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
-                                     levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, null,
+                                     levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, null,
                                      null, MyStopwatch));
             }
 
@@ -240,7 +228,7 @@ namespace HeistGame
         private void PlayGampaign(string missionDirectory, int startRoom = 0, int startBooty = 0)
         {
             Clear();
-            DisplayLoading();
+            UserInterface.DisplayLoading();
             InstantiateCampaignEntities(missionDirectory, startBooty, startRoom);
             RunGameLoop(startRoom);
         }
@@ -250,7 +238,7 @@ namespace HeistGame
         private void PlayMission(string mission)
         {
             Clear();
-            DisplayLoading();
+            UserInterface.DisplayLoading();
             InstantiateMissionEntities(mission);
             RunGameLoop(0);
         }
@@ -262,7 +250,7 @@ namespace HeistGame
             Tutorial tutorial = new Tutorial();
 
             Clear();
-            DisplayLoading();
+            UserInterface.DisplayLoading();
             DifficultyLevel = Difficulty.VeryEasy;
             InstantiateTutorialEntities(tutorial);
             RunGameLoop(0, tutorial);
@@ -281,7 +269,7 @@ namespace HeistGame
             Clear();
 
             CurrentRoom = startRoom;
-            hasDrawnBackground = false;
+            HasDrawnBackground = false;
             bool hasDisplayedBriefing = false;
 
             while (true)
@@ -289,7 +277,7 @@ namespace HeistGame
                 if (!hasDisplayedBriefing)
                 {
                     MyStopwatch.Stop();
-                    DisplayMissionText(ActiveCampaign.Levels[CurrentRoom].Briefing);
+                    UserInterface.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Briefing);
                     hasDisplayedBriefing = true;
                 }
 
@@ -322,37 +310,37 @@ namespace HeistGame
 
                 string elementAtPlayerPosition = ActiveCampaign.Levels[CurrentRoom].GetElementAt(PlayerCharacter.X, PlayerCharacter.Y);
 
-                if (elementAtPlayerPosition == SymbolsConfig.TreasureChar.ToString())
+                if (elementAtPlayerPosition == SymbolsConfig.Treasure.ToString())
                 {
                     TunePlayer.PlaySFX(1000, 100);
-                    ActiveCampaign.Levels[CurrentRoom].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.EmptySpace.ToString());
+                    ActiveCampaign.Levels[CurrentRoom].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.Empty.ToString());
                     PlayerCharacter.Draw();
                     PlayerCharacter.ChangeLoot(100);
                 }
-                else if (elementAtPlayerPosition == SymbolsConfig.KeyChar.ToString())
+                else if (elementAtPlayerPosition == SymbolsConfig.Key.ToString())
                 {
                     TunePlayer.PlaySFX(800, 100);
                     ActiveCampaign.Levels[CurrentRoom].CollectKeyPiece(PlayerCharacter.X, PlayerCharacter.Y);
                     PlayerCharacter.Draw();
                 }
-                else if ((elementAtPlayerPosition == SymbolsConfig.LeverOffChar.ToString()
-                    || elementAtPlayerPosition == SymbolsConfig.LeverOnChar.ToString())
+                else if ((elementAtPlayerPosition == SymbolsConfig.LeverOff.ToString()
+                    || elementAtPlayerPosition == SymbolsConfig.LeverOn.ToString())
                     && PlayerCharacter.HasMoved)
                 {
                     TunePlayer.PlaySFX(100, 100);
                     ActiveCampaign.Levels[CurrentRoom].ToggleLever(PlayerCharacter.X, PlayerCharacter.Y);
                     PlayerCharacter.Draw();
                 }
-                else if (elementAtPlayerPosition == SymbolsConfig.ExitChar.ToString() && !ActiveCampaign.Levels[CurrentRoom].IsLocked)
+                else if (elementAtPlayerPosition == SymbolsConfig.Exit.ToString() && !ActiveCampaign.Levels[CurrentRoom].IsLocked)
                 {
                     MyStopwatch.Stop();
-                    DisplayMissionText(ActiveCampaign.Levels[CurrentRoom].Outro);
+                    UserInterface.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Outro);
 
                     if (ActiveCampaign.Levels.Length > CurrentRoom + 1)
                     {
                         CurrentRoom++;
                         PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[CurrentRoom].PlayerStartX, ActiveCampaign.Levels[CurrentRoom].PlayerStartY);
-                        hasDrawnBackground = false;
+                        HasDrawnBackground = false;
                         hasDisplayedBriefing = false;
 
                         if (tutorial == null)
@@ -384,7 +372,7 @@ namespace HeistGame
                 if (tutorial != null)
                 {
                     tutorial.DisplayTutorialFail();
-                    hasDrawnBackground = false;
+                    HasDrawnBackground = false;
                     playerHasBeenCaught = false;
                     TimesCaught = 0;
                     PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[CurrentRoom].PlayerStartX, ActiveCampaign.Levels[CurrentRoom].PlayerStartY);
@@ -419,7 +407,7 @@ namespace HeistGame
                 {
                     Clear();
                     MyStopwatch.Start();
-                    hasDrawnBackground = false;
+                    HasDrawnBackground = false;
                     return true;
                 }
             }
@@ -430,162 +418,16 @@ namespace HeistGame
 
         private void DrawFrame(int currentRoom)
         {
-            if (!hasDrawnBackground)
+            if (!HasDrawnBackground)
             {
                 ActiveCampaign.Levels[currentRoom].Draw();
                 PlayerCharacter.Draw();
-                hasDrawnBackground = true;
+                HasDrawnBackground = true;
             }
             ActiveCampaign.Levels[currentRoom].DrawGuards();
-            DrawUI(currentRoom);
+            UserInterface.DrawUI(currentRoom);
             if (Selector.IsActive) { Selector.Draw(); }
             CursorVisible = false;
-        }
-
-
-
-        private void DrawUI(int currentLevel)
-        {
-            int uiPosition = WindowHeight - 4;
-
-            SetCursorPosition(0, uiPosition);
-            for (int i = 0; i < WindowWidth; i++)
-            {
-                Write("_");
-            }
-            WriteLine("");
-            Write($"   {ActiveCampaign.Levels[currentLevel].Name}");
-            SetCursorPosition(32, CursorTop);
-            Write($"Difficulty: {DifficultyLevel}");
-            SetCursorPosition(54, CursorTop);
-            Write($"Loot: ${PlayerCharacter.Loot}");
-            SetCursorPosition(70, CursorTop);
-            Write("Visibility: [ ");
-            int visibilityLevel = PlayerCharacter.Visibility / 3;
-            string visibilityDisplay = "";
-            switch (visibilityLevel)
-            {
-                default:
-                case 0:
-                    visibilityDisplay = "   ";
-                    break;
-                case 1:
-                    ForegroundColor = ConsoleColor.DarkGray;
-                    visibilityDisplay = "░░░";
-                    break;
-                case 2:
-                    ForegroundColor = ConsoleColor.Yellow;
-                    visibilityDisplay = "▒▒▒";
-                    break;
-                case 3:
-                    ForegroundColor = ConsoleColor.Yellow;
-                    visibilityDisplay = "▓▓▓";
-                    break;
-            }
-            Write(visibilityDisplay);
-            ResetColor();
-            Write(" ]");
-
-            string quitInfo = "Press Escape to quit.";
-            SetCursorPosition(WindowWidth - quitInfo.Length - 3, WindowHeight - 2);
-            Write(quitInfo);
-        }
-
-
-
-        public void DisplayMessage(string [] message)
-        {
-            int messageLength = EvaluateMessageLength() + 2;
-            int xOffset = messageLength / 2;
-            int x1 = WindowWidth / 2;
-            int x = x1 - xOffset;
-
-            int yOffset = message.Length / 2;
-            int y1 = WindowHeight / 2;
-            int y = y1 - yOffset;
-
-            string firstLine = string.Empty;
-            string lastLine = string.Empty;
-
-            for (int i = 0; i <= messageLength + 1; i++)
-            {
-                char symbol1;
-                char symbol2;
-
-                if (i == 0)
-                {
-                    symbol1 = '┌';
-                    symbol2 = '└';
-                }
-                else if (i == messageLength + 1)
-                {
-                    symbol1 = '┐';
-                    symbol2 = '┘';
-                }
-                else
-                {
-                    symbol1 = '─';
-                    symbol2 = '─';
-                }
-                firstLine += symbol1;
-                lastLine += symbol2;
-            }
-
-            int lines = message.Length + 2;
-
-            for (int i = 0; i < lines; i++)
-            {
-                SetCursorPosition(x, y + i);
-                if (i == 0)
-                {
-                    Write(firstLine);
-                }
-                else if (i == lines - 1)
-                {
-                    Write(lastLine);
-                }
-                else
-                {
-                    Write("|");
-                    int lengthDifference = messageLength - message[i-1].Length;
-                    int half = lengthDifference / 2;
-                    if (lengthDifference > 0)
-                    {
-                        for (int j = 1; j <= half; j++)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    Write(message[i - 1]);
-                    if (lengthDifference > 0)
-                    {
-                        lengthDifference -= half;
-                        for (int j = 1; j <= lengthDifference; j++)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    Write("|");
-                }
-            }
-
-            ReadKey();
-            Clear();
-            hasDrawnBackground = false;
-
-            int EvaluateMessageLength()
-            {
-                int messageLength = 0;
-                for (int i = 0; i < message.Length; i++)
-                {
-                    int length = message[i].Length;
-                    if (length > messageLength)
-                    {
-                        messageLength = length;
-                    }
-                }
-                return messageLength;
-            }
         }
 
 
@@ -607,7 +449,7 @@ namespace HeistGame
 
             TimesCaught++;
             Clear();
-            hasDrawnBackground = false;
+            HasDrawnBackground = false;
 
             MyStopwatch.Start();
         }
@@ -633,18 +475,18 @@ namespace HeistGame
 
             string[] guardArt =
             {
-                @"                           __.--|~|--.__                               ,,;/;  ",
-                @"                         /~     | |    ;~\                          ,;;;/;;'  ",
-                @"                        /|      | |    ;~\\                      ,;;;;/;;;'   ",
-                @"                       |/|      \_/   ;;;|\                    ,;;;;/;;;;'    ",
-                @"                       |/ \          ;;;/  )                 ,;;;;/;;;;;'     ",
-                @"                   ___ | ______     ;_____ |___....__      ,;;;;/;;;;;'       ",
-                @"             ___.-~ \\(| \  \.\ \__/ /./ /:|)~   ~   \   ,;;;;/;;;;;'         ",
-                @"         /~~~    ~\    |  ~-.     |   .-~: |//  _.-~~--,;;;;/;;;;;'           ",
-                @"        (.-~___     \.'|    | /-.__.-\|::::| //~      ,;;;;/;;;;;'            ",
-                @"        /      ~~--._ \|   /   ______ `\:: |/       ,;;;;/;;;;;'              ",
-                @"     .-|             ~~|   |  /''''''\ |:  |      ,;;;;/;;;;;' \              ",
-                @"    /                   \  |  ~`'~~''~ |  /     ,;;;;/;;;;;'--__;             ",
+                @"                           __.--|~|--.__                                 ,,;/;",
+                @"                         /~     | |    ;~\                            ,;;;/;;'",
+                @"                        /|      | |    ;~\\                        ,;;;;/;;;' ",
+                @"                       |/|      \_/   ;;;|\                      ,;;;;/;;;;'  ",
+                @"                       |/ \          ;;;/  )                   ,;;;;/;;;;;'   ",
+                @"                   ___ | ______     ;_____ |___....__        ,;;;;/;;;;;'     ",
+                @"             ___.-~ \\(| \  (.\ \__/ /.) /:|)~   ~   \     ,;;;;/;;;;;'       ",
+                @"         /~~~    ~\    |  ~-.     |   .-~: |//  _.-~~--__,;;;;/;;;;;'         ",
+                @"        (.-~___     \.'|    | /-.__.-\|::::| //~       ,;;;;/;;;;;'           ",
+                @"        /      ~~--._ \|   /   ______ `\:: |/        ,;;;;/;;;;;'             ",
+                @"     .-|             ~~|   |  /''''''\ |:  |       ,;;;;/;;;;;'\              ",
+                @"    /                   \  |  ~`'~~''~ |  /      ,;;;;/;;;;;'-__;             ",
                 @"    /                   \  |  ~`'~~''~ |  /    ,;;;;/;;;;;'--__;              ",
                 @"   (        \             \| `\.____./'|/    ,;;;;/;;;;;'      '\             ",
                 @"  / \        \!             \888888888/    ,;;;;/;;;;;'     /    |            ",
@@ -982,7 +824,7 @@ namespace HeistGame
         private void ResetGame(bool deleteSave)
         {
             playerHasBeenCaught = false;
-            hasDrawnBackground = false;
+            HasDrawnBackground = false;
             TimesCaught = 0;
             TimesSpotted = 0;
             PlayerCharacter.SetLoot(0);
@@ -1513,99 +1355,6 @@ namespace HeistGame
 
 
 
-        private void DisplayScreenDecoration()
-        {
-            SetCursorPosition(1, 0);
-            Write("╬");
-            for (int i = 2; i < WindowWidth - 1; i++)
-            {
-                SetCursorPosition(i, 0);
-                Write("═");
-            }
-            SetCursorPosition(WindowWidth - 1, 0);
-            Write("╬");
-            for (int i = 1; i < WindowHeight - 2; i++)
-            {
-                SetCursorPosition(1, i);
-                Write("║");
-                SetCursorPosition(WindowWidth - 1, i);
-                Write("║");
-            }
-            SetCursorPosition(1, WindowHeight - 2);
-            Write("╬");
-            for (int i = 2; i < WindowWidth - 1; i++)
-            {
-                SetCursorPosition(i, WindowHeight - 2);
-                Write("═");
-            }
-            SetCursorPosition(WindowWidth - 1, WindowHeight - 2);
-            Write("╬");
-        }
-
-
-
-        private void DisplayMissionText(string[] text)
-        {
-            if (text == null) { return; }
-
-            if (string.IsNullOrEmpty(text[0])) { return; }
-
-            int firstLineToDisplay = 0;
-            int lastLineToDisplay;
-            if (text.Length > 48) { lastLineToDisplay = 48; }
-            else { lastLineToDisplay = text.Length; }
-
-            List<string> textToDisplay = new List<string>();
-
-            do
-            {
-                textToDisplay.Clear();
-                for (int i = firstLineToDisplay; i < lastLineToDisplay; i++)
-                {
-                    textToDisplay.Add(text[i]);
-                }
-
-                Clear();
-                DisplayScreenDecoration();
-
-                SetCursorPosition(0, (WindowHeight / 2) - ((textToDisplay.Count / 2) + 2));
-
-                foreach (string s in textToDisplay)
-                {
-                    SetCursorPosition((WindowWidth / 2) - (s.Length / 2), CursorTop);
-                    WriteLine(s);
-                }
-
-                SetCursorPosition((WindowWidth / 2) - 2, CursorTop);
-                WriteLine("~··~");
-
-                string t = "Press Enter to continue...";
-                SetCursorPosition((WindowWidth / 2) - (t.Length / 2), CursorTop);
-                ForegroundColor = ConsoleColor.Green;
-                WriteLine(t);
-                ResetColor();
-
-                ConsoleKeyInfo info;
-                do
-                {
-                    info = ReadKey(true);
-                }
-                while (info.Key != ConsoleKey.Enter);
-
-                Clear();
-
-                firstLineToDisplay += 48;
-                lastLineToDisplay += 48;
-                if (lastLineToDisplay > text.Length - 1)
-                {
-                    lastLineToDisplay = text.Length;
-                }
-            }
-            while (firstLineToDisplay < text.Length);
-        }
-
-
-
         private void DisplayAboutInfo()
         {
             Clear();
@@ -1617,7 +1366,7 @@ namespace HeistGame
                 "~·~ CREDITS: ~·~",
                 " ",
                 " ",
-                $"Heist!, a commnd prompt stealth game by {authorName}",
+                $"Heist!, a commnd prompt ASCII stealth game by {authorName}",
                 " ",
                 $"Programming: {authorName}",
                 "Shoutout to Micheal Hadley's \"Intro To Programming in C#\" course:",

@@ -141,7 +141,7 @@ namespace HeistGame
                     instructions = new string[]
                     {
                         "You are Gareth, the non-copyright infringing Master Thief. This is the training course you built in your hideout.",
-                        $"Use athe ARROW KEYS, WASD or NUMPAD 4,8,6,2 to move around the map; reach the exit ({SymbolsConfig.ExitChar}) to complete the level."
+                        $"Use athe ARROW KEYS, WASD or NUMPAD 4,8,6,2 to move around the map; reach the exit ({SymbolsConfig.Exit}) to complete the level."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -149,10 +149,10 @@ namespace HeistGame
                 case 1:
                     instructions = new string[]
                     {
-                        $"Loot ({SymbolsConfig.TreasureChar}) are optional collectibles in each floor.",
+                        $"Loot ({SymbolsConfig.Treasure}) are optional collectibles in each floor.",
                         " ",
                         "If the exit is green, it means it's open and you are free to leave the location (assuming no other obstacles are in the way.)",
-                        $"If the exit is red, you will need to find one or more Keys ({SymbolsConfig.KeyChar}) to unlock it.",
+                        $"If the exit is red, you will need to find one or more Keys ({SymbolsConfig.Key}) to unlock it.",
                         " ",
                         "When you are on a heist, you may have limited knowledge of the locations layouts: you will know where to look for some of the keys,",
                         "but as you collect the known ones, you might find that there are others hidden about the floor.",
@@ -165,7 +165,7 @@ namespace HeistGame
                 case 2:
                     instructions = new string[]
                     {
-                         $"Levers (\\) open and close gates ({SymbolsConfig.GateChar}) throughout the level.",
+                         $"Levers ({SymbolsConfig.LeverOff}) open and close gates ({SymbolsConfig.Gate}) throughout the level.",
                          "They may open optional rooms and passages, or clear the way to your destination.",
                          "Levers can be linked to multiple gates. They may also close gates that start open when you first enter an area",
                     };
