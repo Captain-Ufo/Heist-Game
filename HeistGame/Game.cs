@@ -204,9 +204,9 @@ namespace HeistGame
         {
             List<Level> levels = new List<Level>();
 
-            for (int i = 0; i < tutorial.TutorialLevels.Length; i++)
+            for (int i = 0; i < tutorial.TutorialMissions.Length; i++)
             {
-                LevelInfo levelInfo = LevelParser.ParseMapToLevelInfo(tutorial.TutorialLevels[i], DifficultyLevel);
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(tutorial.TutorialMissions[i], DifficultyLevel);
 
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 

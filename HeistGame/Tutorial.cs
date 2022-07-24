@@ -5,9 +5,9 @@ namespace HeistGame
 {
     class Tutorial
     {
-        public string[][] TutorialLevels { get; private set; } = new string[5][];
+        public MissionConfig[] TutorialMissions { get; private set; } = new MissionConfig[5];
 
-        string[] tutorialLevel1 =
+        string[] tutorialLevel0 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
@@ -18,7 +18,7 @@ namespace HeistGame
             "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║         *         ║              *  Ð ║",
+            "║ X       *         ║         *         ║              *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠════-════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
@@ -30,7 +30,7 @@ namespace HeistGame
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
 
-        string[] tutorialLevel2 =
+        string[] tutorialLevel1 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
@@ -41,7 +41,7 @@ namespace HeistGame
             "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║         *         ║              *  Ð ║",
+            "║ X       *         ║         *         ║              *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠════-════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
@@ -53,7 +53,7 @@ namespace HeistGame
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
 
-        string[] tutorialLevel3 =
+        string[] tutorialLevel2 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
@@ -64,7 +64,7 @@ namespace HeistGame
             "╠═════════╩════ ════╬════ì════╩════ì════╬════ì════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║ E       *         ║         i    *  Ð ║",
+            "║ X       *         ║ E       *         ║         i    *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠════a════╦════a════╬════ì════╦════ì════╬════ ════╬═════════╣",
@@ -76,7 +76,7 @@ namespace HeistGame
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
 
-        string[] tutorialLevel4 =
+        string[] tutorialLevel3 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║    $              ║         ║         ║         ║         ║",
@@ -87,7 +87,7 @@ namespace HeistGame
             "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║ $       $       $ ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║         *         ║              *  Ð ║",
+            "║ X       *         ║         *         ║              *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║ $       $       $ ║                   ║         ║         ║",
             "╠═════════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
@@ -99,7 +99,7 @@ namespace HeistGame
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
 
-        string[] tutorialLevel5 =
+        string[] tutorialLevel4 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║         à         ║         ║         ║         ║    $    ║",
@@ -110,7 +110,7 @@ namespace HeistGame
             "╠═════════╩════à════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║    d    *D   d A  ║    +  B      *  Ð ║",
+            "║ X       *         ║    d    *D   d A  ║    +  B      *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠═════════╦════à════╬════ ════╦════d════╬════ ════╬═════════╣",
@@ -124,11 +124,50 @@ namespace HeistGame
 
         public Tutorial()
         {
-            TutorialLevels[0] = tutorialLevel1;
-            TutorialLevels[1] = tutorialLevel2;
-            TutorialLevels[2] = tutorialLevel3;
-            TutorialLevels[3] = tutorialLevel4;
-            TutorialLevels[4] = tutorialLevel5;
+            string[] emptyBriefing = new string[] { "" };
+            string[][] emptyMessages = new string[1][];
+            emptyMessages[0] = emptyBriefing;
+
+            TutorialMissions[0] = new MissionConfig();
+            TutorialMissions[1] = new MissionConfig();
+            TutorialMissions[2] = new MissionConfig();
+            TutorialMissions[3] = new MissionConfig();
+            TutorialMissions[4] = new MissionConfig();
+
+            //first mission
+            TutorialMissions[0].Name = "Tutorial 1";
+            TutorialMissions[0].LevelMap = tutorialLevel0;
+            TutorialMissions[0].Briefing = emptyBriefing;
+            TutorialMissions[0].Messages = emptyMessages;
+            TutorialMissions[0].Outro = emptyBriefing;
+
+            //second mission
+            TutorialMissions[1].Name = "Tutorial 2";
+            TutorialMissions[1].LevelMap = tutorialLevel1;
+            TutorialMissions[1].Briefing = emptyBriefing;
+            TutorialMissions[1].Messages = emptyMessages;
+            TutorialMissions[1].Outro = emptyBriefing;
+
+            //third mission
+            TutorialMissions[2].Name = "Tutorial 3";
+            TutorialMissions[2].LevelMap = tutorialLevel2;
+            TutorialMissions[2].Briefing = emptyBriefing;
+            TutorialMissions[2].Messages = emptyMessages;
+            TutorialMissions[2].Outro = emptyBriefing;
+
+            //fourth mission
+            TutorialMissions[3].Name = "Tutorial 4";
+            TutorialMissions[3].LevelMap = tutorialLevel3;
+            TutorialMissions[3].Briefing = emptyBriefing;
+            TutorialMissions[3].Messages = emptyMessages;
+            TutorialMissions[3].Outro = emptyBriefing;
+
+            //first mission
+            TutorialMissions[4].Name = "Tutorial 5";
+            TutorialMissions[4].LevelMap = tutorialLevel4;
+            TutorialMissions[4].Briefing = emptyBriefing;
+            TutorialMissions[4].Messages = emptyMessages;
+            TutorialMissions[4].Outro = emptyBriefing;
         }
 
         public void DisplayTutorialInstructions(int index)
