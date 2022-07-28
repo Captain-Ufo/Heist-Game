@@ -180,7 +180,7 @@ namespace HeistGame
                     instructions = new string[]
                     {
                         "You are Gareth, the non-copyright infringing Master Thief. This is the training course you built in your hideout.",
-                        $"Use athe ARROW KEYS, WASD or NUMPAD 4,8,6,2 to move around the map; reach the exit ({SymbolsConfig.Exit}) to complete the level."
+                        $"Use the ARROW KEYS, W,A,S,D, or NUMPAD 4,8,6,2 to move around the map; your goal in any level is to reach the exit ({SymbolsConfig.Exit})."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -191,10 +191,12 @@ namespace HeistGame
                         $"Loot ({SymbolsConfig.Treasure}) are optional collectibles in each floor.",
                         " ",
                         "If the exit is green, it means it's open and you are free to leave the location (assuming no other obstacles are in the way.)",
-                        $"If the exit is red, you will need to find one or more Keys ({SymbolsConfig.Key}) to unlock it.",
+                        $"If the exit is red, you will need to find one or more Objectives ({SymbolsConfig.Key}) to unlock it. Objectives can be all sorts",
+                        "of things, depending on the mission type. Artifacts, keys, special treasures, etc.",
+                        "You can collect both simple loot items and objectives by just walking over them.",
                         " ",
-                        "When you are on a heist, you may have limited knowledge of the locations layouts: you will know where to look for some of the keys,",
-                        "but as you collect the known ones, you might find that there are others hidden about the floor.",
+                        "When you are on a heist, you may have limited knowledge of the locations layouts: you will know where to look for some of the Objectives,",
+                        "but as you collect the known ones, you might find that there are others hidden about the floor. You may also find hints on how to proceed.",
                         " ",
                         "If the exit doesn't turn green when you collect the last key, check the wwhole map in case you discovered the location of another one."
                     };
@@ -206,7 +208,10 @@ namespace HeistGame
                     {
                          $"Levers ({SymbolsConfig.LeverOff}) open and close gates ({SymbolsConfig.Gate}) throughout the level.",
                          "They may open optional rooms and passages, or clear the way to your destination.",
-                         "Levers can be linked to multiple gates. They may also close gates that start open when you first enter an area",
+                         " ",
+                         "Levers can be linked to multiple gates. They may also close gates that start open when you first enter an area.",
+                         " ",
+                         "Levers can be operated both by walking over them, and by selecting them with the interaction cursor."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -227,13 +232,16 @@ namespace HeistGame
                     };
                     DisplaytextCentered(instructions);
                     break;
+
                 case 4:
                     instructions = new string[]
                     {
                         "Sometimes guards cannot be sneaked past no matter what. Maybe they stand in the way of your objective, or the room is too lit.",
-                        "If you are within their hearing range, You can make noises (by pressing the SPACEBAR or the KEYPAD ENTER KEY to attract them to",
+                        "If you are within their hearing range, You can make noises (by pressing the SPACEBAR or the KEYPAD + KEY to attract them to",
                         "a different part of the location and take advantage of the time they'll spend investigating the noise to sneak past them.",
-                        "You cannot control which guard will hear the noise, so beware of how it will effect other guards nearby.",
+                        "Keep in mind that the guards who hear your noise will home in on you. Make sure there is an escape route or a convenient shadow to hide in",
+                        "before they reach your location.",
+                        "You cannot control which guard will hear the noise, so keep an eye on all the other guards nearby before you distract someone.",
                         "You wouldn't want to trap yourself!"
                     };
                     DisplaytextCentered(instructions);

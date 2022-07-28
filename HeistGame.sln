@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeistGame", "HeistGame\HeistGame.csproj", "{65A4B741-E0D4-4228-9068-937AAF6DBD70}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeistGame", "HeistGame\HeistGame.csproj", "{C4452E24-9C77-47F2-B280-450F286A0684}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{65A4B741-E0D4-4228-9068-937AAF6DBD70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65A4B741-E0D4-4228-9068-937AAF6DBD70}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65A4B741-E0D4-4228-9068-937AAF6DBD70}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65A4B741-E0D4-4228-9068-937AAF6DBD70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4452E24-9C77-47F2-B280-450F286A0684}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4452E24-9C77-47F2-B280-450F286A0684}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4452E24-9C77-47F2-B280-450F286A0684}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4452E24-9C77-47F2-B280-450F286A0684}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {549666FB-B9EC-430E-93B5-B0972D93ECFB}
+		SolutionGuid = {076FC7C1-FA2C-4331-B0FE-804783905EB4}
 	EndGlobalSection
 EndGlobal

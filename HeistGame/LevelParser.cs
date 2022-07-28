@@ -50,7 +50,7 @@ namespace HeistGame
             Lever leverY = new Lever();
 
             //these LUT dictionaries serve the sole purpose of making the massive switch block that parses the level
-            //more succint and readable
+            //more succint and readable, since this method is already pretty massive
             Dictionary<char, Lever> leversLUT = new Dictionary<char, Lever>
             {
                 ['A'] = leverA,
@@ -155,19 +155,21 @@ namespace HeistGame
                 ['s'] = guard14Patrol,
                 ['t'] = guard15Patrol,
             };
-            Dictionary<Vector2, string[]> messagesDictionary = new Dictionary<Vector2, string[]>();
 
+            Dictionary<Vector2, string[]> messagesDictionary = new Dictionary<Vector2, string[]>();
 
             //Looping through every single character in the grid to find special characters for special gameplay elements 
             //(keys, treasures, levers, guards), and in the end create a bidimensional string array that will be the grid
             //used by the game to display the level.
             //When the switch catches a special characters, it replaces it in the grid with the appropriate representation
+            //and assigns its coordinates to the correct variable
 
             for (int y = 0; y < rows; y++)
             {
                 string line = mission.LevelMap[y];
                 for (int x = 0; x < columns; x++)
                 {
+                    int l = line.Length;
                     char currentChar = line[x];
 
                     Vector2 leverGate;
@@ -381,6 +383,7 @@ namespace HeistGame
             guard14.AssignPatrol(ArrangePatrolPoints(guard14, guard14Patrol).ToArray());
             guard15.AssignPatrol(ArrangePatrolPoints(guard15, guard15Patrol).ToArray());
 
+            //Create the LevelInfo with all the parameters collected by parsing the map
             LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles, strongLights.ToArray(),
                                                 weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray(), messagesDictionary);
 

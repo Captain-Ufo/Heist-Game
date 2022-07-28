@@ -12,7 +12,12 @@ namespace HeistGame
 
         public Lock LockProp { get => lockProp; protected set => lockProp = value; }
 
+        public abstract void Unlock(int deltaTimeMS, Game game);
+
         public abstract void Unlock(Game game);
 
+        public abstract void Reset();
+
+        public abstract bool IsLocked();
     }
 }

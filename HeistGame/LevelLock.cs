@@ -17,10 +17,11 @@ namespace HeistGame
         private List<Vector2> keysGroup3;
         private List<Vector2> keysGroup4;
 
+        private string[][] objectiveMessages;
 
         public LevelLock()
         {
-            hiddenKeyGroup = 2;
+            hiddenKeyGroup = 2; //group 1 is revealed by default. Hence the hidden groups are 2 and above.
             revealedKeyPieces = 0;
 
             keysGroup1 = new List<Vector2>();
@@ -86,6 +87,11 @@ namespace HeistGame
             {
                 hiddenKeyPieces++;
             }
+        }
+
+        public void AddMessages(string[][] messages)
+        {
+            objectiveMessages = messages;
         }
 
         /// <summary>

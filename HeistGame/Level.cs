@@ -22,6 +22,7 @@ namespace HeistGame
         private Guard[] levelGuards;
         private Stopwatch stopwatch;
         private Dictionary<Vector2, string[]> messagesDictionary;
+        private Dictionary<Vector2, Unlockable> unlockables;
 
         /// <summary>
         /// The name of the floor, extracted from the level file name.
@@ -68,11 +69,13 @@ namespace HeistGame
         /// <param name="startX">The player's starting X coordinate, int format</param>
         /// <param name="startY">The player's starting Y coordinate, int format</param>
         /// <param name="floorTiles">The collection of all walkable tiles in the level</param>
+        /// <param name="lightmap">The lightmap of the level</param>
         /// <param name="levelLock">The System that handles keys in the level, as a LevelLock object</param>
         /// <param name="exit">The coordinates of the exit point</param>
         /// <param name="treasures">The array containing the coordinates of all the treasures in the level</param>
         /// <param name="levers">The collection of levers in the level</param>
         /// <param name="guards">The collection of guards in the level</param>
+        /// <param name="messages">The commection of messages in the level</param>
         /// <param name="briefing">The intro text to the level; an array of strings, one per each line.</param>
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
@@ -309,12 +312,16 @@ namespace HeistGame
                 return false;
             }
 
+            if (grid[y, x] == "-" || grid[y, x] == "|")
+            {
+                Vector2 tile = new Vector2(x, y);
+                return unlockables[tile].IsLocked();
+            }
+
             return grid[y, x] == SymbolsConfig.Empty.ToString() ||
                    grid[y, x] == SymbolsConfig.Light1.ToString() ||
                    grid[y, x] == SymbolsConfig.Light2.ToString() ||
                    grid[y, x] == SymbolsConfig.Light3.ToString() ||
-                   grid[y, x] == "-" ||
-                   grid[y, x] == "|" ||
                    grid[y, x] == SymbolsConfig.Entrance.ToString() ||
                    grid[y, x] == SymbolsConfig.Exit.ToString() ||
                    grid[y, x] == SymbolsConfig.Key.ToString() ||
@@ -405,6 +412,11 @@ namespace HeistGame
             {
                 ReadMessage(x, y, game);
             }
+            if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestOpened.ToString())
+            {
+                ControlsManager.ResetControlState(game);
+                Lockpick(x, y, game);
+            }
 
             return true;
 
@@ -451,6 +463,7 @@ namespace HeistGame
             ResetGuards();
             ResetKeys();
             ResetTreasures();
+            ResetUnlockables();
             Lights.CalculateLightMap(this);
         }
 
@@ -596,6 +609,18 @@ namespace HeistGame
             game.MyStopwatch.Start();
         }
 
+        private void Lockpick(int x, int y, Game game)
+        {
+            Vector2 tile = new Vector2(x, y);
+
+            if (!unlockables.ContainsKey(tile))
+            {
+                throw new Exception($"Error! failed to find unlockable in disctionary at {x}, {y}");
+            }
+
+            game.ActiveUnlockable = unlockables[tile];
+        }
+
         private void RedrawFloors()
         {
             HashSet<Vector2> guardsPositions = new HashSet<Vector2>();
@@ -676,6 +701,14 @@ namespace HeistGame
             foreach (Guard guard in levelGuards)
             {
                 guard.Reset();
+            }
+        }
+
+        private void ResetUnlockables()
+        {
+            foreach (KeyValuePair<Vector2, Unlockable> unlockable in unlockables)
+            {
+                unlockable.Value.Reset();
             }
         }
     }

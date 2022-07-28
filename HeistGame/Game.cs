@@ -361,7 +361,7 @@ namespace HeistGame
 
                 if (ActiveUnlockable != null)
                 {
-                    ActiveUnlockable.Unlock(this);
+                    ActiveUnlockable.Unlock(deltaTimeMS, this);
                 }
 
                 Thread.Sleep(20);
@@ -1086,12 +1086,7 @@ namespace HeistGame
 
             do
             {
-                cancelFile = false;
-
-                MenuSelection selection = loadSaveMenu.RunWithDeleteEntry(WindowWidth / 2, 8, 2, 0, WindowWidth, 30);
-
-                cancelFile = selection.cancel;
-                selectedIndex = selection.selectedIndex;
+                selectedIndex = loadSaveMenu.RunWithDeleteEntry(WindowWidth / 2, 8, 2, 0, WindowWidth, 30, out cancelFile);
 
                 if (cancelFile && selectedIndex > 0)
                 {
@@ -1100,7 +1095,7 @@ namespace HeistGame
 
                     if (saveName.Length >= confirmMenuLine.Length)
                     {
-                        //Shortening the savegame name if it's longer than the menu promp
+                        //Shortening the savegame name if it's longer than the menu prompt
                         saveName = saveName.Remove(confirmMenuLine.Length - 8, saveName.Length - 1);
                         saveName = saveName + "...";
                     }
