@@ -13,7 +13,7 @@ namespace HeistGame
         {
             lockLevel = level;
             currentLockLevel = level;
-            timeToUnlockLevel = 160 * 5;
+            timeToUnlockLevel = 2000;
             unlockingProgress = timeToUnlockLevel;
         }
 
@@ -22,9 +22,21 @@ namespace HeistGame
             return currentLockLevel > 0;
         }
 
-        public int GetLockLevel()
+        public int GetCurrentLockLevel()
         {
             return currentLockLevel;
+        }
+
+        public int GetLockLevel()
+        {
+            return lockLevel;
+        }
+
+        public int GetUnlockingProgress()
+        {
+            if (unlockingProgress == 0) { return 0; }
+
+            return (timeToUnlockLevel * 100) / unlockingProgress; //gets the percentage of progress
         }
 
         public void Unlock(int deltaTimeMS, Game game)

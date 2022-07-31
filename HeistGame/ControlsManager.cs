@@ -33,7 +33,8 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.up);
                         }
-                        //Stop lockpicking if in progress
+                        game.ActiveUnlockable = null;
+                        game.UserInterface.DeleteLable();
                         break;
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
@@ -47,7 +48,8 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.down);
                         }
-                        //Stop lockpicking if in progress
+                        game.ActiveUnlockable = null;
+                        game.UserInterface.DeleteLable();
                         break;
                     case ConsoleKey.LeftArrow:
                     case ConsoleKey.A:
@@ -61,7 +63,8 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.left);
                         }
-                        //Stop lockpicking if in progress
+                        game.ActiveUnlockable = null;
+                        game.UserInterface.DeleteLable();
                         break;
                     case ConsoleKey.RightArrow:
                     case ConsoleKey.D:
@@ -75,7 +78,8 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.right);
                         }
-                        //Stop lockpicking if in progress
+                        game.ActiveUnlockable = null;
+                        game.UserInterface.DeleteLable();
                         break;
                     case ConsoleKey.Spacebar:
                     case ConsoleKey.Add:
@@ -92,7 +96,8 @@ namespace HeistGame
                                 game.Selector.Deactivate();
                             }
                         }
-                        //Stop lockpicking if in progress
+                        game.ActiveUnlockable = null;
+                        game.UserInterface.DeleteLable();
                         break;
                     case ConsoleKey.E:
                     case ConsoleKey.Enter:
@@ -110,7 +115,6 @@ namespace HeistGame
                                 game.Selector.Deactivate(); 
                             }
                         }
-                        //Stop lockpicking if in progress
                         break;
                     case ConsoleKey.Escape:
                         if (State != ControlState.Interact)
@@ -122,10 +126,14 @@ namespace HeistGame
                             State = ControlState.Idle;
                             //NO INTERACTION! This just cancels it
                             game.Selector.Deactivate();
-                            //Stop lockpicking if in progress
+                            game.ActiveUnlockable = null;
+                            game.UserInterface.DeleteLable();
                         }
                         break;
                     default:
+                        game.Selector.Deactivate();
+                        game.ActiveUnlockable = null;
+                        game.UserInterface.DeleteLable();
                         State = ControlState.Idle;
                         break;
                 }

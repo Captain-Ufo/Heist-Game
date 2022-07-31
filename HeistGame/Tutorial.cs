@@ -191,14 +191,15 @@ namespace HeistGame
                         $"Loot ({SymbolsConfig.Treasure}) are optional collectibles in each floor.",
                         " ",
                         "If the exit is green, it means it's open and you are free to leave the location (assuming no other obstacles are in the way.)",
-                        $"If the exit is red, you will need to find one or more Objectives ({SymbolsConfig.Key}) to unlock it. Objectives can be all sorts",
-                        "of things, depending on the mission type. Artifacts, keys, special treasures, etc.",
+                        $"If the exit is red, you will need to find one or more Objectives ({SymbolsConfig.Key}) before you can leave. Objectives can be all sorts",
+                        "of things, depending on the heist. Artifacts, keys, special treasures, etc.",
                         "You can collect both simple loot items and objectives by just walking over them.",
                         " ",
                         "When you are on a heist, you may have limited knowledge of the locations layouts: you will know where to look for some of the Objectives,",
                         "but as you collect the known ones, you might find that there are others hidden about the floor. You may also find hints on how to proceed.",
                         " ",
-                        "If the exit doesn't turn green when you collect the last key, check the wwhole map in case you discovered the location of another one."
+                        "If the exit doesn't turn green when you collect the last key, check the wwhole map in case you discovered the location of another one.",
+                        "The status bar at the bottom of the screen also displays informations on the status of your currently known objectives."
                     };
                     DisplaytextCentered(instructions);
                     break;

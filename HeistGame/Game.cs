@@ -62,7 +62,10 @@ namespace HeistGame
             RunMainMenu();
         }
 
-
+        public void Restart()
+        {
+            RunMainMenu();
+        }
 
         #region SetUp
         private void InstantiateCampaignEntities(string configFileDir, int startBooty, int startLevel)
@@ -135,8 +138,8 @@ namespace HeistGame
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
-                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, missionConfig.Briefing,
-                                     missionConfig.Outro, MyStopwatch));
+                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
+                                     missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
 
                 totalGold += levelInfo.TotalGold;
             }
@@ -187,8 +190,8 @@ namespace HeistGame
             LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
             levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
-                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, missionConfig.Briefing,
-                                 missionConfig.Outro, MyStopwatch));
+                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
+                                 missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
 
             totalGold += levelInfo.TotalGold;
 
@@ -211,8 +214,8 @@ namespace HeistGame
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
-                                     levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, null,
-                                     null, MyStopwatch));
+                                     levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, 
+                                     levelInfo.UnlockablesDictionary, null, null, MyStopwatch));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
@@ -425,7 +428,7 @@ namespace HeistGame
                 HasDrawnBackground = true;
             }
             ActiveCampaign.Levels[currentRoom].DrawGuards();
-            UserInterface.DrawUI(currentRoom);
+            UserInterface.DrawUI();
             if (Selector.IsActive) { Selector.Draw(); }
             CursorVisible = false;
         }
@@ -495,8 +498,8 @@ namespace HeistGame
                 @"|             /                  °   ,;;;;/;;;;;'  \              \__________ ",
                 @"(             )                 |  ,;;;;/;;;;;'      |        _.--~           ",
                 @" \          \/ \              ,  ;;;;;/;;;;;'       /(     .-~_..--~~~~~~~~~~ ",
-                @"  \__         '  `       ,     ,;;;;;/;;;;;'    .   /  \   / /~               ",
-                @" /          \'  |`._______ ,;;;;;;/;;;;;;'     /   :   \/'/'       /|_/|   ``|",
+                @"  \__        '  `             ,;;;;;/;;;;;'        /  \  / /~                 ",
+                @" /          \'  |`._______ ,;;;;;;/;;;;;;'       /:    \/'/'       /|_/|   ``|",
                 @"| _.-~~~~-._ |   \ __   .,;;;;;;/;;;;;;' ~~~~~'  .'    | |       /~ (/\/    ||",
                 @"/~ _.-~~~-._\    /~/   ;;;;;;;/;;;;;;;'          |    | |       / ~/_-'|-   /|",
                 @"(/~         \| /' |   ;;;;;;/;;;;;;;;            ;   | |       (.-~;  /-   / |",
@@ -612,11 +615,14 @@ namespace HeistGame
                     "Freeze!",
                     "Cought you!",
                     "Hey!",
+                    "Hey, you!",
                     "Stop right there!",
                     "You can't be here!",
                     "You are not allowed here!",
                     "Thief!",
-                    "You luck's over, thief!",
+                    "Bandit!",
+                    "Criminal!",
+                    "You luck's over, criminal!",
                     "Who goes there?!"
                 };
 
@@ -752,7 +758,7 @@ namespace HeistGame
             Write("Press any key to continue...");
             ReadKey(true);
             TunePlayer.StopTune();
-            DisplayAboutInfo();
+            UserInterface.DisplayAboutScreen();
         }
 
 
@@ -816,7 +822,7 @@ namespace HeistGame
             }
             ResetGame(true);
             TunePlayer.StopTune();
-            DisplayAboutInfo();
+            UserInterface.DisplayAboutScreen();
         }
 
 
@@ -993,7 +999,7 @@ namespace HeistGame
                     PlayTutorial();
                     break;
                 case 4:
-                    DisplayAboutInfo();
+                    UserInterface.DisplayAboutScreen();
                     break;
                 case 5:
                     if (!MainMenuQuitGame())
@@ -1026,7 +1032,7 @@ namespace HeistGame
                     PlayTutorial();
                     break;
                 case 3:
-                    DisplayAboutInfo();
+                    UserInterface.DisplayAboutScreen();
                     break;
                 case 4:
                     if (!MainMenuQuitGame())
@@ -1346,69 +1352,6 @@ namespace HeistGame
                     DifficultyLevel = Difficulty.Ironman;
                     break;
             }
-        }
-
-
-
-        private void DisplayAboutInfo()
-        {
-            Clear();
-            string authorName = "Cristian";
-            string[] credits = new string[]
-            {
-                " ",
-                " ",
-                "~·~ CREDITS: ~·~",
-                " ",
-                " ",
-                $"Heist!, a commnd prompt ASCII stealth game by {authorName}",
-                " ",
-                $"Programming: {authorName}",
-                "Shoutout to Micheal Hadley's \"Intro To Programming in C#\" course:",
-                "https://www.youtube.com/channel/UC_x9TgYAIFHj1ulXjNgZMpQ",
-                " ",
-                $"Baron's Jail campaign level desing: {authorName}",
-                "(I'm not a level designer :P I'm sure you guys can do a lot better!)",
-                " ",
-                $"Chiptune Music: {authorName}",
-                "(I'm not a musician either)",
-                " ",
-                " ",
-                "~·~ ART: ~·~",
-                " ",
-                "Ascii title from Text To Ascii Art Generator (https://www.patorjk.com/software/taag)",
-                " ",
-                "Ascii art from Ascii Art Archive (https://www.asciiart.eu/):",
-                "Guard art based on 'Orc' by Randall Nortman and Tua Xiong",
-                "Win screen art by Henry Segerman",
-                "Game over screen art based on art by Jgs",
-                " ",
-                " ",
-                "~·~ TESTING and SPECIAL THANKS: ~·~",
-                "Izzy",
-                "Charlie & Daisy",
-                "Lone",
-                "Giorgio",
-                " ",
-                " ",
-                "Thank you for playing!"
-            };
-
-            foreach (string credit in credits)
-            {
-                for (int i = 0; i < credits.Length; i++)
-                {
-                    int cursorXoffset = credits[i].Length / 2;
-                    SetCursorPosition((WindowWidth / 2) - cursorXoffset, WindowTop + i + 1);
-                    WriteLine(credits[i]);
-                }
-            }
-
-            SetCursorPosition(0, WindowHeight - 3);
-            WriteLine("\n Press any key to return to main menu...");
-            ReadKey(true);
-            Clear();
-            RunMainMenu();
         }
 
 

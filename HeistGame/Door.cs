@@ -11,7 +11,16 @@ namespace HeistGame
 
         public override void Unlock(Game game)
         {
+            if (!IsLocked())
+            {
+                game.UserInterface.DisplayMessageOnLable(new string[] { "The door is already open." }, true);
+                game.ActiveUnlockable = null;
+                game.UserInterface.DeleteLable();
+                return;
+            }
+
             game.ActiveUnlockable = this;
+            game.UserInterface.DisplayMessageOnLable(base.GetUnlockProgress(), true);
         }
 
         public override void Unlock(int deltaTimeMS, Game game)
@@ -19,6 +28,7 @@ namespace HeistGame
             if (LockProp.IsLocked())
             {
                 LockProp.Unlock(deltaTimeMS, game);
+                game.UserInterface.DisplayMessageOnLable(base.GetUnlockProgress(), false);
                 return;
             }
 

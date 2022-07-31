@@ -47,16 +47,32 @@ namespace HeistGame
             switch (direction)
             {
                 case Directions.up:
-                    if (Y > anchorY - 1 && X != anchorX) { Y--; }
+                    if (Y > anchorY - 1 && X != anchorX)
+                    { 
+                        if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y - 1) == null) { return; }
+                        Y--;
+                    }
                     break;
                 case Directions.down:
-                    if (Y < anchorY + 1 && X != anchorX) { Y++; }
+                    if (Y < anchorY + 1 && X != anchorX)
+                    {
+                        if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y + 1) == null) { return; }
+                        Y++; 
+                    }
                     break;
                 case Directions.left:
-                    if (X > anchorX - 1 && Y != anchorY) { X--; }
+                    if (X > anchorX - 1 && Y != anchorY) 
+                    {
+                        if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X - 1, Y) == null) { return; }
+                        X--; 
+                    }
                     break;
                 case Directions.right:
-                    if (X < anchorX + 1 && Y != anchorY) { X++; }
+                    if (X < anchorX + 1 && Y != anchorY) 
+                    {
+                        if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X + 1, Y) == null) { return; }
+                        X++; 
+                    }
                     break;
             }
 
@@ -68,7 +84,11 @@ namespace HeistGame
             anchorX = x;
             anchorY = y;
             X = anchorX;
-            Y = anchorY - 1;
+            Y = anchorY + 1;
+            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == null)
+            {
+                Y = anchorY - 1;
+            }
         }
 
         public void Draw()

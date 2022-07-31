@@ -19,6 +19,9 @@ namespace HeistGame
 
         private string[][] objectiveMessages;
 
+        public int TotalKnownKeys { get; private set; }
+        public int TotalCollectedKeys { get; private set; }
+
         public LevelLock()
         {
             hiddenKeyGroup = 2; //group 1 is revealed by default. Hence the hidden groups are 2 and above.
@@ -36,6 +39,8 @@ namespace HeistGame
                 [3] = keysGroup3,
                 [4] = keysGroup4
             };
+
+            TotalCollectedKeys = 0;
         }
 
         /// <summary>
@@ -50,6 +55,7 @@ namespace HeistGame
             level.ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
 
             revealedKeyPieces--;
+            TotalCollectedKeys++;
 
             if (revealedKeyPieces <= 0)
             {
@@ -87,6 +93,7 @@ namespace HeistGame
             {
                 hiddenKeyPieces++;
             }
+            TotalKnownKeys = revealedKeyPieces;
         }
 
         public void AddMessages(string[][] messages)
@@ -103,6 +110,7 @@ namespace HeistGame
             revealedKeyPieces = 0;
             hiddenKeyPieces = 0;
             hiddenKeyGroup = 2;
+            TotalCollectedKeys = 0;
 
             for (int i = 1; i <= levelKeys.Count; i++)
             {
@@ -120,6 +128,7 @@ namespace HeistGame
                     }
                 }
             }
+            TotalKnownKeys = revealedKeyPieces;
         }
 
         private void RevealKeys(Level level)
@@ -127,6 +136,7 @@ namespace HeistGame
             foreach (Vector2 key in levelKeys[hiddenKeyGroup])
             {
                 revealedKeyPieces++;
+                TotalKnownKeys++;
                 hiddenKeyPieces--;
                 level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key.ToString(), false);
             }

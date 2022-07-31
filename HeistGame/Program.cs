@@ -19,7 +19,7 @@
     // 4 - lockpick (using the interact key that must be set up for messages). Takes time, changes doors from impassable to passable.
     //     Mapmaking symbols: Vertical door (¦ > open  ! > locked level 1  ¡ > locked level 2  | > locked level 3); In game symbol: |
     //                        Horizontal door (- > open door  ~ > locked level 1   = > locked level 2  ­­± > locked level 3); in game symbol: -
-    //                        Chests: ( ■ > No treasure  █ > treasure  ▄ > random choice ). In game symbol: ■
+    //                        Chests: ( Ͻ' > No treasure  Ͼ > treasure  Ͽ > random choice ). In game symbols: ◙ (Closed) ◘ (Already opened)
 
     //Nice to have?:
     // 5? - messages on collection of keys (storytelling, a clue that there's mopre to collect if this unlock the new tier) - optional

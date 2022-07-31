@@ -30,9 +30,21 @@
 
         public const char Signpost = 'ȹ';
 
+        public const char VerticalDoorVisual = '|';
+        public const char VerticalDoorOpen = '¦';
+        public const char VerticalDoorLock1 = '!';
+        public const char VerticalDoorLock2 = '¡';
+        public const char VerticalDoorLock3 = '|';
+
+        public const char HorizontalDoorVisual = '-';
+        public const char HorizontalDoorOpen = '~';
+        public const char HorizontalDoorLock1 = '÷';
+        public const char HorizontalDoorLock2 = '=';
+        public const char HorizontalDoorLock3 = '±';
+
         public const char ChestClosed = '◙';
         public const char ChestOpened = '◘';
-        public const char ChestEmpty = 'Ͻ';
+        public const char ChestEmpty = 'Ɔ'; 
         public const char ChestWithTreasure = 'Ͼ';
         public const char ChestWithRandomTresture = 'Ͽ';
 

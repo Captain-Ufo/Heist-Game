@@ -8,9 +8,12 @@ namespace HeistGame
     {
         private Game game;
 
+        private UI_Lable lable;
+
         public UI (Game game)
         {
             this.game = game;
+            lable = new UI_Lable();
         }
 
         public void DisplayLoading()
@@ -25,148 +28,37 @@ namespace HeistGame
             WriteLine(loadingText);
         }
 
-        public void DrawUI(int currentLevel)
+        public void DrawUI()
         {
             int uiPosition = WindowHeight - 4;
 
             SetCursorPosition(0, uiPosition);
-            for (int i = 0; i < WindowWidth; i++)
-            {
-                Write("_");
-            }
-            WriteLine("");
-            Write($"   {game.ActiveCampaign.Levels[currentLevel].Name}");
-            SetCursorPosition(32, CursorTop);
-            Write($"Difficulty: {game.DifficultyLevel}");
-            SetCursorPosition(54, CursorTop);
-            Write($"Loot: ${game.PlayerCharacter.Loot}");
-            SetCursorPosition(70, CursorTop);
-            Write("Visibility: [ ");
-            int visibilityLevel = game.PlayerCharacter.Visibility / 3;
-            string visibilityDisplay = "";
-            switch (visibilityLevel)
-            {
-                default:
-                case 0:
-                    visibilityDisplay = "   ";
-                    break;
-                case 1:
-                    ForegroundColor = ConsoleColor.DarkGray;
-                    visibilityDisplay = "░░░";
-                    break;
-                case 2:
-                    ForegroundColor = ConsoleColor.Yellow;
-                    visibilityDisplay = "▒▒▒";
-                    break;
-                case 3:
-                    ForegroundColor = ConsoleColor.Yellow;
-                    visibilityDisplay = "▓▓▓";
-                    break;
-            }
-            Write(visibilityDisplay);
-            ResetColor();
-            Write(" ]");
+            DrawSeparator();
+            DisplayGameData();
+            DrawVisibilityIndicator();
+            DisplayObjectivesIndicator();
 
             string quitInfo = "Press Escape to quit.";
             SetCursorPosition(WindowWidth - quitInfo.Length - 3, WindowHeight - 2);
             Write(quitInfo);
         }
 
-        public void DisplayMessageOnLable(string[] message)
+        public void DisplayMessageOnLable(string[] message, bool newLable)
         {
-            int messageLength = EvaluateMessageLength() + 2;
-            int xOffset = messageLength / 2;
-            int x1 = WindowWidth / 2;
-            int x = x1 - xOffset;
-
-            int yOffset = message.Length / 2;
-            int y1 = WindowHeight / 2;
-            int y = y1 - yOffset;
-
-            string firstLine = string.Empty;
-            string lastLine = string.Empty;
-
-            for (int i = 0; i <= messageLength + 1; i++)
-            {
-                char symbol1;
-                char symbol2;
-
-                if (i == 0)
-                {
-                    symbol1 = '┌';
-                    symbol2 = '└';
-                }
-                else if (i == messageLength + 1)
-                {
-                    symbol1 = '┐';
-                    symbol2 = '┘';
-                }
-                else
-                {
-                    symbol1 = '─';
-                    symbol2 = '─';
-                }
-                firstLine += symbol1;
-                lastLine += symbol2;
-            }
-
-            int lines = message.Length + 2;
-
-            for (int i = 0; i < lines; i++)
-            {
-                SetCursorPosition(x, y + i);
-                if (i == 0)
-                {
-                    Write(firstLine);
-                }
-                else if (i == lines - 1)
-                {
-                    Write(lastLine);
-                }
-                else
-                {
-                    Write("|");
-                    int lengthDifference = messageLength - message[i - 1].Length;
-                    int half = lengthDifference / 2;
-                    if (lengthDifference > 0)
-                    {
-                        for (int j = 1; j <= half; j++)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    Write(message[i - 1]);
-                    if (lengthDifference > 0)
-                    {
-                        lengthDifference -= half;
-                        for (int j = 1; j <= lengthDifference; j++)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    Write("|");
-                }
-            }
-
-            ReadKey();
-            Clear();
-            game.HasDrawnBackground = false;
-
-            int EvaluateMessageLength()
-            {
-                int messageLength = 0;
-                for (int i = 0; i < message.Length; i++)
-                {
-                    int length = message[i].Length;
-                    if (length > messageLength)
-                    {
-                        messageLength = length;
-                    }
-                }
-                return messageLength;
-            }
+            lable.DisplayLable(message, newLable);
         }
 
+        public void DeleteLable()
+        {
+            lable.Cancel(game);
+        }
+
+        public bool IsTileUnderLable(Vector2 tile)
+        {
+            return lable.LableTiles.Contains(tile);
+        }
+
+        //TODO: refactor this so that text can be scrolled one line at a time
         public void DisplayTextFullScreen(string[] text, bool withFraming = true)
         {
             if (text == null) { return; }
@@ -227,6 +119,67 @@ namespace HeistGame
             while (firstLineToDisplay < text.Length);
         }
 
+        public void DisplayAboutScreen()
+        {
+            Clear();
+            string authorName = "Cristian";
+            string[] credits = new string[]
+            {
+                " ",
+                " ",
+                "~·~ CREDITS: ~·~",
+                " ",
+                " ",
+                $"Heist!, a commnd prompt ASCII stealth game by {authorName}",
+                " ",
+                $"Programming: {authorName}",
+                "Shoutout to Micheal Hadley's \"Intro To Programming in C#\" course:",
+                "https://www.youtube.com/channel/UC_x9TgYAIFHj1ulXjNgZMpQ",
+                " ",
+                $"Baron's Jail campaign level desing: {authorName}",
+                "(I'm not a level designer :P I'm sure you guys can do a lot better!)",
+                " ",
+                $"Chiptune Music: {authorName}",
+                "(I'm not a musician either)",
+                " ",
+                " ",
+                "~·~ ART: ~·~",
+                " ",
+                "Ascii title from Text To Ascii Art Generator (https://www.patorjk.com/software/taag)",
+                " ",
+                "Ascii art from Ascii Art Archive (https://www.asciiart.eu/):",
+                "Guard art based on 'Orc' by Randall Nortman and Tua Xiong",
+                "Win screen art by Henry Segerman",
+                "Game over screen art based on art by Jgs",
+                " ",
+                " ",
+                "~·~ TESTING and SPECIAL THANKS: ~·~",
+                "Izzy",
+                "Charlie & Daisy",
+                "Lone",
+                "Giorgio",
+                " ",
+                " ",
+                "Thank you for playing!"
+            };
+
+            foreach (string credit in credits)
+            {
+                for (int i = 0; i < credits.Length; i++)
+                {
+                    int cursorXoffset = credits[i].Length / 2;
+                    SetCursorPosition((WindowWidth / 2) - cursorXoffset, WindowTop + i + 1);
+                    WriteLine(credits[i]);
+                }
+            }
+
+            SetCursorPosition(0, WindowHeight - 3);
+            WriteLine("\n Press any key to return to main menu...");
+            ReadKey(true);
+            Clear();
+            game.Restart();
+        }
+
         private void DisplayScreenDecoration()
         {
             SetCursorPosition(1, 0);
@@ -254,6 +207,60 @@ namespace HeistGame
             }
             SetCursorPosition(WindowWidth - 1, WindowHeight - 2);
             Write("╬");
+        }
+
+        private void DrawSeparator()
+        {
+            for (int i = 0; i < WindowWidth; i++)
+            {
+                Write("_");
+            }
+            WriteLine("");
+        }
+
+        private void DisplayGameData()
+        {
+            Write($"   {game.ActiveCampaign.Levels[game.CurrentRoom].Name}");
+            SetCursorPosition(32, CursorTop);
+            Write($"Difficulty: {game.DifficultyLevel}");
+            SetCursorPosition(54, CursorTop);
+            Write($"Loot: ${game.PlayerCharacter.Loot}");
+            SetCursorPosition(70, CursorTop);
+        }
+
+        private void DrawVisibilityIndicator()
+        {
+            Write("Visibility: [ ");
+            int visibilityLevel = game.PlayerCharacter.Visibility / 3;
+            string visibilityDisplay = "";
+            switch (visibilityLevel)
+            {
+                default:
+                case 0:
+                    visibilityDisplay = "   ";
+                    break;
+                case 1:
+                    ForegroundColor = ConsoleColor.DarkGray;
+                    visibilityDisplay = "░░░";
+                    break;
+                case 2:
+                    ForegroundColor = ConsoleColor.Yellow;
+                    visibilityDisplay = "▒▒▒";
+                    break;
+                case 3:
+                    ForegroundColor = ConsoleColor.Yellow;
+                    visibilityDisplay = "▓▓▓";
+                    break;
+            }
+            Write(visibilityDisplay);
+            ResetColor();
+            Write(" ]");
+        }
+
+        private void DisplayObjectivesIndicator()
+        {
+            SetCursorPosition(CursorLeft + 6, CursorTop);
+            Write($"Objectives: {game.ActiveCampaign.Levels[game.CurrentRoom].GetKeyPiecesProgress()}");
         }
     }
 }

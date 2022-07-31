@@ -10,19 +10,19 @@ namespace HeistGame
     /// </summary>
     class Level
     {
-        private string[,] grid;
-        private int rows;
-        private int columns;
-        private int xOffset;
-        private int yOffset;
-        private Vector2 exit;
-        private LevelLock levelLock;
-        private Dictionary<Vector2, Lever> leversDictionary;
-        private Vector2[] treasures;
-        private Guard[] levelGuards;
-        private Stopwatch stopwatch;
-        private Dictionary<Vector2, string[]> messagesDictionary;
-        private Dictionary<Vector2, Unlockable> unlockables;
+        private readonly string[,] grid;
+        private readonly int rows;
+        private readonly int columns;
+        private readonly int xOffset;
+        private readonly int yOffset;
+        private readonly Vector2 exit;
+        private readonly LevelLock levelLock;
+        private readonly Dictionary<Vector2, Lever> leversDictionary;
+        private readonly Vector2[] treasures;
+        private readonly Guard[] levelGuards;
+        private readonly Stopwatch stopwatch;
+        private readonly Dictionary<Vector2, string[]> messagesDictionary;
+        private readonly Dictionary<Vector2, Unlockable> unlockables;
 
         /// <summary>
         /// The name of the floor, extracted from the level file name.
@@ -80,8 +80,8 @@ namespace HeistGame
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
         public Level(string name, string[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
-                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, string[] briefing, string[] outro,
-                     Stopwatch stopwatch)
+                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, Unlockable> unlockables,
+                     string[] briefing, string[] outro, Stopwatch stopwatch)
         {
             Name = name;
             Briefing = briefing;
@@ -121,6 +121,8 @@ namespace HeistGame
             }
 
             levelGuards = guards;
+
+            this.unlockables = unlockables;
 
             foreach (Guard guard in guards)
             {
@@ -199,6 +201,10 @@ namespace HeistGame
                     {
                         ForegroundColor = ConsoleColor.DarkMagenta;
                     }
+                    else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
+                    {
+                        ForegroundColor = ConsoleColor.White;
+                    }
                     else
                     {
                         ForegroundColor = ConsoleColor.Gray;
@@ -265,6 +271,11 @@ namespace HeistGame
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
                 else { ForegroundColor = ConsoleColor.DarkMagenta; }
             }
+            else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
+            {
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                ForegroundColor = ConsoleColor.White;
+            }
             else
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
@@ -312,10 +323,10 @@ namespace HeistGame
                 return false;
             }
 
-            if (grid[y, x] == "-" || grid[y, x] == "|")
+            if (grid[y, x] == SymbolsConfig.VerticalDoorVisual.ToString() || grid[y, x] == SymbolsConfig.HorizontalDoorVisual.ToString())
             {
                 Vector2 tile = new Vector2(x, y);
-                return unlockables[tile].IsLocked();
+                return !unlockables[tile].IsLocked();
             }
 
             return grid[y, x] == SymbolsConfig.Empty.ToString() ||
@@ -359,7 +370,10 @@ namespace HeistGame
                    grid[y, x] == SymbolsConfig.Key.ToString() ||
                    grid[y, x] == SymbolsConfig.Treasure.ToString() ||
                    grid[y, x] == SymbolsConfig.LeverOff.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOn.ToString();
+                   grid[y, x] == SymbolsConfig.LeverOn.ToString()||
+                   grid[y, x] == SymbolsConfig.Signpost.ToString()||
+                   grid[y, x] == SymbolsConfig.ChestClosed.ToString()||
+                   grid[y, x] == SymbolsConfig.ChestOpened.ToString();
         }
 
         /// <summary>
@@ -370,7 +384,12 @@ namespace HeistGame
         /// <returns>Returns the symbol found at these coordinates on the grid</returns>
         public string GetElementAt(int x, int y)
         {
-            return grid[y - yOffset, x - xOffset];
+            int _x = x - xOffset;
+            int _y = y - yOffset;
+
+            if (_x < 0 || _y < 0 || _x >= columns || _y >= rows) { return null; }
+
+            return grid[_y, _x];
         }
 
         public string GetElementAt(int x, int y, bool withOffset = true)
@@ -382,6 +401,8 @@ namespace HeistGame
                 x -= xOffset;
             }
 
+            if (x < 0 || y < 0 || x >= columns || y >= rows) { return null; }
+
             return grid[y, x];
         }
 
@@ -389,37 +410,55 @@ namespace HeistGame
         {
             string element = GetElementAt (x, y);
 
+            if (element == null) { return false; }
+
             if (element == SymbolsConfig.Empty.ToString()) { return false; }
+            if (element == "═" || element == "╔" || element == "╗" || element == "║" || element == "╚" || element == "╝" ||
+                element == "╠" || element == "╣" || element == "╩" || element == "╦" || element == "╬" || 
+                element == SymbolsConfig.Gate.ToString())
+            {
+                return false;
+            }
 
             if (element == SymbolsConfig.Treasure.ToString()) 
             {
                 game.TunePlayer.PlaySFX(1000, 100);
                 game.PlayerCharacter.ChangeLoot(100);
                 ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
+                return true;
             }
             if (element == SymbolsConfig.Key.ToString())
             {
                 game.TunePlayer.PlaySFX(800, 100);
                 CollectKeyPiece(x, y);
+                return true;
             }
             if (element == SymbolsConfig.LeverOff.ToString() || element == SymbolsConfig.LeverOn.ToString())
             {
                 game.TunePlayer.PlaySFX(100, 100);
                 ToggleLever(x, y);
                 game.PlayerCharacter.Draw();
+                return true;
             }
             if (element == SymbolsConfig.Signpost.ToString())
             {
                 ReadMessage(x, y, game);
+                return true;
             }
             if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestOpened.ToString())
             {
                 ControlsManager.ResetControlState(game);
                 Lockpick(x, y, game);
+                return true;
+            }
+            if (element == SymbolsConfig.HorizontalDoorVisual.ToString() || element == SymbolsConfig.VerticalDoorVisual.ToString())
+            {
+                ControlsManager.ResetControlState(game);
+                Lockpick(x, y, game);
+                return true;
             }
 
-            return true;
-
+            return false;
         }
 
         /// <summary>
@@ -555,6 +594,14 @@ namespace HeistGame
         }
 
         /// <summary>
+        /// Returns a string that shows how many keys have been collected over the total known so far
+        /// </summary>
+        public string GetKeyPiecesProgress()
+        {
+            return $"{levelLock.TotalCollectedKeys} / {levelLock.TotalKnownKeys}";
+        }
+
+        /// <summary>
         /// Updates all the guards in the level. moving them along their patrols
         /// </summary>
         /// <param name="deltaDimeMS">The time passed since last check, to set the guard's speed</param>
@@ -611,6 +658,9 @@ namespace HeistGame
 
         private void Lockpick(int x, int y, Game game)
         {
+            x -= xOffset;
+            y -= yOffset;
+
             Vector2 tile = new Vector2(x, y);
 
             if (!unlockables.ContainsKey(tile))

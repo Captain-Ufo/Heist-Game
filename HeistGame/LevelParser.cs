@@ -49,6 +49,10 @@ namespace HeistGame
             Lever leverU = new Lever();
             Lever leverY = new Lever();
 
+            Dictionary<Vector2, string[]> messagesDictionary = new Dictionary<Vector2, string[]>();
+
+            Dictionary<Vector2, Unlockable> unlockablesDictionary = new Dictionary<Vector2, Unlockable>();
+
             //these LUT dictionaries serve the sole purpose of making the massive switch block that parses the level
             //more succint and readable, since this method is already pretty massive
             Dictionary<char, Lever> leversLUT = new Dictionary<char, Lever>
@@ -156,7 +160,29 @@ namespace HeistGame
                 ['t'] = guard15Patrol,
             };
 
-            Dictionary<Vector2, string[]> messagesDictionary = new Dictionary<Vector2, string[]>();
+            Dictionary<char, int> doorsLocksLUT = new Dictionary<char, int>
+            {
+                [SymbolsConfig.HorizontalDoorOpen] = 0,
+                [SymbolsConfig.VerticalDoorOpen] = 0,
+                [SymbolsConfig.HorizontalDoorLock1] = 1,
+                [SymbolsConfig.VerticalDoorLock1] = 1,
+                [SymbolsConfig.HorizontalDoorLock2] = 2,
+                [SymbolsConfig.VerticalDoorLock2] = 2,
+                [SymbolsConfig.HorizontalDoorLock3] = 3,
+                [SymbolsConfig.VerticalDoorLock3] = 3,
+            };
+
+            Dictionary<char, char> doorsVisualsLUT = new Dictionary<char, char>
+            {
+                [SymbolsConfig.HorizontalDoorOpen] = SymbolsConfig.HorizontalDoorVisual,
+                [SymbolsConfig.HorizontalDoorLock1] = SymbolsConfig.HorizontalDoorVisual,
+                [SymbolsConfig.HorizontalDoorLock2] = SymbolsConfig.HorizontalDoorVisual,
+                [SymbolsConfig.HorizontalDoorLock3] = SymbolsConfig.HorizontalDoorVisual,
+                [SymbolsConfig.VerticalDoorOpen] = SymbolsConfig.VerticalDoorVisual,
+                [SymbolsConfig.VerticalDoorLock1] = SymbolsConfig.VerticalDoorVisual,
+                [SymbolsConfig.VerticalDoorLock2] = SymbolsConfig.VerticalDoorVisual,
+                [SymbolsConfig.VerticalDoorLock3] = SymbolsConfig.VerticalDoorVisual,
+            };
 
             //Looping through every single character in the grid to find special characters for special gameplay elements 
             //(keys, treasures, levers, guards), and in the end create a bidimensional string array that will be the grid
@@ -350,10 +376,46 @@ namespace HeistGame
                         case '7':
                         case '8':
                         case '9':
-                            Vector2 tile = new Vector2(x, y);
-                            messagesDictionary.Add(tile, mission.Messages[Int32.Parse(currentChar.ToString())]);
+                            Vector2 messageTile = new Vector2(x, y);
+                            messagesDictionary.Add(messageTile, mission.Messages[Int32.Parse(currentChar.ToString())]);
                             currentChar = SymbolsConfig.Signpost;
-                            floorTiles.Add(tile);
+                            floorTiles.Add(messageTile); // Necessary for lighmaps
+                            break;
+                        //Chests
+                        case SymbolsConfig.ChestEmpty:
+                            Vector2 emptyChestTile = new Vector2(x, y);
+                            unlockablesDictionary.Add(emptyChestTile, new Chest(2, 0, x, y));
+                            currentChar = SymbolsConfig.ChestClosed;
+                            floorTiles.Add(emptyChestTile); // Necessary for lighmaps
+                            break;
+                        case SymbolsConfig.ChestWithTreasure:
+                            Vector2 treasureChestTile = new Vector2(x, y);
+                            unlockablesDictionary.Add(treasureChestTile, new Chest(2, 200, x, y));
+                            totalGold += 200;
+                            currentChar = SymbolsConfig.ChestClosed;
+                            floorTiles.Add(treasureChestTile); // Necessary for lighmaps
+                            break;
+                        case SymbolsConfig.ChestWithRandomTresture:
+                            Vector2 randomTreasureChestTile = new Vector2(x, y);
+                            Random rand = new Random();
+                            int treasureValue = rand.Next(0, 201);
+                            unlockablesDictionary.Add(randomTreasureChestTile, new Chest(2, treasureValue, x, y));
+                            totalGold += treasureValue;
+                            currentChar = SymbolsConfig.ChestClosed;
+                            floorTiles.Add(randomTreasureChestTile); // Necessary for lighmaps
+                            break;
+                        //Doors
+                        case SymbolsConfig.HorizontalDoorOpen:
+                        case SymbolsConfig.HorizontalDoorLock1:
+                        case SymbolsConfig.HorizontalDoorLock2:
+                        case SymbolsConfig.HorizontalDoorLock3:
+                        case SymbolsConfig.VerticalDoorOpen:
+                        case SymbolsConfig.VerticalDoorLock1:
+                        case SymbolsConfig.VerticalDoorLock2:
+                        case SymbolsConfig.VerticalDoorLock3:
+                            Vector2 openHDoorTile = new Vector2(x, y);
+                            unlockablesDictionary.Add(openHDoorTile, new Door(doorsLocksLUT[currentChar]));
+                            currentChar = doorsVisualsLUT[currentChar];
                             break;
                     }
                     grid[y, x] = currentChar.ToString();
@@ -385,7 +447,7 @@ namespace HeistGame
 
             //Create the LevelInfo with all the parameters collected by parsing the map
             LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles, strongLights.ToArray(),
-                                                weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray(), messagesDictionary);
+                                                weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray(), messagesDictionary, unlockablesDictionary);
 
             return levelInfo;
         }
@@ -488,10 +550,11 @@ namespace HeistGame
         public Dictionary<Vector2, Lever> LeversDictionary { get; }
         public Guard[] Guards { get; }
         public Dictionary<Vector2, string[]> MessagesDictionary { get; }
+        public Dictionary<Vector2, Unlockable> UnlockablesDictionary { get; }
 
         public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
                          Light[] strongLights, Light[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards,
-                         Dictionary<Vector2, string[]> messagesDictionary)
+                         Dictionary<Vector2, string[]> messagesDictionary, Dictionary<Vector2, Unlockable> unlockablesDictionary)
         {
             Grid = grid;
             LevLock = levelLock;
@@ -506,6 +569,7 @@ namespace HeistGame
             LeversDictionary = leversDictionary;
             Guards = guards;
             MessagesDictionary = messagesDictionary;
+            UnlockablesDictionary = unlockablesDictionary;
         }
     }
 }

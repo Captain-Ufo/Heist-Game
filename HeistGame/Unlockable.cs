@@ -19,5 +19,15 @@ namespace HeistGame
         public abstract void Reset();
 
         public abstract bool IsLocked();
+
+        public string[] GetUnlockProgress()
+        {
+            string[] progressText = new string[2];
+
+            progressText[0] = $"Lock level: {lockProp.GetCurrentLockLevel()} / {lockProp.GetLockLevel()}";
+            progressText[1] = lockProp.GetUnlockingProgress().ToString();
+
+            return progressText;
+        }
     }
 }
