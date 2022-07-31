@@ -427,7 +427,7 @@ namespace HeistGame
                 PlayerCharacter.Draw();
                 HasDrawnBackground = true;
             }
-            ActiveCampaign.Levels[currentRoom].DrawGuards();
+            ActiveCampaign.Levels[currentRoom].DrawGuards(this);
             UserInterface.DrawUI();
             if (Selector.IsActive) { Selector.Draw(); }
             CursorVisible = false;

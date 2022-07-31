@@ -6,15 +6,17 @@ namespace HeistGame
     {
         private int lockLevel;
         private int currentLockLevel;
-        private int timeToUnlockLevel;
+        private int timeBetweenTicks;
+        private int timeSinceLastTick;
         private int unlockingProgress;
 
         public Lock (int level)
         {
             lockLevel = level;
             currentLockLevel = level;
-            timeToUnlockLevel = 2000;
-            unlockingProgress = timeToUnlockLevel;
+            timeBetweenTicks = 100;
+            timeSinceLastTick = 0;
+            unlockingProgress = 0;
         }
 
         public bool IsLocked()
@@ -32,33 +34,38 @@ namespace HeistGame
             return lockLevel;
         }
 
-        public int GetUnlockingProgress()
+        public float GetUnlockingProgress()
         {
-            if (unlockingProgress == 0) { return 0; }
-
-            return (timeToUnlockLevel * 100) / unlockingProgress; //gets the percentage of progress
+            return unlockingProgress;
         }
 
         public void Unlock(int deltaTimeMS, Game game)
         {
-            unlockingProgress -= deltaTimeMS;
-            if (unlockingProgress <= 0)
+            if (currentLockLevel <= 0)
             {
+                return;
+            }
+
+            timeSinceLastTick += deltaTimeMS;
+
+            if (timeSinceLastTick > timeBetweenTicks)
+            {
+                unlockingProgress++;
+            }
+
+            if (unlockingProgress >= 100)
+            { 
                 currentLockLevel--;
-
-                if (currentLockLevel <= 0)
-                {
-                    return;
-                }
-
-                unlockingProgress = timeToUnlockLevel;
+                unlockingProgress = 0;
+                timeSinceLastTick = 0;
             }
         }
 
         public void Reset()
         {
             currentLockLevel = lockLevel;
-            unlockingProgress = timeToUnlockLevel;
+            timeSinceLastTick = 0;
+            unlockingProgress = 0;
         }
     }
 }

@@ -27,7 +27,7 @@
 			"╠════════  ══════~════╩══════════════════════════════════╣",
 			"║                                                        ║",
 			"║                                                        ║",
-			"║ ╔═════╗                                                ║",
+			"║ ╔═════╗                a                               ║",
 			"║ ║b  Bb║                                                ║",
 			"║ ║                                                      ║",
 			"║ ║b $ b║                                                ║",
@@ -56,7 +56,8 @@
 				"You can try distract the guard in the little cubicle south of here to get in and snatch the treasure."
 			],
 			[
-				"More message testing."
+				"Not all chests contain valuables.",
+				"And not all chests contain the same amount of loot."
 			],
 			[
 				"There's plenty of keys around here."

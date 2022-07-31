@@ -15,7 +15,6 @@ namespace HeistGame
             {
                 game.UserInterface.DisplayMessageOnLable(new string[] { "The door is already open." }, true);
                 game.ActiveUnlockable = null;
-                game.UserInterface.DeleteLable();
                 return;
             }
 
@@ -31,7 +30,8 @@ namespace HeistGame
                 game.UserInterface.DisplayMessageOnLable(base.GetUnlockProgress(), false);
                 return;
             }
-
+            game.UserInterface.DeleteLable();
+            game.UserInterface.DisplayMessageOnLable(new string[] { "Unlocked." }, true);
             game.ActiveUnlockable = null;
         }
 

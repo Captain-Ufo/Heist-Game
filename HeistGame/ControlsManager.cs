@@ -103,6 +103,8 @@ namespace HeistGame
                     case ConsoleKey.Enter:
                         if (State != ControlState.Interact)
                         {
+                            game.ActiveUnlockable = null;
+                            game.UserInterface.DeleteLable();
                             State = ControlState.Interact;
                             game.Selector.Activate();
                         }

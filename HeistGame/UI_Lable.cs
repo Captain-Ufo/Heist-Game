@@ -32,7 +32,7 @@ namespace HeistGame
             int lines = message.Length + 2;
             DrawMessage(message, messageLength, x, y, firstLine, lastLine, lines);
 
-            if (firstDisplay) { SetLableTiles(xOffset, messageLength, yOffset, lines); }
+            if (firstDisplay) { SetLableTiles(x, x1 + xOffset + 2, y, y1 + yOffset + 2); }
             IsActive = true;
         }
 
@@ -129,7 +129,7 @@ namespace HeistGame
             }
         }
 
-        private void SetLableTiles(int topX, int topY, int bottomX, int bottomY)
+        private void SetLableTiles(int topX, int bottomX, int topY, int bottomY)
         {
             LableTiles.Clear();
             for (int x = topX; x <= bottomX; x++)

@@ -25,7 +25,7 @@ namespace HeistGame
             string[] progressText = new string[2];
 
             progressText[0] = $"Lock level: {lockProp.GetCurrentLockLevel()} / {lockProp.GetLockLevel()}";
-            progressText[1] = lockProp.GetUnlockingProgress().ToString();
+            progressText[1] = $"{lockProp.GetUnlockingProgress()}%";
 
             return progressText;
         }

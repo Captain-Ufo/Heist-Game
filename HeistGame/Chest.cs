@@ -25,7 +25,6 @@ namespace HeistGame
             {
                 game.UserInterface.DisplayMessageOnLable(new string[] { "The chest is empty." }, true);
                 game.ActiveUnlockable = null;
-                game.UserInterface.DeleteLable();
                 return;
             }
 
@@ -48,6 +47,8 @@ namespace HeistGame
             if (treasure > 0)
             {
                 game.PlayerCharacter.ChangeLoot(treasure);
+                game.UserInterface.DeleteLable();
+                game.UserInterface.DisplayMessageOnLable(new string[] { $"The chest contains $ {treasure} in loot." }, true);
                 treasure = 0;
             }
             else

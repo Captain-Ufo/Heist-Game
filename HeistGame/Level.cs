@@ -635,13 +635,13 @@ namespace HeistGame
         /// <summary>
         /// Draws all guards
         /// </summary>
-        public void DrawGuards()
+        public void DrawGuards(Game game)
         {
             if (levelGuards.Length > 0)
             {
                 foreach (Guard guard in levelGuards)
                 {
-                    guard.Draw();
+                    guard.Draw(game);
                 }
             }
         }
@@ -668,7 +668,7 @@ namespace HeistGame
                 throw new Exception($"Error! failed to find unlockable in disctionary at {x}, {y}");
             }
 
-            game.ActiveUnlockable = unlockables[tile];
+            unlockables[tile].Unlock(game);
         }
 
         private void RedrawFloors()
