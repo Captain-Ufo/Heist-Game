@@ -55,6 +55,7 @@ namespace HeistGame
 
             if (unlockingProgress >= 100)
             { 
+                game.TunePlayer.PlaySFX(100, 100);
                 currentLockLevel--;
                 unlockingProgress = 0;
                 timeSinceLastTick = 0;

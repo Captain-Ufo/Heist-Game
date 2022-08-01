@@ -27,7 +27,7 @@
 			"╠════════  ══════~════╩══════════════════════════════════╣",
 			"║                                                        ║",
 			"║                                                        ║",
-			"║ ╔═════╗                a                               ║",
+			"║ ╔═════╗                                                ║",
 			"║ ║b  Bb║                                                ║",
 			"║ ║                                                      ║",
 			"║ ║b $ b║                                                ║",
@@ -38,19 +38,72 @@
 			"║                                                        ║",
 			"║                                                        ║",
 			"║                                                        ║",
-			"╚═════════ ══════════════════════════════════════════════╝"
+			"╚════════════════════════════════════════════════════════╝"
 		],
 				
 		"ObjectivesMessages":
 		[
-			[""]
+			[
+				"Oh, there's more right here"
+			],
+			[],
+			[
+				"Again?!"
+			]
 		],
 
 		"Messages":
 		[
 			[
 				"This is a test message;",
-				"See if multiple lines work."
+				"See if multiple lines work.",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"This should be on page 2"
 			],
 			[
 				"You can try distract the guard in the little cubicle south of here to get in and snatch the treasure."

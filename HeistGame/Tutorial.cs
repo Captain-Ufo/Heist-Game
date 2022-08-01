@@ -5,13 +5,13 @@ namespace HeistGame
 {
     class Tutorial
     {
-        public MissionConfig[] TutorialMissions { get; private set; } = new MissionConfig[5];
+        public MissionConfig[] TutorialMissions { get; private set; } = new MissionConfig[6];
 
         string[] tutorialLevel0 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
-            "║         ║         ║         ║         ║         |         ║",
+            "║         ║         ║         ║         ║         ¦         ║",
             "║    +    ║    +    ║    +         +         +    ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
@@ -21,7 +21,7 @@ namespace HeistGame
             "║ X       *         ║         *         ║              *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "╠════-════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
+            "╠════~════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║    +         +         +    ║    +         +    ║",
@@ -34,7 +34,7 @@ namespace HeistGame
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
             "║                   ║         ║         ║         ║         ║",
-            "║         ║         ║         ║    $    ║         |         ║",
+            "║         ║         ║         ║    $    ║         ¦         ║",
             "║    +    ║    +  $ ║    +         +         +$   ║         ║",
             "║    ¹    ║         ║  $      ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
@@ -44,7 +44,7 @@ namespace HeistGame
             "║ X       *         ║         *         ║              *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "╠════-════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
+            "╠════~════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
             "║         ║         ║         ║      $  ║         ║         ║",
             "║         ║     $   ║         ║         ║         ║    ¶    ║",
             "║         ║    +         +         +    ║    +         +    ║",
@@ -56,22 +56,22 @@ namespace HeistGame
         string[] tutorialLevel2 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
-            "║                   ║         ║         ║         ║         ║",
-            "║         ║         ║         ║         ║         o    $    ║",
-            "║    +    ║    +    e    +    è    +    à    +    ║    +    ║",
-            "║    A    ║         ║         ║         ║         ║    $    ║",
+            "║                   ║         ║    Ͼ    ║         ║ Ɔ     Ͽ ║",
+            "║         ║         ║         ║         ║         |         ║",
+            "║ Ɔ  +    ║    +  $ ║    +    !    +         +$   ║         ║",
+            "║         ║         ║  $      ║         ║         ║    ¹    ║",
             "║         ║         ║         ║         ║         ║         ║",
-            "╠═════════╩════ ════╬════ì════╩════ì════╬════ì════╬═════════╣",
+            "╠═════════╩════÷════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║ E       *         ║         i    *  Ω ║",
+            "║ X       *        0║Ɔ        *        1║              *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "╠════a════╦════a════╬════ì════╦════ì════╬════ ════╬═════════╣",
-            "║         ║         ║         ║         ║         ║         ║",
-            "║         ║         ║         ║         ║         ║    I    ║",
-            "║    +    ║    +    è    +         +    ║    +              ║",
-            "║    O    ║         ║         ║         ║         ║         ║",
+            "╠════~════╦════ ════╬════ ════╦════ ════╬════=════╬═════════╣",
+            "║         ║         ║         ║      $  ║         ║         ║",
+            "║         ║     $   ║         ║         ║         ║    ¶    ║",
+            "║    Ͼ    ║    +         +    ¡    +    ║    +         +    ║",
+            "║         ║         ║    $    ║         ║   $     ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
@@ -79,47 +79,141 @@ namespace HeistGame
         string[] tutorialLevel3 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
-            "║    $              ║         ║         ║         ║         ║",
-            "║         ║    $    ║    +    ║    +    ║         |         ║",
-            "║    G    ║         |    b         b         +    ║         ║",
-            "║    +    ║         ║         ║         ║         ║         ║",
-            "║         ║         ║         ║         ║         ║         ║",
-            "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
-            "║ $       $       $ ║                   ║         ║         ║",
+            "║                   ║         ║         ║         ║    Ͽ    ║",
+            "║         ║         ║         ║         ║         o         ║",
+            "║    +    ║    +    e    +    è    +    à    +    ║    +    ║",
+            "║    A    ║         ║         ║         ║         ║         ║",
+            "║         ║         ║         ║         ║         ║    Ͼ    ║",
+            "╠═════════╩════ ════╬════ì════╩════ ════╬════÷════╬═════════╣",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║         *         ║              *  Ω ║",
+            "║                   ║                   ║        ╔╩╗        ║",
+            "║ X       *        0║ E       *         ║        è i   *  Ω ║",
+            "║                   ║                   ║        ╚╦╝        ║",
             "║                   ║                   ║         ║         ║",
-            "║ $       $       $ ║                   ║         ║         ║",
-            "╠═════════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
-            "║         ║         ║         ║         ║         ║    $    ║",
+            "╠════a════╦════a════╬════ì════╦════ ════╬════ì════╬═════════╣",
             "║         ║         ║         ║         ║         ║         ║",
-            "║ c  + C       +         b  B      b  c ║    D              ║",
-            "║         ║         ║    +    ║    +    ║    +    ║         ║",
-            "║         ║         ║         ║         ║         ║    $    ║",
+            "║         ║         ║         ║         ║         ║    I    ║",
+            "║    +    ║    +    è    +    ì    +    i    +         +    ║",
+            "║    O    ║         ║         ║         ║         ║         ║",
+            "║         ║         ║         ║         ║         ║         ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
         };
 
         string[] tutorialLevel4 =
         {
             "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
-            "║         à         ║         ║         ║         ║    $    ║",
-            "║         ║    +    ║    +    ║         ║         i         ║",
-            "║    E    ║    C    e    d         d    a         ║         ║",
+            "║    $              ║         ║         ║         ║         ║",
+            "║         ║    $    ║    +    ║    +    ║         |         ║",
+            "║    G    ║         |    b         b         +    ║    Ͽ    ║",
+            "║    +    ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║         ║",
-            "║         ║         ║         ║         ║         ║    $    ║",
+            "╠═════════╩════ ════╬════ ════╩════ ════╬════ ════╬═════════╣",
+            "║ $   0   $       Ͼ ║                   ║         ║         ║",
+            "║                   ║                   ║         ║         ║",
+            "║ X       *         ║         *         ║              *  Ω ║",
+            "║                   ║                   ║         ║         ║",
+            "║ $       $       Ͼ ║                   ║         ║         ║",
+            "╠═════════╦════ ════╬════ ════╦════ ════╬════ ════╬═════════╣",
+            "║         ║         ║         ║         ║         ║    Ͽ    ║",
+            "║         ║         ║         ║         ║         ║         ║",
+            "║ c  + C       +         b  B      b  c ║    D              ║",
+            "║         ║         ║    +    ║    +    ║    +    ║         ║",
+            "║         ║         ║         ║         ║         ║    Ͽ    ║",
+            "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
+        };
+
+        string[] tutorialLevel5 =
+        {
+            "╔═════════╦═════════╦═════════╦═════════╦═════════╦═════════╗",
+            "║         à         ║         ║    Ɔ    ║         ║    Ͼ    ║",
+            "║         ║    +    ║    +    ║         ║         i         ║",
+            "║    E    ║    C    e    d         d    a         ║    ¶    ║",
+            "║         ║         ║         ║         ║         ║         ║",
+            "║         ║         ║         ║         ║         ║    Ͽ    ║",
             "╠═════════╩════à════╬════ ════╩════ ════╬════ ════╬═════════╣",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
-            "║ X       *         ║    d    *D   d A  ║    +  B      *  Ω ║",
+            "║ X       *     Ͽ   ║    d    *D   d A  ║    +  B ¡    *  Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "╠═════════╦════à════╬════ ════╦════d════╬════ ════╬═════════╣",
-            "║         ║         ║         ║         ║         ║    $    ║",
+            "║         ║         ║         ║         ║         ║    Ͽ    ║",
             "║         ║         ║         ║         ║         ║         ║",
-            "║ I  +         +    e    d         d    a         i         ║",
+            "║ I  +    !    +    e    d         d    a         i         ║",
             "║         ║         ║         ║    +    ║         ║         ║",
-            "║         ║         ║         ║         ║         ║    $    ║",
+            "║         ║         ║    Ͼ    ║         ║         ║    Ͼ    ║",
             "╚═════════╩═════════╩═════════╩═════════╩═════════╩═════════╝"
+        };
+
+        string[][] level2ObjectiveMessages =
+        {
+            new string[]
+            {
+                "Touching what you thought was the key of the exit, you discover it's only a fake, carved in wood.",
+                "There's a little sheet of paper under it with some scribbles.",
+                "You read:",
+                " ",
+                "'The key is actually in the room of the northwest corner.'"
+            }
+        };
+
+        string[][] level3ObjectiveMessages =
+        {
+            new string[]
+            {
+                "You find a notebook containing the code to unlock the exit. Unfortunately the second half is covered",
+                "in a grease stain and is hard to read.",
+                "You remember, however, that there's another copy of the code in the closet north of here."
+            }
+        };
+
+        string[][] level3Messages =
+        {
+            new string[]
+            {
+                "Welcome to the third floor of your training course.",
+                "This place is safe, explore and experiment at your will.",
+                " ",
+                "Remember: if you try to walk through a door and it stops you, it means that it's locked and you have",
+                "To lockpick it."
+            },
+            new string[]
+            {
+                "As you may have already noticed, not all chests contain valuables.",
+                "And those which do, don't necessarily contain the same amount of treasure either."
+            }
+        };
+
+        string[][] level4Messages = 
+        {
+            new string[]
+            {
+                "Welcome to the fourth floor of the training course.",
+                "Not all the levels on this floor are required to access the exit. But you may have to use",
+                "some of the others more than once in order to be able to leave."
+            }
+        };
+
+        string[][] level5Messages =
+        {
+            new string[]
+            {
+                "This is the fifth floor. Beware, guards are patrolling it, so your movement is not as free as",
+                "it used to be on the previous floor.",
+                " ",
+                "This first room is not as safe as it might seem at first sight, for example."
+            }
+        };
+
+        string[][] level6Messages =
+        {
+            new string[]
+            {
+                "Guards are not the brightest, but they are not too stupid either. Beware of how you disrupt",
+                "The patrols. Also, you cannot control which guard will hear the noise, so keep an eye on all",
+                "the other guards nearby before you distract someone.",
+                "You wouldn't want to trap yourself in a corner!"
+            }
         };
 
         public Tutorial()
@@ -133,6 +227,7 @@ namespace HeistGame
             TutorialMissions[2] = new MissionConfig();
             TutorialMissions[3] = new MissionConfig();
             TutorialMissions[4] = new MissionConfig();
+            TutorialMissions[5] = new MissionConfig();
 
             //first mission
             TutorialMissions[0].Name = "Tutorial 1";
@@ -145,6 +240,7 @@ namespace HeistGame
             TutorialMissions[1].Name = "Tutorial 2";
             TutorialMissions[1].LevelMap = tutorialLevel1;
             TutorialMissions[1].Briefing = emptyBriefing;
+            TutorialMissions[1].ObjectivesMessages = level2ObjectiveMessages;
             TutorialMissions[1].Messages = emptyMessages;
             TutorialMissions[1].Outro = emptyBriefing;
 
@@ -152,22 +248,30 @@ namespace HeistGame
             TutorialMissions[2].Name = "Tutorial 3";
             TutorialMissions[2].LevelMap = tutorialLevel2;
             TutorialMissions[2].Briefing = emptyBriefing;
-            TutorialMissions[2].Messages = emptyMessages;
+            TutorialMissions[2].ObjectivesMessages = level3Messages;
+            TutorialMissions[2].Messages = level3Messages;
             TutorialMissions[2].Outro = emptyBriefing;
 
             //fourth mission
             TutorialMissions[3].Name = "Tutorial 4";
             TutorialMissions[3].LevelMap = tutorialLevel3;
             TutorialMissions[3].Briefing = emptyBriefing;
-            TutorialMissions[3].Messages = emptyMessages;
+            TutorialMissions[3].Messages = level4Messages;
             TutorialMissions[3].Outro = emptyBriefing;
 
-            //first mission
+            //fifth mission
             TutorialMissions[4].Name = "Tutorial 5";
             TutorialMissions[4].LevelMap = tutorialLevel4;
             TutorialMissions[4].Briefing = emptyBriefing;
-            TutorialMissions[4].Messages = emptyMessages;
+            TutorialMissions[4].Messages = level5Messages;
             TutorialMissions[4].Outro = emptyBriefing;
+
+            //Sixth mission
+            TutorialMissions[5].Name = "Tutorial 6";
+            TutorialMissions[5].LevelMap = tutorialLevel5;
+            TutorialMissions[5].Briefing = emptyBriefing;
+            TutorialMissions[5].Messages = level6Messages;
+            TutorialMissions[5].Outro = emptyBriefing;
         }
 
         public void DisplayTutorialInstructions(int index)
@@ -207,6 +311,25 @@ namespace HeistGame
                 case 2:
                     instructions = new string[]
                     {
+                        "Some elements in the locations can be interacted with. Use the interaction button (ENTER or E) to toggle the cursor,",
+                        "then use the arrow keys to navigate the tiles around you. Press Interact or SPACE again on a tile to interact with it.",
+                        $"Interactables are readable material ({SymbolsConfig.Signpost}) which may contain information on the level, or just some",
+                        $"narrative, chests ({SymbolsConfig.ChestClosed}), which may contain loot, and doors ({SymbolsConfig.HorizontalDoorVisual} and {SymbolsConfig.VerticalDoorVisual}).",
+                        " ",
+                        "Chests and some doors may have to be lockpicked before you can use them. Once the doors are unlocked, you can just walk",
+                        " though them s if they were open space. Lockpicking takes some time and makes noise, so beware of your surroundings when",
+                        "you do it.",
+                        "You can stop lockpicking at any time by pressing any button, or simply stepping away from the door or the chest.",
+                        "Locks have different complexity, reperesented by lock levels. When you interrupt a lockpicking, you lose all the progress",
+                        "on the current level. Previously completed levels remain completed.",
+                        "The interaction cursor button can also be used to collect regular treasures and objectives, if you wish."
+                    };
+                    DisplaytextCentered(instructions);
+                    break;
+
+                case 3:
+                    instructions = new string[]
+                    {
                          $"Levers ({SymbolsConfig.LeverOff}) open and close gates ({SymbolsConfig.Gate}) throughout the level.",
                          "They may open optional rooms and passages, or clear the way to your destination.",
                          " ",
@@ -217,7 +340,7 @@ namespace HeistGame
                     DisplaytextCentered(instructions);
                     break;
 
-                case 3:
+                case 4:
                     instructions = new string[]
                     {
                          "Beware of Guards! They patrol the grounds, or stand in place and look around.",
@@ -234,16 +357,14 @@ namespace HeistGame
                     DisplaytextCentered(instructions);
                     break;
 
-                case 4:
+                case 5:
                     instructions = new string[]
                     {
                         "Sometimes guards cannot be sneaked past no matter what. Maybe they stand in the way of your objective, or the room is too lit.",
                         "If you are within their hearing range, You can make noises (by pressing the SPACEBAR or the KEYPAD + KEY to attract them to",
                         "a different part of the location and take advantage of the time they'll spend investigating the noise to sneak past them.",
                         "Keep in mind that the guards who hear your noise will home in on you. Make sure there is an escape route or a convenient shadow to hide in",
-                        "before they reach your location.",
-                        "You cannot control which guard will hear the noise, so keep an eye on all the other guards nearby before you distract someone.",
-                        "You wouldn't want to trap yourself!"
+                        "before they reach your location."
                     };
                     DisplaytextCentered(instructions);
                     break;

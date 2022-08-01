@@ -39,6 +39,7 @@ namespace HeistGame
             List<Light> weakLights = new List<Light>();
 
             LevelLock levLock = new LevelLock();
+            levLock.AddMessages(mission.ObjectivesMessages);
 
             Dictionary<Vector2, Lever> leversDictionary = new Dictionary<Vector2, Lever>();
 

@@ -85,6 +85,9 @@ namespace HeistGame
                     case ConsoleKey.Add:
                         if (State != ControlState.Interact)
                         {
+                            game.ActiveUnlockable = null;
+                            game.UserInterface.DeleteLable();
+
                             game.PlayerCharacter.MakeNoise(level, game);
                             State = ControlState.Yell;
                         }
@@ -95,9 +98,9 @@ namespace HeistGame
                                 State = ControlState.Idle;
                                 game.Selector.Deactivate();
                             }
+
+                            State = ControlState.Idle;
                         }
-                        game.ActiveUnlockable = null;
-                        game.UserInterface.DeleteLable();
                         break;
                     case ConsoleKey.E:
                     case ConsoleKey.Enter:

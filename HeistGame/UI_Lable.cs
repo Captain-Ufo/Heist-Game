@@ -32,7 +32,7 @@ namespace HeistGame
             int lines = message.Length + 2;
             DrawMessage(message, messageLength, x, y, firstLine, lastLine, lines);
 
-            if (firstDisplay) { SetLableTiles(x, x1 + xOffset + 2, y, y1 + yOffset + 2); }
+            if (firstDisplay) { SetLableTiles(x, x + messageLength + 1, y, y + message.Length + 1); }
             IsActive = true;
         }
 

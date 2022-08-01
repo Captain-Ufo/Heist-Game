@@ -430,7 +430,7 @@ namespace HeistGame
             if (element == SymbolsConfig.Key.ToString())
             {
                 game.TunePlayer.PlaySFX(800, 100);
-                CollectKeyPiece(x, y);
+                CollectKeyPiece(x, y, game);
                 return true;
             }
             if (element == SymbolsConfig.LeverOff.ToString() || element == SymbolsConfig.LeverOn.ToString())
@@ -583,9 +583,9 @@ namespace HeistGame
         /// </summary>
         /// <param name="x">The X coordinate of the collected key</param>
         /// <param name="y">The Y coordinate of the collected key</param>
-        public void CollectKeyPiece(int x, int y)
+        public void CollectKeyPiece(int x, int y, Game game)
         {
-            IsLocked = levelLock.CollectKeyPiece(this, x, y);
+            IsLocked = levelLock.CollectKeyPiece(game, x, y);
 
             if (!IsLocked)
             {
@@ -621,13 +621,13 @@ namespace HeistGame
         /// Alerts guards of comething out of their line of sight
         /// </summary>
         /// <param name="targetPosition">The position the guards will investigate</param>
-        public void AlertGuards(Vector2 targetPosition)
+        public void AlertGuards(Vector2 targetPosition, int range = 0)
         {
             if (levelGuards.Length > 0)
             {
                 foreach (Guard guard in levelGuards)
                 {
-                    guard.AlertGuard(targetPosition);
+                    guard.AlertGuard(targetPosition, range);
                 }
             }
         }

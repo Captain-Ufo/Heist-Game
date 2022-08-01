@@ -323,7 +323,7 @@ namespace HeistGame
                 else if (elementAtPlayerPosition == SymbolsConfig.Key.ToString())
                 {
                     TunePlayer.PlaySFX(800, 100);
-                    ActiveCampaign.Levels[CurrentRoom].CollectKeyPiece(PlayerCharacter.X, PlayerCharacter.Y);
+                    ActiveCampaign.Levels[CurrentRoom].CollectKeyPiece(PlayerCharacter.X, PlayerCharacter.Y, this);
                     PlayerCharacter.Draw();
                 }
                 else if ((elementAtPlayerPosition == SymbolsConfig.LeverOff.ToString()
@@ -365,6 +365,7 @@ namespace HeistGame
                 if (ActiveUnlockable != null)
                 {
                     ActiveUnlockable.Unlock(deltaTimeMS, this);
+                    ActiveCampaign.Levels[CurrentRoom].AlertGuards(new Vector2(PlayerCharacter.X, PlayerCharacter.Y), 3);
                 }
 
                 Thread.Sleep(20);
@@ -461,6 +462,8 @@ namespace HeistGame
 
         private bool AttemptBribe(int amountBribedBefore)
         {
+            ActiveUnlockable = null;
+            UserInterface.DeleteLable();
             Clear();
             SetCursorPosition(0, 3);
 
@@ -618,6 +621,7 @@ namespace HeistGame
                     "Hey, you!",
                     "Stop right there!",
                     "You can't be here!",
+                    "What do you think you are doing?!",
                     "You are not allowed here!",
                     "Thief!",
                     "Bandit!",

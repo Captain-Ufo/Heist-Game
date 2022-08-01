@@ -50,9 +50,9 @@ namespace HeistGame
         /// <param name="x">The X coordinate of the piece the player is collecting</param>
         /// <param name="y">The X coordinate of the piece the player is collecting</param>
         /// <returns>returns whether the level is still locked or not (so true if there are other pieces to collect, false if there are none)</returns>
-        public bool CollectKeyPiece(Level level, int x, int y)
+        public bool CollectKeyPiece(Game game, int x, int y)
         {
-            level.ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
+            game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
 
             revealedKeyPieces--;
             TotalCollectedKeys++;
@@ -61,7 +61,9 @@ namespace HeistGame
             {
                 if (hiddenKeyPieces > 0)
                 {
-                    RevealKeys(level);
+                    DisplayObjectiveMessage(game);
+
+                    RevealKeys(game.ActiveCampaign.Levels[game.CurrentRoom]);
                     return true;
                 }
                 return false;
@@ -141,6 +143,20 @@ namespace HeistGame
                 level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key.ToString(), false);
             }
             hiddenKeyGroup++;
+        }
+
+        private void DisplayObjectiveMessage(Game game)
+        {
+            if (objectiveMessages != null)
+            {
+                if (objectiveMessages[hiddenKeyGroup - 2].Length > 0)
+                {
+                    game.MyStopwatch.Stop();
+                    game.UserInterface.DisplayTextFullScreen(objectiveMessages[hiddenKeyGroup - 2]);
+                    game.HasDrawnBackground = false;
+                    game.MyStopwatch.Start();
+                }
+            }
         }
     }
 }

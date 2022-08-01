@@ -206,16 +206,18 @@ namespace HeistGame
         /// Used to alert the guard while out of their line of sight
         /// </summary>
         /// <param name="expectedTarget">The place they'll investigate while alerted</param>
-        public void AlertGuard(Vector2 expectedTarget)
+        public void AlertGuard(Vector2 expectedTarget, int range = 0)
         {
             if (isBribed)
             {
                 return;
             }
 
-            int horizontalHearingRange = hearingRange * 2;
+            if (range == 0) { range = hearingRange; }
+
+            int horizontalHearingRange = range * 2;
             if (expectedTarget.X >= X - horizontalHearingRange && expectedTarget.X <= X + horizontalHearingRange &&
-                expectedTarget.Y >= Y - hearingRange && expectedTarget.Y <= Y + hearingRange)
+                expectedTarget.Y >= Y - range && expectedTarget.Y <= Y + range)
             {
                 searchTarget = expectedTarget;
                 isAlerted = true;
