@@ -460,6 +460,18 @@ namespace HeistGame
 
 
 
+        public void CancelUnlocking()
+        {
+            if (ActiveUnlockable != null)
+            {
+                ActiveUnlockable.CancelUnlocking();
+                ActiveUnlockable = null;
+                UserInterface.DeleteLable();
+            }
+        }
+
+
+
         private bool AttemptBribe(int amountBribedBefore)
         {
             ActiveUnlockable = null;
@@ -1362,6 +1374,7 @@ namespace HeistGame
 
         private bool QuitGame()
         {
+            Selector.Deactivate();
             Clear();
             string[] quitMenuPrompt =
              {

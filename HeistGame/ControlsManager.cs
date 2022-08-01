@@ -33,8 +33,7 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.up);
                         }
-                        game.ActiveUnlockable = null;
-                        game.UserInterface.DeleteLable();
+                        game.CancelUnlocking();
                         break;
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
@@ -48,8 +47,7 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.down);
                         }
-                        game.ActiveUnlockable = null;
-                        game.UserInterface.DeleteLable();
+                        game.CancelUnlocking();
                         break;
                     case ConsoleKey.LeftArrow:
                     case ConsoleKey.A:
@@ -63,8 +61,7 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.left);
                         }
-                        game.ActiveUnlockable = null;
-                        game.UserInterface.DeleteLable();
+                        game.CancelUnlocking();
                         break;
                     case ConsoleKey.RightArrow:
                     case ConsoleKey.D:
@@ -78,15 +75,13 @@ namespace HeistGame
                         {
                             game.Selector.Move(Directions.right);
                         }
-                        game.ActiveUnlockable = null;
-                        game.UserInterface.DeleteLable();
+                        game.CancelUnlocking();
                         break;
                     case ConsoleKey.Spacebar:
                     case ConsoleKey.Add:
                         if (State != ControlState.Interact)
                         {
-                            game.ActiveUnlockable = null;
-                            game.UserInterface.DeleteLable();
+                            game.CancelUnlocking();
 
                             game.PlayerCharacter.MakeNoise(level, game);
                             State = ControlState.Yell;
@@ -106,8 +101,7 @@ namespace HeistGame
                     case ConsoleKey.Enter:
                         if (State != ControlState.Interact)
                         {
-                            game.ActiveUnlockable = null;
-                            game.UserInterface.DeleteLable();
+                            game.CancelUnlocking();
                             State = ControlState.Interact;
                             game.Selector.Activate();
                         }
@@ -129,16 +123,15 @@ namespace HeistGame
                         else
                         {
                             State = ControlState.Idle;
-                            //NO INTERACTION! This just cancels it
                             game.Selector.Deactivate();
-                            game.ActiveUnlockable = null;
+                            //NO INTERACTION! This just cancels it
+                            game.CancelUnlocking();
                             game.UserInterface.DeleteLable();
                         }
                         break;
                     default:
                         game.Selector.Deactivate();
-                        game.ActiveUnlockable = null;
-                        game.UserInterface.DeleteLable();
+                        game.CancelUnlocking();
                         State = ControlState.Idle;
                         break;
                 }

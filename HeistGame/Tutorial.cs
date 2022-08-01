@@ -131,7 +131,7 @@ namespace HeistGame
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║    Ͽ    ║",
             "╠═════════╩════à════╬════ ════╩════ ════╬════ ════╬═════════╣",
-            "║                   ║                   ║         ║         ║",
+            "║         0         ║                   ║         ║         ║",
             "║                   ║                   ║         ║         ║",
             "║ X       *     Ͽ   ║    d    *D   d A  ║    +  B ¡    *  Ω ║",
             "║                   ║                   ║         ║         ║",
@@ -180,7 +180,8 @@ namespace HeistGame
             new string[]
             {
                 "As you may have already noticed, not all chests contain valuables.",
-                "And those which do, don't necessarily contain the same amount of treasure either."
+                "And those which do, don't necessarily contain the same amount of treasure either.",
+                "There's no way to know which is which before you open them"
             }
         };
 
@@ -209,9 +210,12 @@ namespace HeistGame
         {
             new string[]
             {
-                "Guards are not the brightest, but they are not too stupid either. Beware of how you disrupt",
-                "The patrols. Also, you cannot control which guard will hear the noise, so keep an eye on all",
-                "the other guards nearby before you distract someone.",
+                "This is the final test of your training course.",
+                "As such, it's the most difficult task to complete smoothly. Good luck!",
+                " ",
+                "Just a suggestion: Guards are not the brightest, but they are not too stupid either. Beware of how",
+                "you disrupt the patrols. Also, you cannot control which guard will hear the noise, so keep an eye",
+                "on all the other guards nearby before you distract someone.",
                 "You wouldn't want to trap yourself in a corner!"
             }
         };
@@ -248,7 +252,7 @@ namespace HeistGame
             TutorialMissions[2].Name = "Tutorial 3";
             TutorialMissions[2].LevelMap = tutorialLevel2;
             TutorialMissions[2].Briefing = emptyBriefing;
-            TutorialMissions[2].ObjectivesMessages = level3Messages;
+            TutorialMissions[2].ObjectivesMessages = level3ObjectiveMessages;
             TutorialMissions[2].Messages = level3Messages;
             TutorialMissions[2].Outro = emptyBriefing;
 

@@ -152,6 +152,7 @@ namespace HeistGame
                 if (objectiveMessages[hiddenKeyGroup - 2].Length > 0)
                 {
                     game.MyStopwatch.Stop();
+                    game.Selector.Deactivate();
                     game.UserInterface.DisplayTextFullScreen(objectiveMessages[hiddenKeyGroup - 2]);
                     game.HasDrawnBackground = false;
                     game.MyStopwatch.Start();

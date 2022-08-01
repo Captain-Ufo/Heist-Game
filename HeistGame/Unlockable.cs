@@ -23,5 +23,10 @@
 
             return progressText;
         }
+
+        public void CancelUnlocking()
+        {
+            lockProp.CancelUnlocking();
+        }
     }
 }

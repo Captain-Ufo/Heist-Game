@@ -4,13 +4,14 @@
 	"Briefing":
 		[
 			"This was the old second level.",
-			"It's a bit more recent than 'Labyrinth', as it includes newer gameplay features like keys.",
+			"It's a bit more recent than 'Labyrinth', as it includes newer gameplay features like objectives.",
 			"You can see how some of the floor design and ideas have been later tweaked and reused in one of the Baron's Jail campaign missions.",
 			"Still, this map was designed before guards got the ability to spot the player at a distance, and chase them.",
 			"The first iteration of the guards could only catch the player when they bumped into them. Most of the challenge derived from navigating tight areas",
 			"where stepping two tiles away from a guard's patrol was difficult.",
-			"Since guards now have sprouted eyes and can see more than one tile ahead of them, and since this level lacks some of the tweaks I had to implement",
-			"in the version that got included in the campaign, I am not 100% sure that this version of the level can be completed without getting spotted at least once.",
+			"Since guards now have sprouted eyes and can see more than one tile ahead of them (albeit there's no light in this level), and since this level lacks",
+			"some of the tweaks I had to implement in the version that got included in the campaign, I am not 100% sure that this version of the level can be",
+			"completed without getting spotted at least once.",
 			"Thus, I discourage to play this level on Ironman. I'd also suggest to stock on loot as much as possible to bribe them whenever needed.",
 			"I'm leaving it here more as a curiosity than anything else."
 		],

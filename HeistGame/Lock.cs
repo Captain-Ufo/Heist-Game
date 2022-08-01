@@ -62,6 +62,11 @@ namespace HeistGame
             }
         }
 
+        public void CancelUnlocking()
+        {
+            unlockingProgress = 0;
+        }
+
         public void Reset()
         {
             currentLockLevel = lockLevel;
