@@ -10,17 +10,19 @@ namespace HeistGame
     /// </summary>
     class Level
     {
-        private string[,] grid;
-        private int rows;
-        private int columns;
-        private int xOffset;
-        private int yOffset;
-        private Vector2 exit;
-        private LevelLock levelLock;
-        private Dictionary<Vector2, Lever> leversDictionary;
-        private Vector2[] treasures;
-        private Guard[] levelGuards;
-        private Stopwatch stopwatch;
+        private readonly string[,] grid;
+        private readonly int rows;
+        private readonly int columns;
+        private readonly int xOffset;
+        private readonly int yOffset;
+        private readonly Vector2 exit;
+        private readonly LevelLock levelLock;
+        private readonly Dictionary<Vector2, Lever> leversDictionary;
+        private readonly Vector2[] treasures;
+        private readonly Guard[] levelGuards;
+        private readonly Stopwatch stopwatch;
+        private readonly Dictionary<Vector2, string[]> messagesDictionary;
+        private readonly Dictionary<Vector2, Unlockable> unlockables;
 
         /// <summary>
         /// The name of the floor, extracted from the level file name.
@@ -67,16 +69,19 @@ namespace HeistGame
         /// <param name="startX">The player's starting X coordinate, int format</param>
         /// <param name="startY">The player's starting Y coordinate, int format</param>
         /// <param name="floorTiles">The collection of all walkable tiles in the level</param>
+        /// <param name="lightmap">The lightmap of the level</param>
         /// <param name="levelLock">The System that handles keys in the level, as a LevelLock object</param>
         /// <param name="exit">The coordinates of the exit point</param>
         /// <param name="treasures">The array containing the coordinates of all the treasures in the level</param>
         /// <param name="levers">The collection of levers in the level</param>
         /// <param name="guards">The collection of guards in the level</param>
+        /// <param name="messages">The commection of messages in the level</param>
         /// <param name="briefing">The intro text to the level; an array of strings, one per each line.</param>
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
         public Level(string name, string[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
-                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, string[] briefing, string[] outro, Stopwatch stopwatch)
+                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, Unlockable> unlockables,
+                     string[] briefing, string[] outro, Stopwatch stopwatch)
         {
             Name = name;
             Briefing = briefing;
@@ -106,7 +111,18 @@ namespace HeistGame
                 leversDictionary[coordinatesWithOffset] = lever;
             }
 
+            messagesDictionary = new Dictionary<Vector2, string[]>();
+
+            foreach (KeyValuePair<Vector2, string[]> messageInfo in messages)
+            {
+                Vector2 coordinatesWithOffset = new Vector2(messageInfo.Key.X + xOffset, messageInfo.Key.Y + yOffset);
+
+                messagesDictionary[coordinatesWithOffset] = messageInfo.Value;
+            }
+
             levelGuards = guards;
+
+            this.unlockables = unlockables;
 
             foreach (Guard guard in guards)
             {
@@ -138,11 +154,11 @@ namespace HeistGame
                     string element = grid[y, x];
                     SetCursorPosition(x + xOffset, y + yOffset);
 
-                    if (element == SymbolsConfig.EnclosedSpaceChar.ToString())
+                    if (element == SymbolsConfig.EnclosedSpace.ToString())
                     {
-                        element = SymbolsConfig.EmptySpace.ToString();
+                        element = SymbolsConfig.Empty.ToString();
                     }
-                    else if (element == SymbolsConfig.EmptySpace.ToString())
+                    else if (element == SymbolsConfig.Empty.ToString())
                     {
                         Vector2 tile = new Vector2(x, y);
                         int lightValue = Lights.FloorTilesValues[tile];
@@ -152,17 +168,17 @@ namespace HeistGame
                             case 0:
                                 break;
                             case 1:
-                                element = SymbolsConfig.Light1char.ToString();
+                                element = SymbolsConfig.Light1.ToString();
                                 break;
                             case 2:
-                                element = SymbolsConfig.Light2char.ToString();
+                                element = SymbolsConfig.Light2.ToString();
                                 break;
                             case 3:
-                                element = SymbolsConfig.Light3char.ToString();
+                                element = SymbolsConfig.Light3.ToString();
                                 break;
                         }
                     }
-                    else if (element == SymbolsConfig.ExitChar.ToString())
+                    else if (element == SymbolsConfig.Exit.ToString())
                     {
                         if (IsLocked)
                         {
@@ -173,17 +189,21 @@ namespace HeistGame
                             ForegroundColor = ConsoleColor.Green;
                         }
                     }
-                    else if (element == SymbolsConfig.KeyChar.ToString())
+                    else if (element == SymbolsConfig.Key.ToString())
                     {
                         ForegroundColor = ConsoleColor.DarkYellow;
                     }
-                    else if (element == SymbolsConfig.TreasureChar.ToString())
+                    else if (element == SymbolsConfig.Treasure.ToString())
                     {
                         ForegroundColor = ConsoleColor.Yellow;
                     }
                     else if (element == "☺")
                     {
                         ForegroundColor = ConsoleColor.DarkMagenta;
+                    }
+                    else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
+                    {
+                        ForegroundColor = ConsoleColor.White;
                     }
                     else
                     {
@@ -197,55 +217,69 @@ namespace HeistGame
         }
 
 
-        private void DrawTile(int x, int y, string element)
+        public void DrawTile(int x, int y, string element, bool highlighted = false)
         {
+            if (highlighted) { BackgroundColor = ConsoleColor.White; }
+
             SetCursorPosition(x, y);
-            if (element == SymbolsConfig.EmptySpace.ToString())
+            if (element == SymbolsConfig.Empty.ToString())
             {
                 Vector2 tile = new Vector2(x, y);
                 int lightValue = GetLightLevelInItle(tile);
-                ForegroundColor = ConsoleColor.DarkBlue;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.DarkBlue; }
                 switch (lightValue)
                 {
                     case 0:
                         break;
                     case 1:
-                        element = SymbolsConfig.Light1char.ToString();
+                        element = SymbolsConfig.Light1.ToString();
                         break;
                     case 2:
-                        element = SymbolsConfig.Light2char.ToString();
+                        element = SymbolsConfig.Light2.ToString();
                         break;
                     case 3:
-                        element = SymbolsConfig.Light3char.ToString();
+                        element = SymbolsConfig.Light3.ToString();
                         break;
                 }
             }
-            else if (element == SymbolsConfig.ExitChar.ToString())
+            else if (element == SymbolsConfig.Exit.ToString())
             {
                 if (IsLocked)
                 {
-                    ForegroundColor = ConsoleColor.Red;
+                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                    else { ForegroundColor = ConsoleColor.Red; }
                 }
                 else
                 {
-                    ForegroundColor = ConsoleColor.Green;
+                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                    else { ForegroundColor = ConsoleColor.Green; }
                 }
             }
-            else if (element == SymbolsConfig.KeyChar.ToString())
+            else if (element == SymbolsConfig.Key.ToString())
             {
-                ForegroundColor = ConsoleColor.DarkYellow;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.DarkYellow; }
             }
-            else if (element == SymbolsConfig.TreasureChar.ToString())
+            else if (element == SymbolsConfig.Treasure.ToString())
             {
-                ForegroundColor = ConsoleColor.Yellow;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.Yellow; }
             }
             else if (element == "☺")
             {
-                ForegroundColor = ConsoleColor.DarkMagenta;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.DarkMagenta; }
+            }
+            else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
+            {
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                ForegroundColor = ConsoleColor.White;
             }
             else
             {
-                ForegroundColor = ConsoleColor.Gray;
+                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else { ForegroundColor = ConsoleColor.Gray; }
             }
             Write(element);
             ResetColor();
@@ -289,18 +323,22 @@ namespace HeistGame
                 return false;
             }
 
-            return grid[y, x] == SymbolsConfig.EmptySpace.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light1char.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light2char.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light3char.ToString() ||
-                   grid[y, x] == "-" ||
-                   grid[y, x] == "|" ||
-                   grid[y, x] == SymbolsConfig.EntranceChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.ExitChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.KeyChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.TreasureChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOffChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOnChar.ToString();
+            if (grid[y, x] == SymbolsConfig.VerticalDoorVisual.ToString() || grid[y, x] == SymbolsConfig.HorizontalDoorVisual.ToString())
+            {
+                Vector2 tile = new Vector2(x, y);
+                return !unlockables[tile].IsLocked();
+            }
+
+            return grid[y, x] == SymbolsConfig.Empty.ToString() ||
+                   grid[y, x] == SymbolsConfig.Light1.ToString() ||
+                   grid[y, x] == SymbolsConfig.Light2.ToString() ||
+                   grid[y, x] == SymbolsConfig.Light3.ToString() ||
+                   grid[y, x] == SymbolsConfig.Entrance.ToString() ||
+                   grid[y, x] == SymbolsConfig.Exit.ToString() ||
+                   grid[y, x] == SymbolsConfig.Key.ToString() ||
+                   grid[y, x] == SymbolsConfig.Treasure.ToString() ||
+                   grid[y, x] == SymbolsConfig.LeverOff.ToString() ||
+                   grid[y, x] == SymbolsConfig.LeverOn.ToString();
         }
 
         /// <summary>
@@ -323,16 +361,19 @@ namespace HeistGame
                 return false;
             }
 
-            return grid[y, x] == SymbolsConfig.EmptySpace.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light1char.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light2char.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light3char.ToString() ||
-                   grid[y, x] == SymbolsConfig.ExitChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.EntranceChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.KeyChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.TreasureChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOffChar.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOnChar.ToString();
+            return grid[y, x] == SymbolsConfig.Empty.ToString() ||
+                   grid[y, x] == SymbolsConfig.Light1.ToString() ||
+                   grid[y, x] == SymbolsConfig.Light2.ToString() ||
+                   grid[y, x] == SymbolsConfig.Light3.ToString() ||
+                   grid[y, x] == SymbolsConfig.Exit.ToString() ||
+                   grid[y, x] == SymbolsConfig.Entrance.ToString() ||
+                   grid[y, x] == SymbolsConfig.Key.ToString() ||
+                   grid[y, x] == SymbolsConfig.Treasure.ToString() ||
+                   grid[y, x] == SymbolsConfig.LeverOff.ToString() ||
+                   grid[y, x] == SymbolsConfig.LeverOn.ToString()||
+                   grid[y, x] == SymbolsConfig.Signpost.ToString()||
+                   grid[y, x] == SymbolsConfig.ChestClosed.ToString()||
+                   grid[y, x] == SymbolsConfig.ChestOpened.ToString();
         }
 
         /// <summary>
@@ -343,7 +384,12 @@ namespace HeistGame
         /// <returns>Returns the symbol found at these coordinates on the grid</returns>
         public string GetElementAt(int x, int y)
         {
-            return grid[y - yOffset, x - xOffset];
+            int _x = x - xOffset;
+            int _y = y - yOffset;
+
+            if (_x < 0 || _y < 0 || _x >= columns || _y >= rows) { return null; }
+
+            return grid[_y, _x];
         }
 
         public string GetElementAt(int x, int y, bool withOffset = true)
@@ -355,7 +401,64 @@ namespace HeistGame
                 x -= xOffset;
             }
 
+            if (x < 0 || y < 0 || x >= columns || y >= rows) { return null; }
+
             return grid[y, x];
+        }
+
+        public bool InteractWithElementAt(int x, int y, Game game)
+        {
+            string element = GetElementAt (x, y);
+
+            if (element == null) { return false; }
+
+            if (element == SymbolsConfig.Empty.ToString()) { return false; }
+            if (element == "═" || element == "╔" || element == "╗" || element == "║" || element == "╚" || element == "╝" ||
+                element == "╠" || element == "╣" || element == "╩" || element == "╦" || element == "╬" || 
+                element == SymbolsConfig.Gate.ToString())
+            {
+                return false;
+            }
+
+            if (element == SymbolsConfig.Treasure.ToString()) 
+            {
+                game.TunePlayer.PlaySFX(1000, 100);
+                game.PlayerCharacter.ChangeLoot(100);
+                ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
+                return true;
+            }
+            if (element == SymbolsConfig.Key.ToString())
+            {
+                game.TunePlayer.PlaySFX(800, 100);
+                CollectKeyPiece(x, y, game);
+                return true;
+            }
+            if (element == SymbolsConfig.LeverOff.ToString() || element == SymbolsConfig.LeverOn.ToString())
+            {
+                game.TunePlayer.PlaySFX(100, 100);
+                ToggleLever(x, y);
+                game.PlayerCharacter.Draw();
+                return true;
+            }
+            if (element == SymbolsConfig.Signpost.ToString())
+            {
+                ReadMessage(x, y, game);
+                return true;
+            }
+            if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestOpened.ToString())
+            {
+                ControlsManager.ResetControlState(game);
+                Lockpick(x, y, game);
+                return true;
+            }
+            if (element == SymbolsConfig.HorizontalDoorVisual.ToString() || element == SymbolsConfig.VerticalDoorVisual.ToString())
+            {
+                ControlsManager.ResetControlState(game);
+                Lockpick(x, y, game);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -399,6 +502,7 @@ namespace HeistGame
             ResetGuards();
             ResetKeys();
             ResetTreasures();
+            ResetUnlockables();
             Lights.CalculateLightMap(this);
         }
 
@@ -450,7 +554,7 @@ namespace HeistGame
         /// </summary>
         /// <param name="x">The X coordinate on the grid of the level to toggle</param>
         /// <param name="y">The Y coordinate on the grid of the level to toggle</param>
-        public void ToggleLever(int x, int y)
+        public void ToggleLever(int x, int y, bool withOffset = true)
         {
             stopwatch.Stop();
 
@@ -459,7 +563,14 @@ namespace HeistGame
             if (leversDictionary.ContainsKey(leverCoord))
             {
                 Lever lever = leversDictionary[leverCoord];
-                lever.Toggle(this, xOffset, yOffset);
+                int xOffsetLocal = 0;
+                int yOffsetLocal = 0;
+                if (withOffset)
+                {
+                    xOffsetLocal = xOffset;
+                    yOffsetLocal = yOffset;
+                }
+                lever.Toggle(this, xOffsetLocal, yOffsetLocal);
             }
 
             Lights.CalculateLightMap(this);
@@ -472,14 +583,22 @@ namespace HeistGame
         /// </summary>
         /// <param name="x">The X coordinate of the collected key</param>
         /// <param name="y">The Y coordinate of the collected key</param>
-        public void CollectKeyPiece(int x, int y)
+        public void CollectKeyPiece(int x, int y, Game game)
         {
-            IsLocked = levelLock.CollectKeyPiece(this, x, y);
+            IsLocked = levelLock.CollectKeyPiece(game, x, y);
 
             if (!IsLocked)
             {
-                DrawTile(exit.X + xOffset, exit.Y + yOffset, SymbolsConfig.ExitChar.ToString());
+                DrawTile(exit.X + xOffset, exit.Y + yOffset, SymbolsConfig.Exit.ToString());
             }
+        }
+
+        /// <summary>
+        /// Returns a string that shows how many keys have been collected over the total known so far
+        /// </summary>
+        public string GetKeyPiecesProgress()
+        {
+            return $"{levelLock.TotalCollectedKeys} / {levelLock.TotalKnownKeys}";
         }
 
         /// <summary>
@@ -502,13 +621,13 @@ namespace HeistGame
         /// Alerts guards of comething out of their line of sight
         /// </summary>
         /// <param name="targetPosition">The position the guards will investigate</param>
-        public void AlertGuards(Vector2 targetPosition)
+        public void AlertGuards(Vector2 targetPosition, int range = 0)
         {
             if (levelGuards.Length > 0)
             {
                 foreach (Guard guard in levelGuards)
                 {
-                    guard.AlertGuard(targetPosition);
+                    guard.AlertGuard(targetPosition, range);
                 }
             }
         }
@@ -516,15 +635,40 @@ namespace HeistGame
         /// <summary>
         /// Draws all guards
         /// </summary>
-        public void DrawGuards()
+        public void DrawGuards(Game game)
         {
             if (levelGuards.Length > 0)
             {
                 foreach (Guard guard in levelGuards)
                 {
-                    guard.Draw();
+                    guard.Draw(game);
                 }
             }
+        }
+
+        private void ReadMessage(int x, int y, Game game)
+        {
+            Vector2 messageCoords = new Vector2(x, y);
+            game.MyStopwatch.Stop();
+            game.UserInterface.DisplayTextFullScreen(messagesDictionary[messageCoords]);
+            ControlsManager.ResetControlState(game);
+            game.HasDrawnBackground = false;
+            game.MyStopwatch.Start();
+        }
+
+        private void Lockpick(int x, int y, Game game)
+        {
+            x -= xOffset;
+            y -= yOffset;
+
+            Vector2 tile = new Vector2(x, y);
+
+            if (!unlockables.ContainsKey(tile))
+            {
+                throw new Exception($"Error! failed to find unlockable in disctionary at {x}, {y}");
+            }
+
+            unlockables[tile].Unlock(game);
         }
 
         private void RedrawFloors()
@@ -538,7 +682,7 @@ namespace HeistGame
 
             foreach (Vector2 tile in FloorTiles)
             {
-                if (GetElementAt(tile.X, tile.Y, false) != SymbolsConfig.EmptySpace.ToString())
+                if (GetElementAt(tile.X, tile.Y, false) != SymbolsConfig.Empty.ToString())
                 {
                     continue;
                 }
@@ -553,7 +697,7 @@ namespace HeistGame
 
                 SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
 
-                char symbol = SymbolsConfig.EmptySpace;
+                char symbol = SymbolsConfig.Empty;
 
                 int lightValue = GetLightLevelInItle(tile, false);
 
@@ -563,13 +707,13 @@ namespace HeistGame
                     case 0:
                         break;
                     case 1:
-                        symbol = SymbolsConfig.Light1char;
+                        symbol = SymbolsConfig.Light1;
                         break;
                     case 2:
-                        symbol = SymbolsConfig.Light2char;
+                        symbol = SymbolsConfig.Light2;
                         break;
                     case 3:
-                        symbol = SymbolsConfig.Light3char;
+                        symbol = SymbolsConfig.Light3;
                         break;
                 }
 
@@ -582,7 +726,7 @@ namespace HeistGame
         {
             foreach (Vector2 treasure in treasures)
             {
-                ChangeElementAt(treasure.X, treasure.Y, SymbolsConfig.TreasureChar.ToString(), false, false);
+                ChangeElementAt(treasure.X, treasure.Y, SymbolsConfig.Treasure.ToString(), false, false);
             }
         }
 
@@ -607,6 +751,14 @@ namespace HeistGame
             foreach (Guard guard in levelGuards)
             {
                 guard.Reset();
+            }
+        }
+
+        private void ResetUnlockables()
+        {
+            foreach (KeyValuePair<Vector2, Unlockable> unlockable in unlockables)
+            {
+                unlockable.Value.Reset();
             }
         }
     }

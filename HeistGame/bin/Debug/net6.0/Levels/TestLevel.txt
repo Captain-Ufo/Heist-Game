@@ -8,34 +8,113 @@
 
 	"LevelMap":
 		[
-			"╔═════╦═════════╦═════╦══════════════════════════════════╗",
-			"║                     ║                                  ║",
-			"║     ║         ║     ║                                  ║",
+		    "╔═════╦═════════╦═════╦══════════════════════════════════╗",
+			"║  2  ║  Ɔ Ͼ Ͽ  ║  3  ║                                  ║",
+			"║     !         |     ║               ╔a╗                ║",
+			"╠═════╣    *    ╠═════╣               a*a                ║",
+			"║               ¦     ║               ╚a╝                ║",
+			"║  0  ║         ║  1  ║                                  ║",
 			"╠═════╝    *    ╚═════╣                                  ║",
 			"║                     ║                                  ║",
 			"║     X                                                  ║",
 			"║                            A      a      à       C     ║",
-			"║    1   1  2  2      ║      E      e      è       +     ║",
+			"║    ¶   ¶  ¹  ¹      ║      E      e      è       +     ║",
 			"║                            I    * i      ì             ║",
-			"║      2  3  4        ║      O      o      ò       Ð     ║",
+			"║      ¹  ²  ³        ║      O      o      ò       Ω     ║",
 			"║                            U      u      ù             ║",
 			"║    $ $ £ £ € €             Y      y      ÿ             ║",
 			"║                     ║                                  ║",
-			"╠════════  ═══════════╩══════════════════════════════════╣",
+			"╠════════  ══════~════╩══════════════════════════════════╣",
 			"║                                                        ║",
 			"║                                                        ║",
 			"║ ╔═════╗                                                ║",
 			"║ ║b  Bb║                                                ║",
 			"║ ║                                                      ║",
-			"║ ║b   b║                                                ║",
+			"║ ║b $ b║                                                ║",
 			"║ ╚═════╝                            *            D      ║",
-			"║                                                        ║",
-			"║                              *                         ║",
-			"║                                                        ║",
+			"║                              e                         ║",
+			"║                             e*e                        ║",
+			"║                              e                         ║",
 			"║                                                        ║",
 			"║                                                        ║",
 			"║                                                        ║",
 			"╚════════════════════════════════════════════════════════╝"
+		],
+				
+		"ObjectivesMessages":
+		[
+			[
+				"Oh, there's more right here"
+			],
+			[],
+			[
+				"Again?!"
+			]
+		],
+
+		"Messages":
+		[
+			[
+				"This is a test message;",
+				"See if multiple lines work.",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"This should be on page 2"
+			],
+			[
+				"You can try distract the guard in the little cubicle south of here to get in and snatch the treasure."
+			],
+			[
+				"Not all chests contain valuables.",
+				"And not all chests contain the same amount of loot."
+			],
+			[
+				"There's plenty of keys around here."
+			]
 		],
 
 	"Outro":

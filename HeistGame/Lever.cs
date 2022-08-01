@@ -29,22 +29,22 @@ namespace HeistGame
         {
             IsOn = !IsOn;
 
-            string leverSymbol = SymbolsConfig.LeverOnChar.ToString();
+            string leverSymbol = SymbolsConfig.LeverOn.ToString();
 
             if (!IsOn)
             {
-                leverSymbol = SymbolsConfig.LeverOffChar.ToString();
+                leverSymbol = SymbolsConfig.LeverOff.ToString();
             }
 
             foreach (Vector2 coordinates in connectedGates)
             {
-                if (level.GetElementAt(coordinates.X + xOffset, coordinates.Y + yOffset) == SymbolsConfig.GateChar.ToString())
+                if (level.GetElementAt(coordinates.X + xOffset, coordinates.Y + yOffset) == SymbolsConfig.Gate.ToString())
                 {
-                    level.ChangeElementAt(coordinates.X + xOffset, coordinates.Y + yOffset, SymbolsConfig.EmptySpace.ToString(), true, redraw);
+                    level.ChangeElementAt(coordinates.X + xOffset, coordinates.Y + yOffset, SymbolsConfig.Empty.ToString(), true, redraw);
                 }
                 else
                 {
-                    level.ChangeElementAt(coordinates.X + xOffset, coordinates.Y + yOffset, SymbolsConfig.GateChar.ToString(), true, redraw);
+                    level.ChangeElementAt(coordinates.X + xOffset, coordinates.Y + yOffset, SymbolsConfig.Gate.ToString(), true, redraw);
                 }
             }
 

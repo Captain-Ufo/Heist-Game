@@ -15,11 +15,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("2022 Cristian Baldi")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("A text based command prompt steath game.")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("1.6.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.6.0")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.6.3.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.6.3")]
 [assembly: System.Reflection.AssemblyProductAttribute("HeistGame")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HeistGame")]
-[assembly: System.Reflection.AssemblyVersionAttribute("1.6.0.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.6.3.0")]
 
 // Generato dalla classe WriteCodeFragment di MSBuild.
 

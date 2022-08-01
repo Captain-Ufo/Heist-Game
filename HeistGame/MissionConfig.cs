@@ -5,6 +5,8 @@
         public string Name { get; set; }
         public string[] Briefing { get; set; }
         public string[] LevelMap { get; set; }
+        public string[][] ObjectivesMessages { get; set; }
+        public string[][] Messages { get; set; }
         public string[] Outro { get; set; }
 
         public MissionConfig()

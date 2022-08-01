@@ -154,18 +154,18 @@ namespace HeistGame
                 firstSighted = false;
                 isReturning = false;
                 timeBetweenMoves = runningSpeed;
-                MoveTowards(searchTarget, level);
+                MoveTowards(searchTarget, game);
             }
             else if (isAlerted)
             {
                 guardTileColor = ConsoleColor.Magenta;
                 firstSighted = true;
-                AlertedBehavior(level);
+                AlertedBehavior(game);
             }
             else if (isReturning)
             {
                 guardTileColor = ConsoleColor.DarkRed;
-                ReturnToPatrol(level);
+                ReturnToPatrol(game);
             }
             else
             {
@@ -173,7 +173,7 @@ namespace HeistGame
                 timeBetweenMoves = walkingSpeed;
                 if (patrolPath.Length > 0)
                 {
-                    Move(level, Patrol());
+                    Move(game, Patrol());
                 }
                 else
                 {
@@ -206,16 +206,18 @@ namespace HeistGame
         /// Used to alert the guard while out of their line of sight
         /// </summary>
         /// <param name="expectedTarget">The place they'll investigate while alerted</param>
-        public void AlertGuard(Vector2 expectedTarget)
+        public void AlertGuard(Vector2 expectedTarget, int range = 0)
         {
             if (isBribed)
             {
                 return;
             }
 
-            int horizontalHearingRange = hearingRange * 2;
+            if (range == 0) { range = hearingRange; }
+
+            int horizontalHearingRange = range * 2;
             if (expectedTarget.X >= X - horizontalHearingRange && expectedTarget.X <= X + horizontalHearingRange &&
-                expectedTarget.Y >= Y - hearingRange && expectedTarget.Y <= Y + hearingRange)
+                expectedTarget.Y >= Y - range && expectedTarget.Y <= Y + range)
             {
                 searchTarget = expectedTarget;
                 isAlerted = true;
@@ -245,8 +247,10 @@ namespace HeistGame
         /// <summary>
         /// Draws the guard symbol
         /// </summary>
-        public void Draw()
+        public void Draw(Game game)
         {
+            if (game.UserInterface.IsTileUnderLable(new Vector2(X, Y))) { return; }
+
             ConsoleColor previousFColor = ForegroundColor;
             ConsoleColor previusBGColor = BackgroundColor;
             ForegroundColor = guardSymbolColor;
@@ -267,7 +271,7 @@ namespace HeistGame
 
             SetCursorPosition(X, Y);
 
-            if (symbol == SymbolsConfig.EmptySpace.ToString())
+            if (symbol == SymbolsConfig.Empty.ToString())
             {
                 Vector2 tile = new Vector2(X, Y);
                 int lightValue = level.GetLightLevelInItle(tile);
@@ -277,25 +281,25 @@ namespace HeistGame
                     case 0:
                         break;
                     case 1:
-                        symbol = SymbolsConfig.Light1char.ToString();
+                        symbol = SymbolsConfig.Light1.ToString();
                         break;
                     case 2:
-                        symbol = SymbolsConfig.Light2char.ToString();
+                        symbol = SymbolsConfig.Light2.ToString();
                         break;
                     case 3:
-                        symbol = SymbolsConfig.Light3char.ToString();
+                        symbol = SymbolsConfig.Light3.ToString();
                         break;
                 }
             }
-            else if (symbol == SymbolsConfig.TreasureChar.ToString())
+            else if (symbol == SymbolsConfig.Treasure.ToString())
             {
                 ForegroundColor = ConsoleColor.Yellow;
             }
-            else if (symbol == SymbolsConfig.KeyChar.ToString())
+            else if (symbol == SymbolsConfig.Key.ToString())
             {
                 ForegroundColor = ConsoleColor.DarkYellow;
             }
-            else if (symbol == SymbolsConfig.ExitChar.ToString())
+            else if (symbol == SymbolsConfig.Exit.ToString())
             {
                 if (level.IsLocked)
                 {
@@ -421,11 +425,11 @@ namespace HeistGame
             return false;
         }
 
-        private void AlertedBehavior(Level level)
+        private void AlertedBehavior(Game game)
         {
             if (X != searchTarget.X | Y != searchTarget.Y)
             {
-                if (MoveTowards(searchTarget, level))
+                if (MoveTowards(searchTarget, game))
                 {
                     if (!isSearching)
                     {
@@ -464,7 +468,7 @@ namespace HeistGame
                 Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, x, y);
                 foreach (Vector2 tile in tilesToTarget)
                 {
-                    if (!level.IsPositionWalkable(tile.X, tile.Y))
+                    if (!game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(tile.X, tile.Y))
                     {
                         break;
                     }
@@ -479,7 +483,7 @@ namespace HeistGame
                 isSearching = true;
                 return;
             }
-            else { SearchPlayer(level); }
+            else { SearchPlayer(game.ActiveCampaign.Levels[game.CurrentRoom]); }
 
             alertTimer++;
 
@@ -519,11 +523,11 @@ namespace HeistGame
             }
         }
 
-        private void ReturnToPatrol(Level level)
+        private void ReturnToPatrol(Game game)
         {
             if (X != lastPatrolPoint.X || Y != lastPatrolPoint.Y)
             {
-                MoveTowards(new Vector2(lastPatrolPoint.X, lastPatrolPoint.Y), level);
+                MoveTowards(new Vector2(lastPatrolPoint.X, lastPatrolPoint.Y), game);
                 return;
             }
 
@@ -579,17 +583,17 @@ namespace HeistGame
             return null;
         }
 
-        private bool MoveTowards(Vector2 destination, Level level)
+        private bool MoveTowards(Vector2 destination, Game game)
         {
             Tile guardTile = new Tile(X, Y);
             Tile destinationTile = new Tile(destination.X, destination.Y);
-            Tile tileToMoveTo = Pathfind(level, destinationTile, guardTile);
+            Tile tileToMoveTo = Pathfind(game.ActiveCampaign.Levels[game.CurrentRoom], destinationTile, guardTile);
 
             if (tileToMoveTo != null)
             {
                 Vector2 movementCoordinates = new Vector2(tileToMoveTo.X, tileToMoveTo.Y);
 
-                Move(level, movementCoordinates);
+                Move(game, movementCoordinates);
                 return true;
             }
             return false;
@@ -668,15 +672,18 @@ namespace HeistGame
             return true;
         }
 
-        private void Move(Level level, Vector2 tileToMoveTo)
+        private void Move(Game game, Vector2 tileToMoveTo)
         {
-            this.Clear(level);
+            if (!game.UserInterface.IsTileUnderLable(new Vector2(X, Y)))
+            {
+                this.Clear(game.ActiveCampaign.Levels[game.CurrentRoom]);
+            }
 
             if (X != tileToMoveTo.X)
             {
                 if (X - tileToMoveTo.X > 0)
                 {
-                    if (level.IsPositionWalkable(X - 1, Y))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X - 1, Y))
                     {
                         X--;
                         direction = Directions.left;
@@ -684,7 +691,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    if (level.IsPositionWalkable(X + 1, Y))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X + 1, Y))
                     {
                         X++;
                         direction = Directions.right;
@@ -695,7 +702,7 @@ namespace HeistGame
             {
                 if (Y - tileToMoveTo.Y > 0)
                 {
-                    if (level.IsPositionWalkable(X, Y - 1))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X, Y - 1))
                     {
                         Y--;
                         direction = Directions.up;
@@ -703,7 +710,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    if (level.IsPositionWalkable(X, Y + 1))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X, Y + 1))
                     {
                         Y++;
                         direction = Directions.down;
@@ -713,9 +720,9 @@ namespace HeistGame
 
             guardMarker = guardMarkersTable[(int)direction];
 
-            if (level.GetElementAt(X, Y) == SymbolsConfig.LeverOnChar.ToString())
+            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == SymbolsConfig.LeverOn.ToString())
             {
-                level.ToggleLever(X, Y);
+                game.ActiveCampaign.Levels[game.CurrentRoom].ToggleLever(X, Y);
             }
         }
     }

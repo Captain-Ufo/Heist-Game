@@ -17,10 +17,14 @@ namespace HeistGame
         private List<Vector2> keysGroup3;
         private List<Vector2> keysGroup4;
 
+        private string[][] objectiveMessages;
+
+        public int TotalKnownKeys { get; private set; }
+        public int TotalCollectedKeys { get; private set; }
 
         public LevelLock()
         {
-            hiddenKeyGroup = 2;
+            hiddenKeyGroup = 2; //group 1 is revealed by default. Hence the hidden groups are 2 and above.
             revealedKeyPieces = 0;
 
             keysGroup1 = new List<Vector2>();
@@ -35,6 +39,8 @@ namespace HeistGame
                 [3] = keysGroup3,
                 [4] = keysGroup4
             };
+
+            TotalCollectedKeys = 0;
         }
 
         /// <summary>
@@ -44,17 +50,20 @@ namespace HeistGame
         /// <param name="x">The X coordinate of the piece the player is collecting</param>
         /// <param name="y">The X coordinate of the piece the player is collecting</param>
         /// <returns>returns whether the level is still locked or not (so true if there are other pieces to collect, false if there are none)</returns>
-        public bool CollectKeyPiece(Level level, int x, int y)
+        public bool CollectKeyPiece(Game game, int x, int y)
         {
-            level.ChangeElementAt(x, y, SymbolsConfig.EmptySpace.ToString());
+            game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
 
             revealedKeyPieces--;
+            TotalCollectedKeys++;
 
             if (revealedKeyPieces <= 0)
             {
                 if (hiddenKeyPieces > 0)
                 {
-                    RevealKeys(level);
+                    DisplayObjectiveMessage(game);
+
+                    RevealKeys(game.ActiveCampaign.Levels[game.CurrentRoom]);
                     return true;
                 }
                 return false;
@@ -86,6 +95,12 @@ namespace HeistGame
             {
                 hiddenKeyPieces++;
             }
+            TotalKnownKeys = revealedKeyPieces;
+        }
+
+        public void AddMessages(string[][] messages)
+        {
+            objectiveMessages = messages;
         }
 
         /// <summary>
@@ -97,6 +112,7 @@ namespace HeistGame
             revealedKeyPieces = 0;
             hiddenKeyPieces = 0;
             hiddenKeyGroup = 2;
+            TotalCollectedKeys = 0;
 
             for (int i = 1; i <= levelKeys.Count; i++)
             {
@@ -105,15 +121,16 @@ namespace HeistGame
                     if (i == 1)
                     {
                         revealedKeyPieces++;
-                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.KeyChar.ToString(), false, false);
+                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key.ToString(), false, false);
                     }
                     else
                     {
                         hiddenKeyPieces++;
-                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.EmptySpace.ToString(), false, false);
+                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Empty.ToString(), false, false);
                     }
                 }
             }
+            TotalKnownKeys = revealedKeyPieces;
         }
 
         private void RevealKeys(Level level)
@@ -121,10 +138,25 @@ namespace HeistGame
             foreach (Vector2 key in levelKeys[hiddenKeyGroup])
             {
                 revealedKeyPieces++;
+                TotalKnownKeys++;
                 hiddenKeyPieces--;
-                level.ChangeElementAt(key.X, key.Y, SymbolsConfig.KeyChar.ToString(), false);
+                level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key.ToString(), false);
             }
             hiddenKeyGroup++;
+        }
+
+        private void DisplayObjectiveMessage(Game game)
+        {
+            if (objectiveMessages != null)
+            {
+                if (objectiveMessages[hiddenKeyGroup - 2].Length > 0)
+                {
+                    game.MyStopwatch.Stop();
+                    game.UserInterface.DisplayTextFullScreen(objectiveMessages[hiddenKeyGroup - 2]);
+                    game.HasDrawnBackground = false;
+                    game.MyStopwatch.Start();
+                }
+            }
         }
     }
 }

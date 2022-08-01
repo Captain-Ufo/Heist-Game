@@ -288,14 +288,12 @@ namespace HeistGame
         /// <param name="numberOfDisplayedOptions">The number of ptions to be displayed per screen; counting from 1
         /// (so 3, for example translates to an options range of 0-2)</param>
         /// <returns>The index of the chosen option, after the user selects one and hits enter</returns>
-        public MenuSelection RunWithDeleteEntry(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions)
+        public int RunWithDeleteEntry(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions, out bool delete)
         {
             selectedIndex = 0;
 
-            bool cancel = false;
-            MenuSelection selection;
-
             ConsoleKey keyPressed;
+            delete = false;
 
             int firstShownOption = 0;
             int lastShownOption;
@@ -323,7 +321,7 @@ namespace HeistGame
                     case ConsoleKey.Backspace:
                     case ConsoleKey.Delete:
 
-                        cancel = true;
+                        delete = true;
                         ctp.PlaySFX(1000, 200);
                         while (KeyAvailable) { ReadKey(true); }
                         break;
@@ -389,10 +387,7 @@ namespace HeistGame
             }
             while (keyPressed != ConsoleKey.Enter && keyPressed != ConsoleKey.Backspace && keyPressed != ConsoleKey.Delete);
 
-            selection.cancel = cancel;
-            selection.selectedIndex = selectedIndex;
-
-            return selection;
+            return selectedIndex;
         }
 
         /// <summary>
@@ -561,11 +556,5 @@ namespace HeistGame
             }
             CursorVisible = false;
         }
-    }
-
-    public struct MenuSelection
-    {
-        public bool cancel;
-        public int selectedIndex;
     }
 }
