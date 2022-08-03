@@ -466,8 +466,8 @@ namespace HeistGame
             {
                 ActiveUnlockable.CancelUnlocking();
                 ActiveUnlockable = null;
-                UserInterface.DeleteLable();
             }
+            UserInterface.DeleteLable();
         }
 
 

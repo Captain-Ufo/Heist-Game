@@ -24,6 +24,7 @@ namespace HeistGame
         private int pivotTimer;
         private int searchPivotTimer;
         private int searchPivotDuration = 30;
+        private int pivotDirection;
         private int minTimeBetweenPivots;
         private string[] guardMarkersTable = new string[] { "^", ">", "V", "<" };
         private string guardMarker;
@@ -76,6 +77,7 @@ namespace HeistGame
             timeBetweenMoves = walkingSpeed;
             direction = Directions.up;
             guardMarker = guardMarkersTable[(int)direction];
+            ChoosePivotDirection();
         }
 
         /// <summary>
@@ -173,7 +175,7 @@ namespace HeistGame
                 timeBetweenMoves = walkingSpeed;
                 if (patrolPath.Length > 0)
                 {
-                    Move(game, Patrol());
+                    MoveTowards(Patrol(), game);
                 }
                 else
                 {
@@ -242,6 +244,7 @@ namespace HeistGame
             Y = originPoint.Y;
             timeSinceLastMove = 0;
             TimesBribed = 0;
+            ChoosePivotDirection();
         }
 
         /// <summary>
@@ -500,6 +503,7 @@ namespace HeistGame
 
         private void SearchPlayer(Level level)
         {
+            ChoosePivotDirection();
             if (!Pivot(alertTimer, 10, 0, true))
             {
                 bool hasValidTarget;
@@ -645,13 +649,17 @@ namespace HeistGame
 
             if (timer % frequency == 0)
             {
-                if (direction == Directions.left)
+                if (direction == Directions.left && pivotDirection == 1)
                 {
                     direction = Directions.up;
                 }
+                else if (direction == Directions.up && pivotDirection == -1)
+                {
+                    direction = Directions.left;
+                }
                 else
                 {
-                    direction += 1;
+                    direction += pivotDirection;
                 }
 
                 guardMarker = guardMarkersTable[(int)direction];
@@ -670,6 +678,14 @@ namespace HeistGame
             }
 
             return true;
+        }
+
+        private void ChoosePivotDirection()
+        {
+            int choice = rng.Next(0, 101);
+
+            if (choice % 2 == 0) { pivotDirection = 1; }
+            else { pivotDirection = -1; }
         }
 
         private void Move(Game game, Vector2 tileToMoveTo)

@@ -13,22 +13,24 @@
 
 
     //TODO / Nice to have?: 
-    // 1 - messages on collection of keys (storytelling, a clue that there's mopre to collect if this unlock the new tier) - optional
-    // 2? - (previous point requires extending MissionConfig)
-    // 3? - Fog of war? Levels start hidden save for the immediate vicinity of the player. Revealed parts of a level remain visible,
+    // 1? - Fog of war? Levels start hidden save for the immediate vicinity of the player. Revealed parts of a level remain visible,
     //      but are not updated. Player has updated visuals only in their immediate vicinity. Can be done by implementing a double
     //      map for levels (one the actual map, used to test for movement and suchm the other the revealed bits only, used for drawing).
     //      Player visibility area can be implemented using the same circle/oval filling algorithms used for the lightmap.
-    // 4? - Custom difficulty settings? Being able to set parameters individually
-    // 5? - The above requires not only a refactoring of everything impacted by difficulty, but also a change in the savegame system.
+    // 2? - Connected to the previous one, see-through walls that allow the player only to see beyond them. Necessary for the first level,
+    //      of the campaign, for example (the starting cubicle is too little to understand what's going on outside. It would be frustrating).
+    // 3? - Custom difficulty settings? Being able to set parameters individually
+    // 4? - The above requires not only a refactoring of everything impacted by difficulty, but also a change in the savegame system.
     //      Not impossible, but messy.
+    // 5? - Civilians. Basically similar to guards, except they don't patrol (they only move close to their spawn point) and don't chase
+    //      the player. If they spot the player, thy just run away and alert the guards in the process.
     // 6? - Add patrol points where the guard pivots before proceeding
     // 7? - knock out guards
     // 8? - player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
     // 9? - awake guards can spot and revive unconscious guards (same visibility as player)
     // 10? - combat with guards (extend 7 and 8 to deal with corpses as well)
 
-    //
+
     //OBJECTIONS:
     // 3 - The doubt is not whether it's doable, it's on how recalculating area of sight and redrawing the map every single frame would impact performance.
     // 4 - Rewriting the difficulty system sounds annoying. Slight concerns on how the menu for the custom difficulty would work.
