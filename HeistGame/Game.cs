@@ -425,7 +425,7 @@ namespace HeistGame
             if (!HasDrawnBackground)
             {
                 PlayerCharacter.CalculateVisibleArea(ActiveCampaign.Levels[currentRoom]);
-                ActiveCampaign.Levels[currentRoom].Draw();
+                ActiveCampaign.Levels[currentRoom].DrawWholeMap();
                 PlayerCharacter.Draw();
                 HasDrawnBackground = true;
             }

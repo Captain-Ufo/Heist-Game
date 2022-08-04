@@ -107,8 +107,18 @@ namespace HeistGame
             patrolPath = path;
         }
 
+        public bool IsStationary()
+        {
+            return patrolPath.Length > 0;
+        }
+
         public override void UpdateBehavior(Level level, Game game, int deltaTimeMS)
         {
+            if (!level.CanPlayerHearTile(new Vector2(X, Y), false))
+            {
+                this.Clear(level);
+            }
+
             timeSinceLastMove += deltaTimeMS;
 
             CatchPlayer(game);

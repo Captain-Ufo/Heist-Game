@@ -219,6 +219,10 @@ namespace HeistGame
                             weakLights.Add(new Light(x, y, 4));
                             currentChar = SymbolsConfig.Empty;
                             break;
+                        case SymbolsConfig.TransparentWallHorizontal:
+                        case SymbolsConfig.TransparentWallVertical:
+                            floorTiles.Add(new Vector2(x, y));
+                            break;
                         //player spawn point
                         case SymbolsConfig.Spawn:
                             playerStartX = x;

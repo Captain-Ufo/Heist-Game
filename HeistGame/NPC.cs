@@ -48,12 +48,26 @@ namespace HeistGame
         /// </summary>
         public void Draw(Game game)
         {
-            if (game.UserInterface.IsTileUnderLable(new Vector2(X, Y))) { return; }
+            Vector2 tile = new Vector2(X, Y);
+
+            if (game.UserInterface.IsTileUnderLable(tile)) { return; }
+
+            if (!game.ActiveCampaign.Levels[game.CurrentRoom].CanPlayerHearTile(tile)) { return; }
 
             ConsoleColor previousFColor = ForegroundColor;
             ConsoleColor previusBGColor = BackgroundColor;
-            ForegroundColor = npcSymbolColor;
-            BackgroundColor = npcTileColor;
+
+            if (game.ActiveCampaign.Levels[game.CurrentRoom].CanPlayerSeeTile(tile))
+            {
+                ForegroundColor = npcSymbolColor;
+                BackgroundColor = npcTileColor;
+            }
+            else
+            {
+                ForegroundColor = npcSymbolColor;
+                BackgroundColor = ConsoleColor.DarkGray;
+            }
+
             SetCursorPosition(X, Y);
             Write(npcMarker);
             ForegroundColor = previousFColor;
@@ -66,48 +80,66 @@ namespace HeistGame
         /// <param name="level">The level from which to gather the information required (which symbol to use, the state of the exit, etc)</param>
         public void Clear(Level level)
         {
+            Vector2 tile = new Vector2(X, Y);
             string symbol = level.GetElementAt(X, Y);
 
             SetCursorPosition(X, Y);
 
             if (symbol == SymbolsConfig.Empty.ToString())
             {
-                Vector2 tile = new Vector2(X, Y);
-                int lightValue = level.GetLightLevelInItle(tile);
-                ForegroundColor = ConsoleColor.DarkBlue;
-                switch (lightValue)
+                if (level.CanPlayerSeeTile(tile))
                 {
-                    case 0:
-                        break;
-                    case 1:
-                        symbol = SymbolsConfig.Light1.ToString();
-                        break;
-                    case 2:
-                        symbol = SymbolsConfig.Light2.ToString();
-                        break;
-                    case 3:
-                        symbol = SymbolsConfig.Light3.ToString();
-                        break;
+                    int lightValue = level.GetLightLevelInItile(tile);
+                    ForegroundColor = ConsoleColor.DarkBlue;
+                    switch (lightValue)
+                    {
+                        case 0:
+                            symbol = SymbolsConfig.Light0.ToString();
+                            break;
+                        case 1:
+                            symbol = SymbolsConfig.Light1.ToString();
+                            break;
+                        case 2:
+                            symbol = SymbolsConfig.Light2.ToString();
+                            break;
+                        case 3:
+                            symbol = SymbolsConfig.Light3.ToString();
+                            break;
+                    }
                 }
             }
             else if (symbol == SymbolsConfig.Treasure.ToString())
             {
-                ForegroundColor = ConsoleColor.Yellow;
+                if (level.CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.Yellow; }
+                else if (level.HasPlayerExploredTile(tile))
+                        { ForegroundColor = ConsoleColor.DarkGray; }
+                else { symbol = SymbolsConfig.Empty.ToString(); }
             }
             else if (symbol == SymbolsConfig.Key.ToString())
             {
-                ForegroundColor = ConsoleColor.DarkYellow;
+                if (level.CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.Yellow; }
+                else if (level.HasPlayerExploredTile(tile))
+                        { ForegroundColor = ConsoleColor.DarkGray; }
+                else { symbol = SymbolsConfig.Empty.ToString(); }
             }
             else if (symbol == SymbolsConfig.Exit.ToString())
             {
-                if (level.IsLocked)
+                if (level.CanPlayerSeeTile(tile))
                 {
-                    ForegroundColor = ConsoleColor.Red;
+                    if (level.IsLocked)
+                    {
+                        ForegroundColor = ConsoleColor.Red;
+                    }
+                    else
+                    {
+                        ForegroundColor = ConsoleColor.Green;
+                    }
                 }
-                else
-                {
-                    ForegroundColor = ConsoleColor.Green;
-                }
+                else if(level.HasPlayerExploredTile(tile)) 
+                        { ForegroundColor = ConsoleColor.DarkGray; }
+                else { symbol = SymbolsConfig.Empty.ToString(); }
             }
             Write(symbol);
             ResetColor();

@@ -59,7 +59,7 @@ namespace HeistGame
 
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
-            sightDistance = 9;
+            sightDistance = 10;
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace HeistGame
             if (symbol == SymbolsConfig.Empty.ToString())
             {
                 Vector2 tile = new Vector2(X, Y);
-                int lightValue = level.GetLightLevelInItle(tile);
+                int lightValue = level.GetLightLevelInItile(tile);
                 ForegroundColor = ConsoleColor.DarkBlue;
                 switch (lightValue)
                 {
@@ -186,6 +186,7 @@ namespace HeistGame
 
             Write(symbol);
             ResetColor();
+            level.Draw();
         }
 
         /// <summary>
@@ -208,7 +209,7 @@ namespace HeistGame
 
         private void SetVisibility(int xPos, int yPos, Level level)
         {
-            int visibilityLevel = level.GetLightLevelInItle(new Vector2(xPos, yPos));
+            int visibilityLevel = level.GetLightLevelInItile(new Vector2(xPos, yPos));
 
             if (visibilityLevel > 0)
             {
@@ -222,7 +223,8 @@ namespace HeistGame
 
         public void CalculateVisibleArea(Level level)
         {
-            level.VisibleMap.Clear();
+            level.UpdateVisibleMap(new Vector2(X, Y));
+            level.ClearVisibleMap();
 
             Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X, Y, sightDistance * 2, sightDistance);
 
@@ -232,14 +234,22 @@ namespace HeistGame
 
                 foreach (Vector2 tile in tiles)
                 {
+                    level.UpdatePlayerHearingArea(tile);
+
+                    if (tile.X  == X && tile.Y == Y)
+                    {
+                        continue;
+                    }
                     if (!level.IsTileTransparent(tile.X, tile.Y, true))
                     {
+                        level.UpdateVisibleMap(tile);
                         break;
                     }
 
                     level.UpdateVisibleMap(tile);
                 }
             }
+            level.CalculateTilesToDraw();  
         }
     }
 

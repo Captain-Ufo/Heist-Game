@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v6.0": {
-      "HeistGame/1.7": {
+      "HeistGame/1.7.2.1": {
         "runtime": {
           "HeistGame.dll": {}
         }
@@ -14,7 +14,7 @@
     }
   },
   "libraries": {
-    "HeistGame/1.7": {
+    "HeistGame/1.7.2.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

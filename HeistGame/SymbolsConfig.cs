@@ -21,9 +21,13 @@
         public const char LeverOn = '/';
         public const char Gate = '#';
 
+        public const char TransparentWallVertical = '┆';
+        public const char TransparentWallHorizontal = '╍';
+
         public const char EnclosedSpace = '.';
         public const char StrongLight = '*';
         public const char WeakLight = '+';
+        public const char Light0 = '·';
         public const char Light1 = '░';
         public const char Light2 = '▒';
         public const char Light3 = '▓';
