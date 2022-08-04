@@ -57,6 +57,10 @@ namespace HeistGame
         /// </summary>
         public HashSet<Vector2> FloorTiles { get; private set; }
         /// <summary>
+        /// The set of alltiles currently visible to the player
+        /// </summary>
+        public HashSet<Vector2> VisibleMap { get; private set; }
+        /// <summary>
         /// The lightmap of the level
         /// </summary>
         public LightMap Lights { get; private set; }
@@ -83,6 +87,8 @@ namespace HeistGame
                      Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, Unlockable> unlockables,
                      string[] briefing, string[] outro, Stopwatch stopwatch)
         {
+            VisibleMap = new HashSet<Vector2>();
+
             Name = name;
             Briefing = briefing;
             Outro = outro;
@@ -141,6 +147,73 @@ namespace HeistGame
 
             Lights.CalculateLightMap(this);
         }
+
+        /*public void Draw()
+        {
+            foreach (Vector2 tile in VisibleMap)
+            {
+                string element = grid[tile.Y, tile.X];
+                SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
+
+                if (element == SymbolsConfig.EnclosedSpace.ToString())
+                {
+                    element = SymbolsConfig.Empty.ToString();
+                }
+                else if (element == SymbolsConfig.Empty.ToString())
+                {
+                    int lightValue = Lights.FloorTilesValues[tile];
+                    ForegroundColor = ConsoleColor.DarkBlue;
+                    switch (lightValue)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            element = SymbolsConfig.Light1.ToString();
+                            break;
+                        case 2:
+                            element = SymbolsConfig.Light2.ToString();
+                            break;
+                        case 3:
+                            element = SymbolsConfig.Light3.ToString();
+                            break;
+                    }
+                }
+                else if (element == SymbolsConfig.Exit.ToString())
+                {
+                    if (IsLocked)
+                    {
+                        ForegroundColor = ConsoleColor.Red;
+                    }
+                    else
+                    {
+                        ForegroundColor = ConsoleColor.Green;
+                    }
+                }
+                else if (element == SymbolsConfig.Key.ToString())
+                {
+                    ForegroundColor = ConsoleColor.DarkYellow;
+                }
+                else if (element == SymbolsConfig.Treasure.ToString())
+                {
+                    ForegroundColor = ConsoleColor.Yellow;
+                }
+                else if (element == "☺")
+                {
+                    ForegroundColor = ConsoleColor.DarkMagenta;
+                }
+                else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
+                {
+                    ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    ForegroundColor = ConsoleColor.Gray;
+                }
+                Write(element);
+            }
+
+            ResetColor();
+        }*/
 
         /// <summary>
         /// Draws the map on screen, automatically centered
@@ -219,6 +292,11 @@ namespace HeistGame
 
         public void DrawTile(int x, int y, string element, bool highlighted = false)
         {
+            /*if (!VisibleMap.Contains(new Vector2(x - xOffset, y - yOffset)))
+            {
+                return;
+            }*/
+
             if (highlighted) { BackgroundColor = ConsoleColor.White; }
 
             SetCursorPosition(x, y);
@@ -671,6 +749,21 @@ namespace HeistGame
             unlockables[tile].Unlock(game);
         }
 
+        public void UpdateVisibleMap(Vector2 tile, bool withOffset = true)
+        {
+            if (withOffset)
+            {
+                tile.X -= xOffset;
+                tile.Y -= yOffset;
+            }
+
+            if (VisibleMap.Contains(tile))
+            {
+                return;
+            }
+            VisibleMap.Add(tile);
+        }
+
         private void RedrawFloors()
         {
             HashSet<Vector2> guardsPositions = new HashSet<Vector2>();
@@ -682,6 +775,11 @@ namespace HeistGame
 
             foreach (Vector2 tile in FloorTiles)
             {
+                if (!VisibleMap.Contains(tile))
+                {
+                    continue;
+                }
+
                 if (GetElementAt(tile.X, tile.Y, false) != SymbolsConfig.Empty.ToString())
                 {
                     continue;

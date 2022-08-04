@@ -8,9 +8,8 @@ namespace HeistGame
     /// <summary>
     /// A gameplay element that patrols the level or pivots in place, and spots, chases and catches the player if within range.
     /// </summary>
-    class Guard
+    class Guard : NPC
     {
-        private Directions direction = Directions.down;
         private Vector2[] patrolPath;
         private int nextPatrolPoint;
         private int bribeTimer;
@@ -21,15 +20,8 @@ namespace HeistGame
         private bool isSearching;
         private bool firstSighted;
         private bool isReturning;
-        private int pivotTimer;
         private int searchPivotTimer;
         private int searchPivotDuration = 30;
-        private int pivotDirection;
-        private int minTimeBetweenPivots;
-        private string[] guardMarkersTable = new string[] { "^", ">", "V", "<" };
-        private string guardMarker;
-        private ConsoleColor guardSymbolColor = ConsoleColor.Black;
-        private ConsoleColor guardTileColor = ConsoleColor.DarkRed;
         private int walkingSpeed = 160;
         private int searchingSpeed = 200;
         private int runningSpeed = 120;
@@ -39,21 +31,11 @@ namespace HeistGame
         private Vector2 originPoint;
         private Vector2 lastPatrolPoint;
         private Vector2 searchTarget;
-        private Random rng;
 
         /// <summary>
         /// To be set depending on difficulty level. If true, it will prevent being bribed a second time
         /// </summary>
         public int TimesBribed { get; private set; }
-        /// <summary>
-        /// The X coordinate of the Guard
-        /// </summary>
-        public int X { get; private set; }
-
-        /// <summary>
-        /// The Y coordinate of the guard
-        /// </summary>
-        public int Y { get; private set; }
 
         /// <summary>
         /// Instantiates a Guard Object and sets its parameters
@@ -72,11 +54,13 @@ namespace HeistGame
             bribeTimerDuration = 50;
             alertTimer = 0;
             pivotTimer = rng.Next(201);
-            searchPivotTimer = searchPivotDuration;
+            durationTimer = searchPivotDuration;
             minTimeBetweenPivots = 0;
             timeBetweenMoves = walkingSpeed;
-            direction = Directions.up;
-            guardMarker = guardMarkersTable[(int)direction];
+            direction = (Directions)rng.Next(0, 4);
+            npcMarker = npcMarkersTable[(int)direction];
+            npcSymbolColor = ConsoleColor.Black;
+            npcTileColor = ConsoleColor.DarkRed;
             ChoosePivotDirection();
         }
 
@@ -123,13 +107,7 @@ namespace HeistGame
             patrolPath = path;
         }
 
-        /// <summary>
-        /// Updates the guard's AI behavior
-        /// </summary>
-        /// <param name="level">The level the guard is in</param>
-        /// <param name="game">The current game</param>
-        /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
-        public void UpdateBehavior(Level level, Game game, int deltaTimeMS)
+        public override void UpdateBehavior(Level level, Game game, int deltaTimeMS)
         {
             timeSinceLastMove += deltaTimeMS;
 
@@ -150,7 +128,7 @@ namespace HeistGame
                     game.TimesSpotted++;
                 }
 
-                guardTileColor = ConsoleColor.Red;
+                npcTileColor = ConsoleColor.Red;
                 searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
                 isAlerted = true;
                 firstSighted = false;
@@ -160,18 +138,18 @@ namespace HeistGame
             }
             else if (isAlerted)
             {
-                guardTileColor = ConsoleColor.Magenta;
+                npcTileColor = ConsoleColor.Magenta;
                 firstSighted = true;
                 AlertedBehavior(game);
             }
             else if (isReturning)
             {
-                guardTileColor = ConsoleColor.DarkRed;
+                npcTileColor = ConsoleColor.DarkRed;
                 ReturnToPatrol(game);
             }
             else
             {
-                guardTileColor = ConsoleColor.DarkRed;
+                npcTileColor = ConsoleColor.DarkRed;
                 timeBetweenMoves = walkingSpeed;
                 if (patrolPath.Length > 0)
                 {
@@ -226,10 +204,7 @@ namespace HeistGame
             }
         }
 
-        /// <summary>
-        /// Restores the guard to their conditions at the beginning of the level. To be used only when retrying levels
-        /// </summary>
-        public void Reset()
+        public override void Reset()
         {
             nextPatrolPoint = 0;
             bribeTimer = 0;
@@ -245,76 +220,6 @@ namespace HeistGame
             timeSinceLastMove = 0;
             TimesBribed = 0;
             ChoosePivotDirection();
-        }
-
-        /// <summary>
-        /// Draws the guard symbol
-        /// </summary>
-        public void Draw(Game game)
-        {
-            if (game.UserInterface.IsTileUnderLable(new Vector2(X, Y))) { return; }
-
-            ConsoleColor previousFColor = ForegroundColor;
-            ConsoleColor previusBGColor = BackgroundColor;
-            ForegroundColor = guardSymbolColor;
-            BackgroundColor = guardTileColor;
-            SetCursorPosition(X, Y);
-            Write(guardMarker);
-            ForegroundColor = previousFColor;
-            BackgroundColor = previusBGColor;
-        }
-
-        /// <summary>
-        /// Replaces the guard symbol with whatever static tile is in the map grid in the previous position of the guard
-        /// </summary>
-        /// <param name="level">The level from which to gather the information required (which symbol to use, the state of the exit, etc)</param>
-        public void Clear(Level level)
-        {
-            string symbol = level.GetElementAt(X, Y);
-
-            SetCursorPosition(X, Y);
-
-            if (symbol == SymbolsConfig.Empty.ToString())
-            {
-                Vector2 tile = new Vector2(X, Y);
-                int lightValue = level.GetLightLevelInItle(tile);
-                ForegroundColor = ConsoleColor.DarkBlue;
-                switch (lightValue)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        symbol = SymbolsConfig.Light1.ToString();
-                        break;
-                    case 2:
-                        symbol = SymbolsConfig.Light2.ToString();
-                        break;
-                    case 3:
-                        symbol = SymbolsConfig.Light3.ToString();
-                        break;
-                }
-            }
-            else if (symbol == SymbolsConfig.Treasure.ToString())
-            {
-                ForegroundColor = ConsoleColor.Yellow;
-            }
-            else if (symbol == SymbolsConfig.Key.ToString())
-            {
-                ForegroundColor = ConsoleColor.DarkYellow;
-            }
-            else if (symbol == SymbolsConfig.Exit.ToString())
-            {
-                if (level.IsLocked)
-                {
-                    ForegroundColor = ConsoleColor.Red;
-                }
-                else
-                {
-                    ForegroundColor = ConsoleColor.Green;
-                }
-            }
-            Write(symbol);
-            ResetColor();
         }
 
         private void UpdateBribe()
@@ -495,7 +400,7 @@ namespace HeistGame
                 alertTimer = 0;
                 isAlerted = false;
                 isSearching = false;
-                guardTileColor = ConsoleColor.DarkRed;
+                npcTileColor = ConsoleColor.DarkRed;
                 timeBetweenMoves = walkingSpeed;
                 isReturning = true;
             }
@@ -504,7 +409,7 @@ namespace HeistGame
         private void SearchPlayer(Level level)
         {
             ChoosePivotDirection();
-            if (!Pivot(alertTimer, 10, 0, true))
+            if (!Pivot(alertTimer, 10, 0, searchPivotTimer, true))
             {
                 bool hasValidTarget;
                 do
@@ -536,71 +441,6 @@ namespace HeistGame
             }
 
             isReturning = false;
-        }
-
-        private Tile Pathfind(Level level, Tile pathStart, Tile destination)
-        {
-            pathStart.SetDistance(destination.X, destination.Y);
-            List<Tile> activeTiles = new List<Tile>();
-            activeTiles.Add(pathStart);
-            List<Tile> visitedTiles = new List<Tile>();
-
-            while (activeTiles.Any())
-            {
-                Tile tileToCheck = activeTiles.OrderBy(tile => tile.CostDistance).First();
-
-                if (tileToCheck.X == destination.X && tileToCheck.Y == destination.Y)
-                {
-                    return tileToCheck.Parent;
-                }
-
-                visitedTiles.Add(tileToCheck);
-                activeTiles.Remove(tileToCheck);
-
-                List<Tile> walkableNeighbors = level.GetWalkableNeighborsOfTile(tileToCheck, destination);
-
-                foreach (Tile neighbor in walkableNeighbors)
-                {
-                    if (visitedTiles.Any(tile => tile.X == neighbor.X && tile.Y == neighbor.Y))
-                    {
-                        //The tile was already evaluated by the pathfinding, so we skip it
-                        continue;
-                    }
-
-                    if (activeTiles.Any(tile => tile.X == neighbor.X && tile.Y == neighbor.Y))
-                    {
-                        //re-check a tile evaluated on a previous cycle to see if now it has a better value
-                        Tile existingTile = activeTiles.First(tile => tile.X == neighbor.X && tile.Y == neighbor.Y);
-
-                        if (existingTile.CostDistance > neighbor.CostDistance)
-                        {
-                            activeTiles.Remove(existingTile);
-                            activeTiles.Add(neighbor);
-                        }
-                    }
-                    else
-                    {
-                        activeTiles.Add(neighbor);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private bool MoveTowards(Vector2 destination, Game game)
-        {
-            Tile guardTile = new Tile(X, Y);
-            Tile destinationTile = new Tile(destination.X, destination.Y);
-            Tile tileToMoveTo = Pathfind(game.ActiveCampaign.Levels[game.CurrentRoom], destinationTile, guardTile);
-
-            if (tileToMoveTo != null)
-            {
-                Vector2 movementCoordinates = new Vector2(tileToMoveTo.X, tileToMoveTo.Y);
-
-                Move(game, movementCoordinates);
-                return true;
-            }
-            return false;
         }
 
         private void CatchPlayer(Game game)
@@ -636,110 +476,6 @@ namespace HeistGame
             }
 
             return new Vector2(X, Y);
-        }
-
-        private bool Pivot(int timer, int frequency, int minTime, bool limitedDuration = false)
-        {
-
-            if (minTimeBetweenPivots > 0)
-            {
-                minTimeBetweenPivots--;
-                return true;
-            }
-
-            if (timer % frequency == 0)
-            {
-                if (direction == Directions.left && pivotDirection == 1)
-                {
-                    direction = Directions.up;
-                }
-                else if (direction == Directions.up && pivotDirection == -1)
-                {
-                    direction = Directions.left;
-                }
-                else
-                {
-                    direction += pivotDirection;
-                }
-
-                guardMarker = guardMarkersTable[(int)direction];
-
-                minTimeBetweenPivots = minTime;
-            }
-
-            if (limitedDuration)
-            { 
-                searchPivotTimer--;
-                if (searchPivotTimer == 0) 
-                {
-                    searchPivotTimer = searchPivotDuration;
-                    return false; 
-                }
-            }
-
-            return true;
-        }
-
-        private void ChoosePivotDirection()
-        {
-            int choice = rng.Next(0, 101);
-
-            if (choice % 2 == 0) { pivotDirection = 1; }
-            else { pivotDirection = -1; }
-        }
-
-        private void Move(Game game, Vector2 tileToMoveTo)
-        {
-            if (!game.UserInterface.IsTileUnderLable(new Vector2(X, Y)))
-            {
-                this.Clear(game.ActiveCampaign.Levels[game.CurrentRoom]);
-            }
-
-            if (X != tileToMoveTo.X)
-            {
-                if (X - tileToMoveTo.X > 0)
-                {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X - 1, Y))
-                    {
-                        X--;
-                        direction = Directions.left;
-                    }
-                }
-                else
-                {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X + 1, Y))
-                    {
-                        X++;
-                        direction = Directions.right;
-                    }
-                }
-            }
-            else if (Y != tileToMoveTo.Y)
-            {
-                if (Y - tileToMoveTo.Y > 0)
-                {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X, Y - 1))
-                    {
-                        Y--;
-                        direction = Directions.up;
-                    }
-                }
-                else
-                {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X, Y + 1))
-                    {
-                        Y++;
-                        direction = Directions.down;
-                    }
-                }
-            }
-
-            guardMarker = guardMarkersTable[(int)direction];
-
-            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == SymbolsConfig.LeverOn.ToString())
-            {
-                game.ActiveCampaign.Levels[game.CurrentRoom].ToggleLever(X, Y);
-            }
         }
     }
 }

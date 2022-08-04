@@ -10,6 +10,7 @@ namespace HeistGame
     {
         private int timeBetweenMoves;
         private int timeSinceLastMove;
+        private int sightDistance;
         private string playerMarker;
         private ConsoleColor playerBaseColor;
         private ConsoleColor playerCurrentColor;
@@ -58,6 +59,7 @@ namespace HeistGame
 
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
+            sightDistance = 9;
         }
 
         /// <summary>
@@ -113,6 +115,7 @@ namespace HeistGame
                     break;
             }
 
+            CalculateVisibleArea(level);
             Draw();
             HasMoved = true;
             SetVisibility(X, Y, level);
@@ -214,6 +217,28 @@ namespace HeistGame
             else
             {
                 Visibility = 1;
+            }
+        }
+
+        public void CalculateVisibleArea(Level level)
+        {
+            level.VisibleMap.Clear();
+
+            Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X, Y, sightDistance * 2, sightDistance);
+
+            foreach (Vector2 point in SightCircumference)
+            {
+                Vector2[] tiles = Rasterizer.PlotRasterizedLine(X, Y, point.X, point.Y);
+
+                foreach (Vector2 tile in tiles)
+                {
+                    if (!level.IsTileTransparent(tile.X, tile.Y, true))
+                    {
+                        break;
+                    }
+
+                    level.UpdateVisibleMap(tile);
+                }
             }
         }
     }
