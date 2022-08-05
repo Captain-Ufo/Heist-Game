@@ -1,4 +1,6 @@
-﻿namespace HeistGame
+﻿using System.Collections.Generic;
+
+namespace HeistGame
 {
     /// <summary>
     /// A helper class that holds in a centralized place all the gameplay relevant symbols

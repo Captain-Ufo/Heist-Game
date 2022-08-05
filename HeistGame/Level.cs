@@ -601,6 +601,22 @@ namespace HeistGame
             return ExploredMap.Contains(tile);
         }
 
+        public bool IsTileInsideBounds(Vector2 tile, bool removeOffset = true)
+        {
+            if (removeOffset)
+            {
+                tile.X -= xOffset;
+                tile.Y -= yOffset;
+            }
+
+            if (tile.X < 0 || tile.Y < 0 || tile.X >= columns || tile.Y >= rows)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Checks if the given position in the grid contains a symbols that allows sight and light to pass through.
         /// </summary>

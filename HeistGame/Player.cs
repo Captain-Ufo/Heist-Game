@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using static System.Console;
 
 namespace HeistGame
@@ -223,6 +224,11 @@ namespace HeistGame
 
         public void CalculateVisibleArea(Level level)
         {
+            HashSet<string> wallCorners = new HashSet<string>()
+            {
+                "╔", "╗", "╝", "╚", "╠", "╣", "╦", "╩", "╬"
+            };
+
             level.UpdateVisibleMap(new Vector2(X, Y));
             level.ClearVisibleMap();
 
@@ -242,7 +248,52 @@ namespace HeistGame
                     }
                     if (!level.IsTileTransparent(tile.X, tile.Y, true))
                     {
-                        level.UpdateVisibleMap(tile);
+                        if (level.IsTileInsideBounds(tile, true))
+                        {
+                            level.UpdateVisibleMap(tile);
+                        }
+                        string tileXplus1 = level.GetElementAt(tile.X + 1, tile.Y);
+                        string tileXminus1 = level.GetElementAt(tile.X - 1, tile.Y);
+                        string tileYplus1 = level.GetElementAt(tile.X, tile.Y + 1);
+                        string tileYminus1 = level.GetElementAt(tile.Y, tile.Y - 1);
+
+                        if (wallCorners.Contains(tileXplus1)) 
+                        {
+                            Vector2 cornerTile = new Vector2(tile.X + 1, tile.Y);
+
+                            if (level.IsTileInsideBounds(cornerTile))
+                            {
+                                level.UpdateVisibleMap(cornerTile);
+                            }
+                        }
+                        if (wallCorners.Contains(tileXminus1)) 
+                        {
+                            Vector2 cornerTile = new Vector2(tile.X - 1, tile.Y);
+
+                            if (level.IsTileInsideBounds(cornerTile))
+                            {
+                                level.UpdateVisibleMap(cornerTile);
+                            }
+                        }
+                        if (wallCorners.Contains(tileYplus1)) 
+                        {
+                            Vector2 cornerTile = new Vector2(tile.X, tile.Y + 1);
+
+                            if (level.IsTileInsideBounds(cornerTile))
+                            {
+                                level.UpdateVisibleMap(cornerTile);
+                            }
+                        }
+                        if (wallCorners.Contains(tileXminus1))
+                        {
+                            Vector2 cornerTile = new Vector2(tile.X, tile.Y - 1);
+
+                            if (level.IsTileInsideBounds(cornerTile))
+                            {
+                                level.UpdateVisibleMap(cornerTile);
+                            }
+                        }
+
                         break;
                     }
 
