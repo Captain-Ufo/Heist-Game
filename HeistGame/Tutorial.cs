@@ -130,13 +130,13 @@ namespace HeistGame
             "║    E    ║    C    e    d         d    a         ║    ¶    ║",
             "║         ║         ║         ║         ║         ║         ║",
             "║         ║         ║         ║         ║         ║    Ͽ    ║",
-            "╠═════════╩════à════╬════ ════╩════ ════╬════ ════╬═════════╣",
+            "╠═════════╩══╍═à═╍══╬════ ════╩════ ════╬════ ════╬══╍═══╍══╣",
             "║         0         ║                   ║         ┆         ║",
             "║                   ║                   ║         ║         ║",
             "║ X       *     Ͽ   ║    d    *D   d A  ║    +  B ¡       Ω ║",
             "║                   ║                   ║         ║         ║",
             "║                   ║                   ║         ┆         ║",
-            "╠═════════╦════à════╬════ ════╦════d════╬════ ════╬═════════╣",
+            "╠═════════╦════à════╬════ ════╦════d════╬════ ════╬══╍═══╍══╣",
             "║         ║         ║         ║         ║         ║    Ͽ    ║",
             "║         ║         ║         ║         ║         ║         ║",
             "║ I  +    !    +    e    d         d    a         i         ║",
@@ -175,7 +175,7 @@ namespace HeistGame
                 "This place is safe, explore and experiment at your will.",
                 " ",
                 "Remember: if you try to walk through a door and it stops you, it means that it's locked and you have",
-                "To lockpick it."
+                "to lockpick it."
             },
             new string[]
             {
@@ -191,7 +191,11 @@ namespace HeistGame
             {
                 "Welcome to the fourth floor of the training course.",
                 "Not all the levels on this floor are required to access the exit. But you may have to use",
-                "some of the others more than once in order to be able to leave."
+                "some of the others more than once in order to be able to leave.",
+                "",
+                "Also keep in mind that everything outside your direct area of sight is how you remember it was when",
+                "you saw it last time, not necessarily how it is now. You need to see a gate with your eyes before you",
+                "can assess if it was affected by a certain lever or not."
             }
         };
 
@@ -288,7 +292,8 @@ namespace HeistGame
                     instructions = new string[]
                     {
                         "You are Gareth, the non-copyright infringing Master Thief. This is the training course you built in your hideout.",
-                        $"Use the ARROW KEYS, W,A,S,D, or NUMPAD 4,8,6,2 to move around the map; your goal in any level is to reach the exit ({SymbolsConfig.Exit})."
+                        $"Use the ARROW KEYS, W,A,S,D, or NUMPAD 4,8,6,2 to move around the map; your goal in any level is to reach the exit ({SymbolsConfig.Exit}).",
+                        "You can currently see only your immediate vicinity. You'll need to explore the level to see where the exit is."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -305,9 +310,9 @@ namespace HeistGame
                         " ",
                         "When you are on a heist, you may have limited knowledge of the locations layouts: you will know where to look for some of the Objectives,",
                         "but as you collect the known ones, you might find that there are others hidden about the floor. You may also find hints on how to proceed.",
-                        " ",
-                        "If the exit doesn't turn green when you collect the last key, check the wwhole map in case you discovered the location of another one.",
-                        "The status bar at the bottom of the screen also displays informations on the status of your currently known objectives."
+                        "The status bar at the bottom of the screen also displays informations on the status of your currently known objectives. Also, the exit should",
+                        "turn green once you have collected all the visible and hidden objectives of the map. Keep in mind this visual effect happens only if you",
+                        "are currently seeing the exit. The status bar is a more reliable source of informations."
                     };
                     DisplaytextCentered(instructions);
                     break;
@@ -347,13 +352,15 @@ namespace HeistGame
                 case 4:
                     instructions = new string[]
                     {
-                         "Beware of Guards! They patrol the grounds, or stand in place and look around.",
-                         "Be careful of how illuminated the spot you're standing in is.",
-                         "Shadows are your friends: the darker the area, the closer a guard has to be to spot you.",
-                         "If they see you, they'll get alerted and chase you until they loose sight of you. You may be able to safely hide in some closets.",
-                         "They can't see right behind them, of course, but be careful; they are still aware of what happens in their immediate viciniy,",
-                         "even in full darkness.",
-                         "Study their activity well before trying to make your move, and don't get too close no matter where they are looking.",
+                         "Beware of Guards! They patrol the grounds, or stand in place and look around.",                         
+                         "Check on the status bar how illuminated the spot you're standing in is.Shadows are your friends: the darker the area, the closer a",
+                         "guard has to be to spot you.",
+                         "If they see you, they'll get alerted and chase you until they lose sight of you.",
+                         "They can't see right behind themselves, of course (The arrow indicates in which direction), but be careful; they are still aware of what",
+                         "happens in their immediate viciniy even in full darkness.",
+                         "Study their activity well before trying to make your move, and don't get too close no matter where they are looking. If they appear as grey",
+                         "blocks, it means you are not seeing them, but they are within your hearing range. Use that knowledge to plan your moves in areas you have",
+                         "not explored yet.",
                          "Depending on the difficulty level you chose at the beginning of your adventure, you might be able to bribe them to look the other way.",
                          "It will get more expansive the more you do it, so don't be too cocky!",
                          "Feel free to experiment here. This is just training: you will be able to retry as many times as you need."

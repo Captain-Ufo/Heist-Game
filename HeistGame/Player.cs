@@ -214,17 +214,21 @@ namespace HeistGame
                 "╔", "╗", "╝", "╚", "╠", "╣", "╦", "╩", "╬"
             };
 
-            level.ClearVisibleMap();
+            level.ClearPlayerPercetionMaps();
 
             Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X, Y, sightDistance * 2, sightDistance);
 
             foreach (Vector2 point in SightCircumference)
             {
+                bool hasFoundObstacle = false;
+
                 Vector2[] tiles = Rasterizer.PlotRasterizedLine(X, Y, point.X, point.Y);
 
                 foreach (Vector2 tile in tiles)
                 {
                     level.UpdatePlayerHearingArea(tile);
+
+                    if (hasFoundObstacle) { continue; }
 
                     if (tile.X == X && tile.Y == Y)
                     {
@@ -279,7 +283,7 @@ namespace HeistGame
                             }
                         }
 
-                        break;
+                        hasFoundObstacle = true;
                     }
 
                     level.UpdateVisibleMap(tile);

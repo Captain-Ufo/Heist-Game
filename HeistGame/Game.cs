@@ -139,7 +139,7 @@ namespace HeistGame
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                      levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                     missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
+                                     missionConfig.Briefing, missionConfig.Outro, this));
 
                 totalGold += levelInfo.TotalGold;
             }
@@ -191,7 +191,7 @@ namespace HeistGame
 
             levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                  levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                 missionConfig.Briefing, missionConfig.Outro, MyStopwatch));
+                                 missionConfig.Briefing, missionConfig.Outro, this));
 
             totalGold += levelInfo.TotalGold;
 
@@ -215,7 +215,7 @@ namespace HeistGame
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
                                      levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, 
-                                     levelInfo.UnlockablesDictionary, null, null, MyStopwatch));
+                                     levelInfo.UnlockablesDictionary, null, null, this));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
@@ -688,7 +688,7 @@ namespace HeistGame
                 @"                          / /     ,-~~,      Mm,   %               |        ",
                 @"       |          ____   / /    ,r/^V\,\    n  |  %    |           |        ",
                 @"   ____|_______  |o  o|  \ \    ('_ ~ ( )   \ Y  %  ___|_______ ___|__ _    ",
-                @"             |   | c)%|   \/\   ()--()-))    [_t%            |              ",
+                @"             |   | c)%|   \/\   |=  =  ))    [_t%            |              ",
                 @"             |   |o__%|   /  \   \ _(x)88     \ \            |              ",
                 @"             |        %   \  |`-. \ _/|8       \ \           |   _/         ",
                 @"   _ _____ __|__ ____  %   \ !  ,%J___]>---.____\ \  ________|___\_____     ",
@@ -717,10 +717,10 @@ namespace HeistGame
                 @"             |    /__/8  |           |             8\__\     |              ",
                 @"     ____ __ |_  |  /8___|__ _____ __|__ ________|_ 8\  l __|__ _____ _     ",
                 @"      |         /> /8          |           |         8\ <\         |        ",
-                @" ____          />_/8           |   y       |          8\_<\         ____    ",
-                @"|o  o|       ,%J__]            |   \       |           [__t %,     | o  o | ",
-                @"| c)%,      ,%> )(8__ ___ ___  |___/___ ___| ______ ___8)(  <%,    _,% (c | ",
-                @"| o__o`%-%-%' __ ]8                                     [ __  '%-%-%`o__o | ",
+                @" ____          />_/8           |   y       |          8\_<\          ____   ",
+                @"|o  o|       ,%J__]            |   \       |           [__t %,      |o  o|  ",
+                @"| c)%,      ,%> )(8__ ___ ___  |___/___ ___| ______ ___8)(  <%,    _,% (c|  ",
+                @"|o__o`%-%-%' __ ]8                                      [ __  '%-%-%`o__o|  ",
             };
 
             SetCursorPosition(0, 2);
