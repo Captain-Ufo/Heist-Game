@@ -117,6 +117,7 @@ namespace HeistGame
             }
 
             CalculateVisibleArea(level);
+            level.Draw();
             Draw();
             HasMoved = true;
             SetVisibility(X, Y, level);
@@ -184,10 +185,8 @@ namespace HeistGame
             {
                 ResetColor();
             }
-
             Write(symbol);
             ResetColor();
-            level.Draw();
         }
 
         /// <summary>
@@ -208,20 +207,6 @@ namespace HeistGame
             Loot += amount;
         }
 
-        private void SetVisibility(int xPos, int yPos, Level level)
-        {
-            int visibilityLevel = level.GetLightLevelInItile(new Vector2(xPos, yPos));
-
-            if (visibilityLevel > 0)
-            {
-                Visibility = 3 * visibilityLevel;
-            }
-            else
-            {
-                Visibility = 1;
-            }
-        }
-
         public void CalculateVisibleArea(Level level)
         {
             HashSet<string> wallCorners = new HashSet<string>()
@@ -229,7 +214,6 @@ namespace HeistGame
                 "╔", "╗", "╝", "╚", "╠", "╣", "╦", "╩", "╬"
             };
 
-            level.UpdateVisibleMap(new Vector2(X, Y));
             level.ClearVisibleMap();
 
             Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X, Y, sightDistance * 2, sightDistance);
@@ -242,10 +226,11 @@ namespace HeistGame
                 {
                     level.UpdatePlayerHearingArea(tile);
 
-                    if (tile.X  == X && tile.Y == Y)
+                    if (tile.X == X && tile.Y == Y)
                     {
                         continue;
                     }
+
                     if (!level.IsTileTransparent(tile.X, tile.Y, true))
                     {
                         if (level.IsTileInsideBounds(tile, true))
@@ -284,7 +269,7 @@ namespace HeistGame
                                 level.UpdateVisibleMap(cornerTile);
                             }
                         }
-                        if (wallCorners.Contains(tileXminus1))
+                        if (wallCorners.Contains(tileYminus1))
                         {
                             Vector2 cornerTile = new Vector2(tile.X, tile.Y - 1);
 
@@ -301,6 +286,20 @@ namespace HeistGame
                 }
             }
             level.CalculateTilesToDraw();  
+        }
+
+        private void SetVisibility(int xPos, int yPos, Level level)
+        {
+            int visibilityLevel = level.GetLightLevelInItile(new Vector2(xPos, yPos));
+
+            if (visibilityLevel > 0)
+            {
+                Visibility = 3 * visibilityLevel;
+            }
+            else
+            {
+                Visibility = 1;
+            }
         }
     }
 

@@ -275,6 +275,9 @@ namespace HeistGame
                             case 3:
                                 element = SymbolsConfig.Light3.ToString();
                                 break;
+                            default:
+                                element = SymbolsConfig.Light0.ToString();
+                                break;
                         }
                     }
                 }

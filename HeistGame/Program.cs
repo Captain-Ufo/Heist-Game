@@ -29,6 +29,7 @@
     // 8? - player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
     // 9? - awake guards can spot and revive unconscious guards (same visibility as player)
     // 10? - combat with guards (extend 7 and 8 to deal with corpses as well)
+    // 11? - map in the level?
 
 
     //OBJECTIONS:
