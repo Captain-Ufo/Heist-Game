@@ -436,7 +436,7 @@ namespace HeistGame
             Vector2 tile = new Vector2(x, y);
             if (element == SymbolsConfig.Empty.ToString())
             {
-                if (VisibleMap.Contains(tile))
+                if (CanPlayerSeeTile(tile))
                 {
                     int lightValue = GetLightLevelInItile(tile);
                     if (highlighted) { ForegroundColor = ConsoleColor.Black; }
@@ -764,14 +764,15 @@ namespace HeistGame
 
             if (redraw)
             {
-                if (!withOffset)
+                if (ExploredMap.Contains(new Vector2(x, y))) 
                 {
-                    x += xOffset;
-                    y += yOffset;
+                    if (!withOffset)
+                    {
+                        x += xOffset;
+                        y += yOffset;
+                    }
+                    DrawTile(x, y, newElement);
                 }
-
-                if (ExploredMap.Contains(new Vector2(x, y))) { 
-                DrawTile(x, y, newElement);}
             }
         }
 

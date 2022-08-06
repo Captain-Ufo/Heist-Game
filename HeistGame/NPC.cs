@@ -64,7 +64,7 @@ namespace HeistGame
             }
             else
             {
-                ForegroundColor = npcSymbolColor;
+                ForegroundColor = ConsoleColor.DarkGray;
                 BackgroundColor = ConsoleColor.DarkGray;
             }
 
