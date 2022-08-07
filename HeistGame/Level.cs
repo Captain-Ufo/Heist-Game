@@ -566,52 +566,67 @@ namespace HeistGame
                 if (IsLocked)
                 {
                     if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                    else if (ExploredMap.Contains(tile))
-                            { ForegroundColor = ConsoleColor.DarkGray; }
-                    else { ForegroundColor = ConsoleColor.Red; }
+                    else if (HasPlayerExploredTile(tile))
+                        { ForegroundColor = ConsoleColor.DarkGray; }
+                    else if (CanPlayerSeeTile(tile))
+                        { ForegroundColor = ConsoleColor.Red; }
+                    else { element = " "; }
                 }
                 else
                 {
                     if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                    else if (ExploredMap.Contains(tile))
-                            { ForegroundColor = ConsoleColor.DarkGray; }
-                    else { ForegroundColor = ConsoleColor.Green; }
+                    else if (HasPlayerExploredTile(tile))
+                        { ForegroundColor = ConsoleColor.DarkGray; }
+                    else  if (CanPlayerSeeTile(tile))
+                        { ForegroundColor = ConsoleColor.Green; }
+                    else { element = " "; }
                 }
             }
             else if (element == SymbolsConfig.Key.ToString())
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (ExploredMap.Contains(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { ForegroundColor = ConsoleColor.DarkYellow; }
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
+                else  if (CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkYellow; }
+                else { element = " "; }
             }
             else if (element == SymbolsConfig.Treasure.ToString())
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (ExploredMap.Contains(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { ForegroundColor = ConsoleColor.Yellow; }
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
+                else if (CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.Yellow; }
+                else { element = " "; }
             }
             else if (element == "☺")
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (ExploredMap.Contains(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { ForegroundColor = ConsoleColor.DarkMagenta; }
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
+                else if (CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkMagenta; }
+                else { element = " "; }
             }
             else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (ExploredMap.Contains(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                ForegroundColor = ConsoleColor.White;
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
+                else if(CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.White; }
+                else { element = " "; }
             }
             else
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (ExploredMap.Contains(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { ForegroundColor = ConsoleColor.Gray; }
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
+                else if (CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.Gray; }
+                else
+                { element = " "; }
             }
             Write(element);
             ResetColor();
