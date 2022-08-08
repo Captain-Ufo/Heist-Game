@@ -566,29 +566,29 @@ namespace HeistGame
                 if (IsLocked)
                 {
                     if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                    else if (HasPlayerExploredTile(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
                     else if (CanPlayerSeeTile(tile))
                         { ForegroundColor = ConsoleColor.Red; }
+                    else if (HasPlayerExploredTile(tile))
+                        { ForegroundColor = ConsoleColor.DarkGray; }
                     else { element = " "; }
                 }
                 else
                 {
                     if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                    else if (CanPlayerSeeTile(tile))
+                        { ForegroundColor = ConsoleColor.Green; }
                     else if (HasPlayerExploredTile(tile))
                         { ForegroundColor = ConsoleColor.DarkGray; }
-                    else  if (CanPlayerSeeTile(tile))
-                        { ForegroundColor = ConsoleColor.Green; }
                     else { element = " "; }
                 }
             }
             else if (element == SymbolsConfig.Key.ToString())
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else if (CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkYellow; }
                 else if (HasPlayerExploredTile(tile))
                     { ForegroundColor = ConsoleColor.DarkGray; }
-                else  if (CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkYellow; }
                 else { element = " "; }
             }
             else if (element == SymbolsConfig.Treasure.ToString())
@@ -603,28 +603,28 @@ namespace HeistGame
             else if (element == "☺")
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
                 else if (CanPlayerSeeTile(tile))
                     { ForegroundColor = ConsoleColor.DarkMagenta; }
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
                 else { element = " "; }
             }
             else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
+                else if (CanPlayerSeeTile(tile))
+                    { ForegroundColor = ConsoleColor.White; }
                 else if (HasPlayerExploredTile(tile))
                     { ForegroundColor = ConsoleColor.DarkGray; }
-                else if(CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.White; }
                 else { element = " "; }
             }
             else
             {
                 if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
                 else if (CanPlayerSeeTile(tile))
                     { ForegroundColor = ConsoleColor.Gray; }
+                else if (HasPlayerExploredTile(tile))
+                    { ForegroundColor = ConsoleColor.DarkGray; }
                 else
                 { element = " "; }
             }
@@ -660,7 +660,7 @@ namespace HeistGame
         /// <param name="x">The X coordinate of the position to check</param>
         /// <param name="y">The Y coordinate of the position to check</param>
         /// <returns>Returns true if walkable, false if not</returns>
-        public bool IsPositionWalkable(int x, int y)
+        public bool IsTileWalkable(int x, int y)
         {
             x -= xOffset;
             y -= yOffset;
@@ -917,22 +917,22 @@ namespace HeistGame
         {
             List<Tile> neighborsList = new List<Tile>();
 
-            if (currentTile.Y - 1 >= 0 && IsPositionWalkable(currentTile.X, currentTile.Y - 1))
+            if (currentTile.Y - 1 >= 0 && IsTileWalkable(currentTile.X, currentTile.Y - 1))
             {
                 neighborsList.Add(CreateNewTile(currentTile.X, currentTile.Y - 1));
             }
 
-            if (currentTile.Y + 1 < rows + yOffset && IsPositionWalkable(currentTile.X, currentTile.Y + 1))
+            if (currentTile.Y + 1 < rows + yOffset && IsTileWalkable(currentTile.X, currentTile.Y + 1))
             {
                 neighborsList.Add(CreateNewTile(currentTile.X, currentTile.Y + 1));
             }
 
-            if (currentTile.X - 1 >= 0 && IsPositionWalkable(currentTile.X - 1, currentTile.Y))
+            if (currentTile.X - 1 >= 0 && IsTileWalkable(currentTile.X - 1, currentTile.Y))
             {
                 neighborsList.Add(CreateNewTile(currentTile.X - 1, currentTile.Y));
             }
 
-            if (currentTile.X + 1 < columns + xOffset && IsPositionWalkable(currentTile.X + 1, currentTile.Y))
+            if (currentTile.X + 1 < columns + xOffset && IsTileWalkable(currentTile.X + 1, currentTile.Y))
             {
                 neighborsList.Add(CreateNewTile(currentTile.X + 1, currentTile.Y));
             }

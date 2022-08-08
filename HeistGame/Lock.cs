@@ -51,6 +51,10 @@ namespace HeistGame
             if (timeSinceLastTick > timeBetweenTicks)
             {
                 unlockingProgress++;
+                if (unlockingProgress % 20 == 0)
+                {
+                    game.TunePlayer.PlaySFX(150, 50);
+                }
             }
 
             if (unlockingProgress >= 100)

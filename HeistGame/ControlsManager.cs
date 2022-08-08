@@ -24,63 +24,110 @@ namespace HeistGame
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
                     case ConsoleKey.NumPad8:
-                        if (State != ControlState.Interact)
+                        switch (State)
                         {
-                            game.PlayerCharacter.Move(Directions.up, level, game, deltaTimeMS);
-                            State = ControlState.Move;
-                        }
-                        else
-                        {
-                            game.Selector.Move(Directions.up);
+                            case ControlState.Interact:
+                                game.Selector.Move(Directions.up);
+                                break;
+                            case ControlState.Peek:
+                                game.PlayerCharacter.Peek(Directions.up, level);
+                                break;
+                            default:
+                                State = ControlState.Move;
+                                game.PlayerCharacter.ResetPeek(level);
+                                game.PlayerCharacter.Move(Directions.up, level, game, deltaTimeMS);
+                                
+                                break;
                         }
                         game.CancelUnlocking();
                         break;
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
                     case ConsoleKey.NumPad2:
-                        if (State != ControlState.Interact)
+                        switch (State)
                         {
-                            game.PlayerCharacter.Move(Directions.down, level, game, deltaTimeMS);
-                            State = ControlState.Move;
-                        }
-                        else
-                        {
-                            game.Selector.Move(Directions.down);
+                            case ControlState.Interact:
+                                game.Selector.Move(Directions.down);
+                                break;
+                            case ControlState.Peek:
+                                game.PlayerCharacter.Peek(Directions.down, level);
+                                break;
+                            default:
+                                State = ControlState.Move;
+                                game.PlayerCharacter.ResetPeek(level);
+                                game.PlayerCharacter.Move(Directions.down, level, game, deltaTimeMS);
+
+                                break;
                         }
                         game.CancelUnlocking();
                         break;
                     case ConsoleKey.LeftArrow:
                     case ConsoleKey.A:
                     case ConsoleKey.NumPad4:
-                        if (State != ControlState.Interact)
+                        switch (State)
                         {
-                            game.PlayerCharacter.Move(Directions.left, level, game, deltaTimeMS);
-                            State = ControlState.Move;
-                        }
-                        else
-                        {
-                            game.Selector.Move(Directions.left);
+                            case ControlState.Interact:
+                                game.Selector.Move(Directions.left);
+                                break;
+                            case ControlState.Peek:
+                                game.PlayerCharacter.Peek(Directions.left, level);
+                                break;
+                            default:
+                                State = ControlState.Move;
+                                game.PlayerCharacter.ResetPeek(level);
+                                game.PlayerCharacter.Move(Directions.left, level, game, deltaTimeMS);
+
+                                break;
                         }
                         game.CancelUnlocking();
                         break;
                     case ConsoleKey.RightArrow:
                     case ConsoleKey.D:
                     case ConsoleKey.NumPad6:
-                        if (State != ControlState.Interact)
+                        switch (State)
                         {
-                            game.PlayerCharacter.Move(Directions.right, level, game, deltaTimeMS);
-                            State = ControlState.Move;
-                        }
-                        else
-                        {
-                            game.Selector.Move(Directions.right);
+                            case ControlState.Interact:
+                                game.Selector.Move(Directions.right);
+                                break;
+                            case ControlState.Peek:
+                                game.PlayerCharacter.Peek(Directions.right, level);
+                                break;
+                            default:
+                                State = ControlState.Move;
+                                game.PlayerCharacter.ResetPeek(level);
+                                game.PlayerCharacter.Move(Directions.right, level, game, deltaTimeMS);
+
+                                break;
                         }
                         game.CancelUnlocking();
                         break;
+
+                    case ConsoleKey.T:
+                        game.PlayerCharacter.Peek(Directions.up, level);
+                        game.Selector.Deactivate();
+                        State = ControlState.Peek;
+                        break;
+                    case ConsoleKey.G:
+                        game.PlayerCharacter.Peek(Directions.down, level);
+                        game.Selector.Deactivate();
+                        State = ControlState.Peek;
+                        break;
+                    case ConsoleKey.F:
+                        game.PlayerCharacter.Peek(Directions.left, level);
+                        game.Selector.Deactivate();
+                        State = ControlState.Peek;
+                        break;
+                    case ConsoleKey.H:
+                        game.PlayerCharacter.Peek(Directions.right, level);
+                        game.Selector.Deactivate();
+                        State = ControlState.Peek;
+                        break;
+
                     case ConsoleKey.Spacebar:
                     case ConsoleKey.Add:
                         if (State != ControlState.Interact)
                         {
+                            game.PlayerCharacter.ResetPeek(level);
                             game.CancelUnlocking();
 
                             game.PlayerCharacter.MakeNoise(level, game);
@@ -97,22 +144,40 @@ namespace HeistGame
                             State = ControlState.Idle;
                         }
                         break;
+
                     case ConsoleKey.E:
                     case ConsoleKey.Enter:
                         if (State != ControlState.Interact)
                         {
+                            game.PlayerCharacter.ResetPeek(level);
                             game.CancelUnlocking();
                             State = ControlState.Interact;
                             game.Selector.Activate();
                         }
                         else
                         {
-
                             if (!game.ActiveCampaign.Levels[game.CurrentRoom].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
                             { 
                                 State = ControlState.Idle;
                                 game.Selector.Deactivate(); 
                             }
+                        }
+                        break;
+
+                    case ConsoleKey.R:
+                    case ConsoleKey.NumPad0:
+                    case ConsoleKey.Insert:
+                        if (State == ControlState.Peek)
+                        {
+                            game.PlayerCharacter.ResetPeek(level);
+                            State = ControlState.Idle;
+                        }
+                        else
+                        {
+                            game.Selector.Deactivate();
+                            game.CancelUnlocking();
+                            State = ControlState.Peek;
+                            game.PlayerCharacter.StartPeek();
                         }
                         break;
                     case ConsoleKey.Escape:
@@ -132,6 +197,7 @@ namespace HeistGame
                     default:
                         game.Selector.Deactivate();
                         game.CancelUnlocking();
+                        game.PlayerCharacter.ResetPeek(level);
                         State = ControlState.Idle;
                         break;
                 }
@@ -146,5 +212,5 @@ namespace HeistGame
         }
     }
 
-    internal enum ControlState { Move, Interact, Yell, Escape, Idle }
+    internal enum ControlState { Move, Interact, Yell, Peek, Escape, Idle }
 }

@@ -386,7 +386,7 @@ namespace HeistGame
                 Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, x, y);
                 foreach (Vector2 tile in tilesToTarget)
                 {
-                    if (!game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(tile.X, tile.Y))
+                    if (!game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(tile.X, tile.Y))
                     {
                         break;
                     }
@@ -431,7 +431,7 @@ namespace HeistGame
                     Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, searchTarget.X, searchTarget.Y);
                     foreach(Vector2 tile in tilesToTarget)
                     {
-                        if (!level.IsPositionWalkable(tile.X, tile.Y))
+                        if (!level.IsTileWalkable(tile.X, tile.Y))
                         {
                             hasValidTarget = false;
                             break;

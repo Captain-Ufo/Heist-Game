@@ -221,7 +221,7 @@ namespace HeistGame
             {
                 if (X - tileToMoveTo.X > 0)
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X - 1, Y))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X - 1, Y))
                     {
                         X--;
                         direction = Directions.left;
@@ -229,7 +229,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X + 1, Y))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X + 1, Y))
                     {
                         X++;
                         direction = Directions.right;
@@ -240,7 +240,7 @@ namespace HeistGame
             {
                 if (Y - tileToMoveTo.Y > 0)
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X, Y - 1))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X, Y - 1))
                     {
                         Y--;
                         direction = Directions.up;
@@ -248,7 +248,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsPositionWalkable(X, Y + 1))
+                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X, Y + 1))
                     {
                         Y++;
                         direction = Directions.down;

@@ -15,6 +15,8 @@ namespace HeistGame
         private string playerMarker;
         private ConsoleColor playerBaseColor;
         private ConsoleColor playerCurrentColor;
+        private Directions peekDirection;
+        private Vector2 peekOffset;
 
         /// <summary>
         /// The player's current X position
@@ -47,6 +49,7 @@ namespace HeistGame
         /// <param name="color">(Optional) The color of the player's symbol</param>
         public Player(Level level, string marker = "☺", ConsoleColor color = ConsoleColor.Cyan)
         { 
+
             X = level.PlayerStartX;
             Y = level.PlayerStartY;
 
@@ -61,6 +64,9 @@ namespace HeistGame
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
             sightDistance = 10;
+
+            peekDirection = Directions.idle;
+            peekOffset = new Vector2(0, 0);
         }
 
         /// <summary>
@@ -91,25 +97,25 @@ namespace HeistGame
             switch (direction)
             {
                 case Directions.up:
-                    if (level.IsPositionWalkable(X, Y - 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X, Y - 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
                         Y--;
                     }
                     break;
                 case Directions.down:
-                    if (level.IsPositionWalkable(X, Y + 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X, Y + 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
                         Y++;
                     }
                     break;
                 case Directions.left:
-                    if (level.IsPositionWalkable(X - 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X - 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
                         X--;
                     }
                     break;
                 case Directions.right:
-                    if (level.IsPositionWalkable(X + 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X + 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
                     {
                         X++;
                     }
@@ -122,6 +128,66 @@ namespace HeistGame
             HasMoved = true;
             SetVisibility(X, Y, level);
             timeSinceLastMove -= timeBetweenMoves;
+        }
+
+        public void StartPeek()
+        {
+            playerCurrentColor = ConsoleColor.DarkCyan;
+            Draw();
+        }
+
+        public void Peek(Directions direction, Level level)
+        {
+            if (peekDirection == direction) { return; }
+
+            peekDirection = direction;
+
+            switch(peekDirection)
+            {
+                case Directions.up:
+                    if (! level.IsTileWalkable(X, Y - 1)) { return; }
+                    peekOffset.X = 0;
+                    peekOffset.Y = -1;
+                    break;
+                case Directions.down:
+                    if (!level.IsTileWalkable(X, Y + 1)) { return; }
+                    peekOffset.X = 0;
+                    peekOffset.Y = 1;
+                    break;
+                case Directions.left:
+                    if (!level.IsTileWalkable(X - 1, Y)) { return; }
+                    peekOffset.X = -1;
+                    peekOffset.Y = 0;
+                    break;
+                case Directions.right:
+                    if (!level.IsTileWalkable(X + 1, Y)) { return; }
+                    peekOffset.X = 1;
+                    peekOffset.Y = 0;
+                    break;
+            }
+
+            playerCurrentColor = ConsoleColor.DarkCyan;
+            CalculateVisibleArea(level);
+            level.Draw();
+            Draw();
+
+            peekOffset.X = 0;
+            peekOffset.Y = 0;
+        }
+
+        public void ResetPeek(Level level)
+        {
+            playerCurrentColor = playerBaseColor;
+            Draw();
+
+            if (peekDirection == Directions.idle) { return; }
+
+            peekDirection = Directions.idle;
+            peekOffset.X = 0;
+            peekOffset.Y = 0;
+            CalculateVisibleArea(level);
+            level.Draw();
+            
         }
 
         public void MakeNoise(Level level, Game game)
@@ -216,13 +282,13 @@ namespace HeistGame
 
             level.ClearPlayerPercetionMaps();
 
-            Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X, Y, sightDistance * 2, sightDistance);
+            Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X + peekOffset.X, Y + peekOffset.Y, sightDistance * 2, sightDistance);
 
             foreach (Vector2 point in SightCircumference)
             {
                 bool hasFoundObstacle = false;
 
-                Vector2[] tiles = Rasterizer.PlotRasterizedLine(X, Y, point.X, point.Y);
+                Vector2[] tiles = Rasterizer.PlotRasterizedLine(X + peekOffset.X, Y + peekOffset.Y, point.X, point.Y);
 
                 foreach (Vector2 tile in tiles)
                 {
@@ -307,5 +373,5 @@ namespace HeistGame
         }
     }
 
-    public enum Directions { up, right, down, left }
+    public enum Directions { up, right, down, left, idle }
 }
