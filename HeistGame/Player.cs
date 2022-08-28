@@ -12,12 +12,15 @@ namespace HeistGame
         private int timeBetweenMoves;
         private int timeSinceLastMove;
         private int sightDistance;
-        private string playerMarker;
         private ConsoleColor playerBaseColor;
         private ConsoleColor playerCurrentColor;
         private Directions peekDirection;
         private Vector2 peekOffset;
 
+        /// <summary>
+        /// The symbols that indicates the player on screen
+        /// </summary>
+        public char PlayerMarker { get; private set; }
         /// <summary>
         /// The player's current X position
         /// </summary>
@@ -47,7 +50,7 @@ namespace HeistGame
         /// <param name="startingY">The initial Y position</param>
         /// <param name="marker">(Optional) The symbol that represents the player on the map</param>
         /// <param name="color">(Optional) The color of the player's symbol</param>
-        public Player(Level level, string marker = "☺", ConsoleColor color = ConsoleColor.Cyan)
+        public Player(Level level, char marker = '☺', ConsoleColor color = ConsoleColor.Cyan)
         { 
 
             X = level.PlayerStartX;
@@ -57,13 +60,13 @@ namespace HeistGame
 
             IsStill = true;
 
-            playerMarker = marker;
+            PlayerMarker = marker;
             playerBaseColor = color;
             playerCurrentColor = color;
 
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
-            sightDistance = 10;
+            sightDistance = 20;
 
             peekDirection = Directions.idle;
             peekOffset = new Vector2(0, 0);
@@ -206,7 +209,7 @@ namespace HeistGame
             ConsoleColor previousColor = ForegroundColor;
             ForegroundColor = playerCurrentColor;
             SetCursorPosition(X, Y);
-            Write(playerMarker);
+            Write(PlayerMarker);
             ForegroundColor = previousColor;
         }
 
@@ -282,7 +285,7 @@ namespace HeistGame
 
             level.ClearPlayerPercetionMaps();
 
-            Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X + peekOffset.X, Y + peekOffset.Y, sightDistance * 2, sightDistance);
+            Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X + peekOffset.X, Y + peekOffset.Y, sightDistance, sightDistance);
 
             foreach (Vector2 point in SightCircumference)
             {
@@ -364,7 +367,7 @@ namespace HeistGame
 
             if (visibilityLevel > 0)
             {
-                Visibility = 3 * visibilityLevel;
+                Visibility = 5 * visibilityLevel;
             }
             else
             {

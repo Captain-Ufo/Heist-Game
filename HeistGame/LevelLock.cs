@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System.Collections.Generic;
 
 namespace HeistGame
 {
@@ -50,7 +54,7 @@ namespace HeistGame
         /// <param name="x">The X coordinate of the piece the player is collecting</param>
         /// <param name="y">The X coordinate of the piece the player is collecting</param>
         /// <returns>returns whether the level is still locked or not (so true if there are other pieces to collect, false if there are none)</returns>
-        public bool CollectKeyPiece(Game game, int x, int y)
+        public bool CollectKeyPiece(Game game, int x, int y, ScreenDisplayer sc)
         {
             game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
 
@@ -61,7 +65,7 @@ namespace HeistGame
             {
                 if (hiddenKeyPieces > 0)
                 {
-                    DisplayObjectiveMessage(game);
+                    DisplayObjectiveMessage(game, sc);
 
                     RevealKeys(game.ActiveCampaign.Levels[game.CurrentRoom]);
                     return true;
@@ -145,7 +149,7 @@ namespace HeistGame
             hiddenKeyGroup++;
         }
 
-        private void DisplayObjectiveMessage(Game game)
+        private void DisplayObjectiveMessage(Game game, ScreenDisplayer sc)
         {
             if (objectiveMessages != null)
             {
@@ -153,7 +157,7 @@ namespace HeistGame
                 {
                     game.MyStopwatch.Stop();
                     ControlsManager.ResetControlState(game);
-                    game.UserInterface.DisplayTextFullScreen(objectiveMessages[hiddenKeyGroup - 2]);
+                    sc.DisplayTextFullScreen(objectiveMessages[hiddenKeyGroup - 2]);
                     game.HasDrawnBackground = false;
                     game.MyStopwatch.Start();
                 }

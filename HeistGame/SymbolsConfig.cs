@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System.Collections.Generic;
 
 namespace HeistGame
 {
@@ -13,7 +17,7 @@ namespace HeistGame
 
         public const char Key = '¶';
 
-        public const char Spawn = 'X';
+        public const char Spawn = '»';
 
         public const char Empty = ' ';
 
@@ -23,8 +27,8 @@ namespace HeistGame
         public const char LeverOn = '/';
         public const char Gate = '#';
 
-        public const char TransparentWallVertical = '┆';
-        public const char TransparentWallHorizontal = '╍';
+        public const char TransparentWallVertical = ':';
+        public const char TransparentWallHorizontal = '·';
 
         public const char EnclosedSpace = '.';
         public const char StrongLight = '*';
@@ -34,7 +38,7 @@ namespace HeistGame
         public const char Light2 = '▒';
         public const char Light3 = '▓';
 
-        public const char Signpost = 'ȹ';
+        public const char Signpost = '?';
 
         public const char VerticalDoorVisual = '|';
         public const char VerticalDoorOpen = '¦';

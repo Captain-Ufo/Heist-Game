@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static System.Console;
@@ -19,11 +23,15 @@ namespace HeistGame
         private readonly LevelLock levelLock;
         private readonly Dictionary<Vector2, Lever> leversDictionary;
         private readonly Vector2[] treasures;
-        private readonly Guard[] levelGuards;
         private readonly Stopwatch stopwatch;
         private readonly Dictionary<Vector2, string[]> messagesDictionary;
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
+        private readonly ScreenDisplayer screenDisplayer;
+
+        public Guard[] LevelGuards { get; private set; }
+
+        public char[,] Grid { get; private set; }
 
         /// <summary>
         /// The name of the floor, extracted from the level file name.
@@ -99,9 +107,11 @@ namespace HeistGame
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
         public Level(string name, string[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
-                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, Unlockable> unlockables,
-                     string[] briefing, string[] outro, Game game)
+                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, 
+                     Unlockable> unlockables, string[] briefing, string[] outro, Game game, ScreenDisplayer displayer)
         {
+            this.screenDisplayer = displayer;
+
             VisibleMap = new HashSet<Vector2>();
             ExploredMap = new HashSet<Vector2>();
             PlayerHearingArea = new HashSet<Vector2>();
@@ -145,7 +155,7 @@ namespace HeistGame
                 messagesDictionary[coordinatesWithOffset] = messageInfo.Value;
             }
 
-            levelGuards = guards;
+            LevelGuards = guards;
 
             this.unlockables = unlockables;
 
@@ -230,9 +240,9 @@ namespace HeistGame
         public void Draw()
         {
             HashSet<Vector2> guardsTiles = new HashSet<Vector2>();
-            for (int i = 0; i < levelGuards.Length; i++)
+            for (int i = 0; i < LevelGuards.Length; i++)
             {
-                Vector2 guardPos = new Vector2(levelGuards[i].X, levelGuards[i].Y);
+                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
                 if (!guardsTiles.Contains(guardPos))
                 {
                     guardsTiles.Add(guardPos);
@@ -332,9 +342,9 @@ namespace HeistGame
         public void DrawVisibleArea()
         {
             HashSet<Vector2> guardsTiles = new HashSet<Vector2>();
-            for (int i = 0; i < levelGuards.Length; i++)
+            for (int i = 0; i < LevelGuards.Length; i++)
             {
-                Vector2 guardPos = new Vector2(levelGuards[i].X, levelGuards[i].Y);
+                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
                 if (!guardsTiles.Contains(guardPos))
                 {
                     guardsTiles.Add(guardPos);
@@ -434,9 +444,9 @@ namespace HeistGame
         public void DrawWholeMap()
         {
             HashSet<Vector2> guardsTiles = new HashSet<Vector2>();
-            for (int i = 0; i < levelGuards.Length; i++)
+            for (int i = 0; i < LevelGuards.Length; i++)
             {
-                Vector2 guardPos = new Vector2(levelGuards[i].X, levelGuards[i].Y);
+                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
                 if (!guardsTiles.Contains(guardPos))
                 {
                     guardsTiles.Add(guardPos);
@@ -986,7 +996,7 @@ namespace HeistGame
         /// <param name="y">The Y coordinate of the collected key</param>
         public void CollectKeyPiece(int x, int y, Game game)
         {
-            IsLocked = levelLock.CollectKeyPiece(game, x, y);
+            IsLocked = levelLock.CollectKeyPiece(game, x, y, screenDisplayer);
 
             if (!IsLocked)
             {
@@ -1009,9 +1019,9 @@ namespace HeistGame
         /// <param name="game">The current game</param>
         public void UpdateGuards(int deltaDimeMS, Game game)
         {
-            if (levelGuards.Length > 0)
+            if (LevelGuards.Length > 0)
             {
-                foreach (Guard guard in levelGuards)
+                foreach (Guard guard in LevelGuards)
                 {
                     guard.UpdateBehavior(this, game, deltaDimeMS);
                 }
@@ -1024,9 +1034,9 @@ namespace HeistGame
         /// <param name="targetPosition">The position the guards will investigate</param>
         public void AlertGuards(Vector2 targetPosition, int range = 0)
         {
-            if (levelGuards.Length > 0)
+            if (LevelGuards.Length > 0)
             {
-                foreach (Guard guard in levelGuards)
+                foreach (Guard guard in LevelGuards)
                 {
                     guard.AlertGuard(targetPosition, range);
                 }
@@ -1038,9 +1048,9 @@ namespace HeistGame
         /// </summary>
         public void DrawGuards(Game game)
         {
-            if (levelGuards.Length > 0)
+            if (LevelGuards.Length > 0)
             {
-                foreach (Guard guard in levelGuards)
+                foreach (Guard guard in LevelGuards)
                 {
                     guard.Draw(game);
                 }
@@ -1051,7 +1061,7 @@ namespace HeistGame
         {
             Vector2 messageCoords = new Vector2(x, y);
             game.MyStopwatch.Stop();
-            game.UserInterface.DisplayTextFullScreen(messagesDictionary[messageCoords]);
+            screenDisplayer.DisplayTextFullScreen(messagesDictionary[messageCoords]);
             ControlsManager.ResetControlState(game);
             game.HasDrawnBackground = false;
             game.MyStopwatch.Start();
@@ -1075,9 +1085,9 @@ namespace HeistGame
         private void RedrawFloors()
         {
             HashSet<Vector2> guardsPositions = new HashSet<Vector2>();
-            for (int i = 0; i < levelGuards.Length; i++)
+            for (int i = 0; i < LevelGuards.Length; i++)
             {
-                Vector2 guardPos = new Vector2(levelGuards[i].X, levelGuards[i].Y);
+                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
                 guardsPositions.Add(guardPos);
             }
 
@@ -1154,7 +1164,7 @@ namespace HeistGame
 
         private void ResetGuards()
         {
-            foreach (Guard guard in levelGuards)
+            foreach (Guard guard in LevelGuards)
             {
                 guard.Reset();
             }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 
 namespace HeistGame
@@ -15,7 +19,7 @@ namespace HeistGame
         /// <param name="mission">The config file for the mission</param>
         /// <param name="difficulty">The difficulty level of the run</param>
         /// <returns></returns>
-        public static LevelInfo ParseConfigToLevelInfo(MissionConfig mission, Difficulty difficulty)
+        public static LevelInfo ParseConfigToLevelInfo(MissionConfig mission, Difficulty difficulty, ScreenDisplayer sc)
         {
             //first, creating a whole bunch of variables that will hold the informations for the creation of the level
 
@@ -91,21 +95,26 @@ namespace HeistGame
 
             List<Guard> levelGuards = new List<Guard>();
 
-            Guard guard1 = new Guard();
-            Guard guard2 = new Guard();
-            Guard guard3 = new Guard();
-            Guard guard4 = new Guard();
-            Guard guard5 = new Guard();
-            Guard guard6 = new Guard();
-            Guard guard7 = new Guard();
-            Guard guard8 = new Guard();
-            Guard guard9 = new Guard();
-            Guard guard10 = new Guard();
-            Guard guard11 = new Guard();
-            Guard guard12 = new Guard();
-            Guard guard13 = new Guard();
-            Guard guard14 = new Guard();
-            Guard guard15 = new Guard();
+            Guard guard1 = new Guard(sc);
+            Guard guard2 = new Guard(sc);
+            Guard guard3 = new Guard(sc);
+            Guard guard4 = new Guard(sc);
+            Guard guard5 = new Guard(sc);
+            Guard guard6 = new Guard(sc);
+            Guard guard7 = new Guard(sc);
+            Guard guard8 = new Guard(sc);
+            Guard guard9 = new Guard(sc);
+            Guard guard10 = new Guard(sc);
+            Guard guard11 = new Guard(sc);
+            Guard guard12 = new Guard(sc);
+            Guard guard13 = new Guard(sc);
+            Guard guard14 = new Guard(sc);
+            Guard guard15 = new Guard(sc);
+            Guard guard16 = new Guard(sc);
+            Guard guard17 = new Guard(sc);
+            Guard guard18 = new Guard(sc);
+            Guard guard19 = new Guard(sc);
+            Guard guard20 = new Guard(sc);
 
             Dictionary<char, Guard> guardsLUT = new Dictionary<char, Guard>
             {
@@ -114,16 +123,21 @@ namespace HeistGame
                 ['D'] = guard3,
                 ['F'] = guard4,
                 ['G'] = guard5,
-                ['J'] = guard6,
-                ['K'] = guard7,
-                ['L'] = guard8,
-                ['M'] = guard9,
-                ['N'] = guard10,
-                ['P'] = guard11,
-                ['Q'] = guard12,
-                ['R'] = guard13,
-                ['S'] = guard14,
-                ['T'] = guard15
+                ['H'] = guard6,
+                ['J'] = guard7,
+                ['K'] = guard8,
+                ['L'] = guard9,
+                ['M'] = guard10,
+                ['N'] = guard11,
+                ['P'] = guard12,
+                ['Q'] = guard13,
+                ['R'] = guard14,
+                ['S'] = guard15,
+                ['T'] = guard16,
+                ['V'] = guard17,
+                ['W'] = guard18,
+                ['X'] = guard19,
+                ['Z'] = guard20,
             };
 
             List<Vector2> guard1Patrol = new List<Vector2>();
@@ -141,6 +155,11 @@ namespace HeistGame
             List<Vector2> guard13Patrol = new List<Vector2>();
             List<Vector2> guard14Patrol = new List<Vector2>();
             List<Vector2> guard15Patrol = new List<Vector2>();
+            List<Vector2> guard16Patrol = new List<Vector2>();
+            List<Vector2> guard17Patrol = new List<Vector2>();
+            List<Vector2> guard18Patrol = new List<Vector2>();
+            List<Vector2> guard19Patrol = new List<Vector2>();
+            List<Vector2> guard20Patrol = new List<Vector2>();
 
             Dictionary<char, List<Vector2>> guardPatrolsLUT = new Dictionary<char, List<Vector2>>
             {
@@ -149,16 +168,21 @@ namespace HeistGame
                 ['d'] = guard3Patrol,
                 ['f'] = guard4Patrol,
                 ['g'] = guard5Patrol,
-                ['j'] = guard6Patrol,
-                ['k'] = guard7Patrol,
-                ['l'] = guard8Patrol,
-                ['m'] = guard9Patrol,
-                ['n'] = guard10Patrol,
-                ['p'] = guard11Patrol,
-                ['q'] = guard12Patrol,
-                ['r'] = guard13Patrol,
-                ['s'] = guard14Patrol,
-                ['t'] = guard15Patrol,
+                ['h'] = guard6Patrol,
+                ['j'] = guard7Patrol,
+                ['k'] = guard8Patrol,
+                ['l'] = guard9Patrol,
+                ['m'] = guard10Patrol,
+                ['n'] = guard11Patrol,
+                ['p'] = guard12Patrol,
+                ['q'] = guard13Patrol,
+                ['r'] = guard14Patrol,
+                ['s'] = guard15Patrol,
+                ['t'] = guard16Patrol,
+                ['v'] = guard17Patrol,
+                ['w'] = guard18Patrol,
+                ['x'] = guard19Patrol,
+                ['z'] = guard20Patrol
             };
 
             Dictionary<char, int> doorsLocksLUT = new Dictionary<char, int>
@@ -334,6 +358,7 @@ namespace HeistGame
                         case 'D':
                         case 'F':
                         case 'G':
+                        case 'H':
                         case 'J':
                         case 'K':
                         case 'L':
@@ -344,6 +369,10 @@ namespace HeistGame
                         case 'R':
                         case 'S':
                         case 'T':
+                        case 'V':
+                        case 'W':
+                        case 'X':
+                        case 'Z':
                             guardsLUT[currentChar].AssignOriginPoint(x, y);
                             levelGuards.Add(guardsLUT[currentChar]);
                             currentChar = SymbolsConfig.Empty;
@@ -355,6 +384,7 @@ namespace HeistGame
                         case 'd':
                         case 'f':
                         case 'g':
+                        case 'h':
                         case 'j':
                         case 'k':
                         case 'l':
@@ -365,6 +395,10 @@ namespace HeistGame
                         case 'r':
                         case 's':
                         case 't':
+                        case 'v':
+                        case 'w':
+                        case 'x':
+                        case 'z':
                             patrolPoint = new Vector2(x, y);
                             guardPatrolsLUT[currentChar].Add(patrolPoint);
                             currentChar = SymbolsConfig.Empty;
@@ -389,13 +423,13 @@ namespace HeistGame
                         //Chests
                         case SymbolsConfig.ChestEmpty:
                             Vector2 emptyChestTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(emptyChestTile, new Chest(2, 0, x, y));
+                            unlockablesDictionary.Add(emptyChestTile, new Chest(2, 0, x, y, sc));
                             currentChar = SymbolsConfig.ChestClosed;
                             floorTiles.Add(emptyChestTile); // Necessary for lighmaps
                             break;
                         case SymbolsConfig.ChestWithTreasure:
                             Vector2 treasureChestTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(treasureChestTile, new Chest(2, 200, x, y));
+                            unlockablesDictionary.Add(treasureChestTile, new Chest(2, 200, x, y, sc));
                             totalGold += 200;
                             currentChar = SymbolsConfig.ChestClosed;
                             floorTiles.Add(treasureChestTile); // Necessary for lighmaps
@@ -404,7 +438,7 @@ namespace HeistGame
                             Vector2 randomTreasureChestTile = new Vector2(x, y);
                             Random rand = new Random();
                             int treasureValue = rand.Next(0, 201);
-                            unlockablesDictionary.Add(randomTreasureChestTile, new Chest(2, treasureValue, x, y));
+                            unlockablesDictionary.Add(randomTreasureChestTile, new Chest(2, treasureValue, x, y, sc));
                             totalGold += treasureValue;
                             currentChar = SymbolsConfig.ChestClosed;
                             floorTiles.Add(randomTreasureChestTile); // Necessary for lighmaps
@@ -419,7 +453,7 @@ namespace HeistGame
                         case SymbolsConfig.VerticalDoorLock2:
                         case SymbolsConfig.VerticalDoorLock3:
                             Vector2 openHDoorTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(openHDoorTile, new Door(doorsLocksLUT[currentChar]));
+                            unlockablesDictionary.Add(openHDoorTile, new Door(doorsLocksLUT[currentChar], sc));
                             currentChar = doorsVisualsLUT[currentChar];
                             break;
                     }
@@ -449,6 +483,11 @@ namespace HeistGame
             guard13.AssignPatrol(ArrangePatrolPoints(guard13, guard13Patrol).ToArray());
             guard14.AssignPatrol(ArrangePatrolPoints(guard14, guard14Patrol).ToArray());
             guard15.AssignPatrol(ArrangePatrolPoints(guard15, guard15Patrol).ToArray());
+            guard16.AssignPatrol(ArrangePatrolPoints(guard16, guard16Patrol).ToArray());
+            guard17.AssignPatrol(ArrangePatrolPoints(guard17, guard17Patrol).ToArray());
+            guard18.AssignPatrol(ArrangePatrolPoints(guard18, guard18Patrol).ToArray());
+            guard19.AssignPatrol(ArrangePatrolPoints(guard19, guard19Patrol).ToArray());
+            guard20.AssignPatrol(ArrangePatrolPoints(guard20, guard20Patrol).ToArray());
 
             //Create the LevelInfo with all the parameters collected by parsing the map
             LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles, strongLights.ToArray(),

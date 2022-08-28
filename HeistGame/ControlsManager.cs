@@ -102,27 +102,6 @@ namespace HeistGame
                         game.CancelUnlocking();
                         break;
 
-                    case ConsoleKey.T:
-                        game.PlayerCharacter.Peek(Directions.up, level);
-                        game.Selector.Deactivate();
-                        State = ControlState.Peek;
-                        break;
-                    case ConsoleKey.G:
-                        game.PlayerCharacter.Peek(Directions.down, level);
-                        game.Selector.Deactivate();
-                        State = ControlState.Peek;
-                        break;
-                    case ConsoleKey.F:
-                        game.PlayerCharacter.Peek(Directions.left, level);
-                        game.Selector.Deactivate();
-                        State = ControlState.Peek;
-                        break;
-                    case ConsoleKey.H:
-                        game.PlayerCharacter.Peek(Directions.right, level);
-                        game.Selector.Deactivate();
-                        State = ControlState.Peek;
-                        break;
-
                     case ConsoleKey.Spacebar:
                     case ConsoleKey.Add:
                         if (State != ControlState.Interact)
@@ -191,7 +170,6 @@ namespace HeistGame
                             game.Selector.Deactivate();
                             //NO INTERACTION! This just cancels it
                             game.CancelUnlocking();
-                            game.UserInterface.DeleteLable();
                         }
                         break;
                     default:

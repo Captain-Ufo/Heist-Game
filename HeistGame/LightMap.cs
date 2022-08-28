@@ -109,7 +109,7 @@ namespace HeistGame
             for (int i = 3; i > 0 ; i--)
             {
                 int thresholdRadius = threshold * i;
-                Vector2[] lightCircumference = Rasterizer.GetCellsAlongEllipse(Position.X, Position.Y, thresholdRadius * 2, thresholdRadius);
+                Vector2[] lightCircumference = Rasterizer.GetCellsAlongEllipse(Position.X, Position.Y, thresholdRadius, thresholdRadius);
 
                 foreach (Vector2 point in lightCircumference)
                 {

@@ -22,8 +22,8 @@ namespace HeistGame
         private bool isReturning;
         private int searchPivotTimer;
         private int searchPivotDuration = 30;
-        private int walkingSpeed = 160;
-        private int searchingSpeed = 200;
+        private int walkingSpeed = 200;
+        private int searchingSpeed = 230;
         private int runningSpeed = 120;
         private int hearingRange = 9;
         private int timeBetweenMoves;
@@ -40,7 +40,7 @@ namespace HeistGame
         /// <summary>
         /// Instantiates a Guard Object and sets its parameters
         /// </summary>
-        public Guard()
+        public Guard(ScreenDisplayer sc) : base(sc)
         {
             rng = new Random();
             nextPatrolPoint = 0;
@@ -58,7 +58,7 @@ namespace HeistGame
             minTimeBetweenPivots = 0;
             timeBetweenMoves = walkingSpeed;
             direction = (Directions)rng.Next(0, 4);
-            npcMarker = npcMarkersTable[(int)direction];
+            npcMarker = npcMarkersLUT[(int)direction];
             npcSymbolColor = ConsoleColor.Black;
             npcTileColor = ConsoleColor.DarkRed;
             ChoosePivotDirection();
@@ -205,7 +205,7 @@ namespace HeistGame
 
             if (range == 0) { range = hearingRange; }
 
-            int horizontalHearingRange = range * 2;
+            int horizontalHearingRange = range;
             if (expectedTarget.X >= X - horizontalHearingRange && expectedTarget.X <= X + horizontalHearingRange &&
                 expectedTarget.Y >= Y - range && expectedTarget.Y <= Y + range)
             {
@@ -256,7 +256,7 @@ namespace HeistGame
 
             int verticalAggroDistance = game.PlayerCharacter.Visibility;
             if (verticalAggroDistance <= 0) { verticalAggroDistance = 1; }
-            int horizontalAggroDistance = verticalAggroDistance * 2;
+            int horizontalAggroDistance = verticalAggroDistance;
 
             switch (direction)
             {
@@ -469,11 +469,7 @@ namespace HeistGame
 
         private Vector2 Patrol()
         {
-            if (X != patrolPath[nextPatrolPoint].X || Y != patrolPath[nextPatrolPoint].Y)
-            {
-                return new Vector2(patrolPath[nextPatrolPoint].X, patrolPath[nextPatrolPoint].Y);
-            }
-            else
+            if (X == patrolPath[nextPatrolPoint].X && Y == patrolPath[nextPatrolPoint].Y)
             {
                 if (nextPatrolPoint < patrolPath.Length - 1)
                 {
@@ -485,7 +481,7 @@ namespace HeistGame
                 }
             }
 
-            return new Vector2(X, Y);
+            return new Vector2(patrolPath[nextPatrolPoint].X, patrolPath[nextPatrolPoint].Y);
         }
     }
 }

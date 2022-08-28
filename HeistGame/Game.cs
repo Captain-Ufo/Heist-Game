@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,8 +30,8 @@ namespace HeistGame
         private Menu missionsMenu;
         private SaveSystem saveSystem;
         private Random rng;
+        private ScreenDisplayer screenDisplayer;
 
-        public UI UserInterface { get; private set; }
         public bool HasDrawnBackground { get; set; }
         public TileSelector Selector { get; private set; }
         public Campaign ActiveCampaign { get; private set; }
@@ -40,12 +44,16 @@ namespace HeistGame
         public ChiptunePlayer TunePlayer { get; private set; }
         public Unlockable ActiveUnlockable { get; set; }
 
+        public Game (ScreenDisplayer displayer)
+        {
+            this.screenDisplayer = displayer;
+        }
+
         /// <summary>
         /// Initializes all the required elements and runs the game
         /// </summary>
         public void Start()
         {
-            UserInterface = new UI(this);
             saveSystem = new SaveSystem();
             TunePlayer = new ChiptunePlayer();
             MyStopwatch = new Stopwatch();
@@ -121,7 +129,7 @@ namespace HeistGame
                     RunMainMenu();
                 }
 
-                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel, screenDisplayer);
 
                 if (levelInfo.PlayerStartX < 0)
                 {
@@ -139,7 +147,7 @@ namespace HeistGame
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                      levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                     missionConfig.Briefing, missionConfig.Outro, this));
+                                     missionConfig.Briefing, missionConfig.Outro, this, screenDisplayer));
 
                 totalGold += levelInfo.TotalGold;
             }
@@ -173,7 +181,7 @@ namespace HeistGame
                 RunMainMenu();
             }
 
-            LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
+            LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel, screenDisplayer);
 
             if (levelInfo.PlayerStartX < 0)
             {
@@ -191,7 +199,7 @@ namespace HeistGame
 
             levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                  levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                 missionConfig.Briefing, missionConfig.Outro, this));
+                                 missionConfig.Briefing, missionConfig.Outro, this, screenDisplayer));
 
             totalGold += levelInfo.TotalGold;
 
@@ -209,13 +217,13 @@ namespace HeistGame
 
             for (int i = 0; i < tutorial.TutorialMissions.Length; i++)
             {
-                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(tutorial.TutorialMissions[i], DifficultyLevel);
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(tutorial.TutorialMissions[i], DifficultyLevel, screenDisplayer);
 
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
                                      levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, 
-                                     levelInfo.UnlockablesDictionary, null, null, this));
+                                     levelInfo.UnlockablesDictionary, null, null, this, screenDisplayer));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
@@ -231,7 +239,7 @@ namespace HeistGame
         private void PlayGampaign(string missionDirectory, int startRoom = 0, int startBooty = 0)
         {
             Clear();
-            UserInterface.DisplayLoading();
+            screenDisplayer.DisplayLoading();
             InstantiateCampaignEntities(missionDirectory, startBooty, startRoom);
             RunGameLoop(startRoom);
         }
@@ -241,7 +249,7 @@ namespace HeistGame
         private void PlayMission(string mission)
         {
             Clear();
-            UserInterface.DisplayLoading();
+            screenDisplayer.DisplayLoading();
             InstantiateMissionEntities(mission);
             RunGameLoop(0);
         }
@@ -253,7 +261,7 @@ namespace HeistGame
             Tutorial tutorial = new Tutorial();
 
             Clear();
-            UserInterface.DisplayLoading();
+            screenDisplayer.DisplayLoading();
             DifficultyLevel = Difficulty.VeryEasy;
             InstantiateTutorialEntities(tutorial);
             RunGameLoop(0, tutorial);
@@ -280,7 +288,7 @@ namespace HeistGame
                 if (!hasDisplayedBriefing)
                 {
                     MyStopwatch.Stop();
-                    UserInterface.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Briefing);
+                    screenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Briefing);
                     hasDisplayedBriefing = true;
                 }
 
@@ -302,7 +310,6 @@ namespace HeistGame
                 }
 
                 ActiveCampaign.Levels[CurrentRoom].UpdateGuards(deltaTimeMS, this);
-
 
                 DrawFrame(CurrentRoom);
 
@@ -337,7 +344,7 @@ namespace HeistGame
                 else if (elementAtPlayerPosition == SymbolsConfig.Exit.ToString() && !ActiveCampaign.Levels[CurrentRoom].IsLocked)
                 {
                     MyStopwatch.Stop();
-                    UserInterface.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Outro);
+                    screenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Outro);
 
                     if (ActiveCampaign.Levels.Length > CurrentRoom + 1)
                     {
@@ -430,7 +437,7 @@ namespace HeistGame
                 HasDrawnBackground = true;
             }
             ActiveCampaign.Levels[currentRoom].DrawGuards(this);
-            UserInterface.DrawUI();
+            screenDisplayer.DisplayUI(this);
             if (Selector.IsActive) { Selector.Draw(); }
             CursorVisible = false;
         }
@@ -468,7 +475,7 @@ namespace HeistGame
                 ActiveUnlockable.CancelUnlocking();
                 ActiveUnlockable = null;
             }
-            UserInterface.DeleteLable();
+            screenDisplayer.DeleteLable(this);
         }
 
 
@@ -476,7 +483,7 @@ namespace HeistGame
         private bool AttemptBribe(int amountBribedBefore)
         {
             ActiveUnlockable = null;
-            UserInterface.DeleteLable();
+            screenDisplayer.DeleteLable(this);
             Clear();
             SetCursorPosition(0, 3);
 
@@ -775,7 +782,7 @@ namespace HeistGame
             Write("Press any key to continue...");
             ReadKey(true);
             TunePlayer.StopTune();
-            UserInterface.DisplayAboutScreen();
+            screenDisplayer.DisplayAboutScreen(this);
         }
 
 
@@ -839,7 +846,7 @@ namespace HeistGame
             }
             ResetGame(true);
             TunePlayer.StopTune();
-            UserInterface.DisplayAboutScreen();
+            screenDisplayer.DisplayAboutScreen(this);
         }
 
 
@@ -1016,7 +1023,7 @@ namespace HeistGame
                     PlayTutorial();
                     break;
                 case 4:
-                    UserInterface.DisplayAboutScreen();
+                    screenDisplayer.DisplayAboutScreen(this);
                     break;
                 case 5:
                     if (!MainMenuQuitGame())
@@ -1049,7 +1056,7 @@ namespace HeistGame
                     PlayTutorial();
                     break;
                 case 3:
-                    UserInterface.DisplayAboutScreen();
+                    screenDisplayer.DisplayAboutScreen(this);
                     break;
                 case 4:
                     if (!MainMenuQuitGame())

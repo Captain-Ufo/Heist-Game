@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System.Collections.Generic;
 using static System.Console;
 
 namespace HeistGame
@@ -6,6 +10,7 @@ namespace HeistGame
     internal class UI_Lable
     {
         public HashSet<Vector2> LableTiles { get; private set; }
+        public char[,] Grid { get; private set; }
         public bool IsActive { get; private set; }
 
         public UI_Lable()
@@ -13,6 +18,7 @@ namespace HeistGame
             LableTiles = new HashSet<Vector2>();
         }
 
+        //TODO: modify to create the GRID instead.
         public void DisplayLable(string[] message, bool firstDisplay)
         {
             int messageLength = EvaluateMessageLength(message) + 2;
@@ -20,8 +26,8 @@ namespace HeistGame
             int x1 = WindowWidth / 2;
             int x = x1 - xOffset;
 
-            int yOffset = message.Length / 2;
-            int y1 = WindowHeight / 2;
+            int yOffset = message.Length;
+            int y1 = WindowHeight / 2 - 2;
             int y = y1 - yOffset;
 
             string firstLine = string.Empty;
@@ -36,13 +42,12 @@ namespace HeistGame
             IsActive = true;
         }
 
-        public void Cancel (Game game)
+        public void Cancel (Level level)
         {
             if (!IsActive) { return; }
 
             foreach (Vector2 tile in LableTiles)
             {
-                Level level = game.ActiveCampaign.Levels[game.CurrentRoom];
                 level.DrawTile(tile.X, tile.Y, level.GetElementAt(tile.X, tile.Y, true));
             }
             IsActive = false;

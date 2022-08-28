@@ -44,3 +44,4 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\refint\HeistGam
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.pdb
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.genruntimeconfig.cache
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\ref\HeistGame.dll
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Config\Config.ini

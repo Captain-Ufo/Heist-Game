@@ -9,7 +9,7 @@ namespace HeistGame
     {
         protected ConsoleColor npcSymbolColor = ConsoleColor.White;
         protected ConsoleColor npcTileColor = ConsoleColor.Black;
-        protected string[] npcMarkersTable = new string[] { "^", ">", "V", "<" };
+        protected string[] npcMarkersLUT = new string[] { "^", ">", "V", "<" };
         protected string npcMarker;
 
         protected Directions direction = Directions.down;
@@ -20,6 +20,12 @@ namespace HeistGame
         protected int durationTimer;
 
         protected Random rng;
+        protected ScreenDisplayer screenDisplayer;
+
+        public NPC(ScreenDisplayer sc)
+        {
+            screenDisplayer = sc;
+        }
 
         /// <summary>
         /// The X coordinate of the NPC
@@ -50,7 +56,7 @@ namespace HeistGame
         {
             Vector2 tile = new Vector2(X, Y);
 
-            if (game.UserInterface.IsTileUnderLable(tile)) { return; }
+            if (screenDisplayer.IsTileUnderLable(tile)) { return; }
 
             if (!game.ActiveCampaign.Levels[game.CurrentRoom].CanPlayerHearTile(tile)) { return; }
 
@@ -212,7 +218,7 @@ namespace HeistGame
 
         protected void Move(Game game, Vector2 tileToMoveTo)
         {
-            if (!game.UserInterface.IsTileUnderLable(new Vector2(X, Y)))
+            if (!screenDisplayer.IsTileUnderLable(new Vector2(X, Y)))
             {
                 this.Clear(game.ActiveCampaign.Levels[game.CurrentRoom]);
             }
@@ -256,7 +262,7 @@ namespace HeistGame
                 }
             }
 
-            npcMarker = npcMarkersTable[(int)direction];
+            npcMarker = npcMarkersLUT[(int)direction];
 
             if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == SymbolsConfig.LeverOn.ToString())
             {
@@ -288,7 +294,7 @@ namespace HeistGame
                     direction += pivotDirection;
                 }
 
-                npcMarker = npcMarkersTable[(int)direction];
+                npcMarker = npcMarkersLUT[(int)direction];
 
                 minTimeBetweenPivots = minTime;
             }

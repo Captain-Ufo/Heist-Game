@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Text.Json;
 using static System.Console;
 
 namespace HeistGame
@@ -38,6 +39,16 @@ namespace HeistGame
         private static extern bool GetWindowRect(HandleRef hWnd, out Rect lpRect);
 
         /// <summary>
+        /// Automatically sets the console reading the config.ini file
+        /// </summary>
+        public static void SetConsole()
+        {
+            SettingsData settings = GetSettingsFromConfig();
+
+            ConfigureConsole(settings.Name, settings.ConsoleWidth, settings.ConsoleHeight, true, false, false, true, true, true);
+        }
+
+        /// <summary>
         /// Sets the console to the defined parameters.
         /// </summary>
         /// <param name="title">The title that appears in the console window bar.</param>
@@ -51,7 +62,7 @@ namespace HeistGame
         /// <param name="blockResize">Set to true to prevent manual resizing of the window via dragging the edges.</param>
         /// <param name="blockScrolling">Set to true to prevent manual scrolling. Note that the window will automatically scroll anyway if the displayed text
         /// is larger than the window size.</param>
-        public static void SetConsole(string title, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
+        public static void ConfigureConsole(string title, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
         {
             IntPtr handle = GetConsoleWindow();
             IntPtr sysMenu = GetSystemMenu(handle, false);
@@ -96,7 +107,7 @@ namespace HeistGame
 
         private static void CenterWindow()
         {
-            IntPtr window = GetConsoleWindow();//Process.GetCurrentProcess().MainWindowHandle;
+            IntPtr window = GetConsoleWindow();
 
             if (window == IntPtr.Zero)
             {
@@ -121,6 +132,54 @@ namespace HeistGame
             ReadKey(true);
         }
 
+        static SettingsData GetSettingsFromConfig()
+        {
+            string configFilePath = Directory.GetCurrentDirectory() + "/Config";
+            string configFileName = configFilePath + "/Config.ini";
+
+            if (!Directory.Exists(configFilePath))
+            {
+                return CreateDefaultConfig(configFilePath);
+            }
+            else if (!File.Exists(configFileName))
+            {
+                return CreateDefaultConfig(configFilePath);
+            }
+            else
+            {
+                string settingsFile = File.ReadAllText(configFileName);
+                SettingsData settings = JsonSerializer.Deserialize<SettingsData>(settingsFile);
+                return settings;
+            }
+        }
+
+        static SettingsData CreateDefaultConfig(string path)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("ERROR! ");
+            Console.ResetColor();
+            Console.WriteLine($"Could not find Config.ini. Default config file will be created in {path}");
+            Console.WriteLine("");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+
+            SettingsData data = new SettingsData();
+            data.Name = "Heist!";
+            data.ConsoleWidth = 200;
+            data.ConsoleHeight = 60;
+
+            string configData = JsonSerializer.Serialize(data);
+            string dataFileName = "/Config.ini";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            string filePath = path + dataFileName;
+            File.WriteAllText(filePath, configData);
+
+            return data;
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct Rect
         {
@@ -140,6 +199,16 @@ namespace HeistGame
                 Width = width;
                 Height = height;
             }
+        }
+
+        private class SettingsData
+        {
+            public string Name { get; set; }
+
+            public int ConsoleWidth { get; set; }
+            public int ConsoleHeight { get; set; }
+
+            public SettingsData() { }
         }
     }
 }

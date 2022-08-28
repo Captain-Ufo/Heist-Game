@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "b4lt5kRHD8Kf6M9NJZFxvOHmQqvyXP2uggZSSWITBawOciIbz9uiOPoAf+gsfy+6r9xaiNcICDmxtN2yiuaL7g==",
+  "dgSpecHash": "GRyFX+2VMbCy1eCZ+YDrrHm6UZw7WhbAW5T/onXfT6ACmC1b11E5f4TK28lfUjk1sRmQ3LjrDgimBTmo529hfg==",
   "success": true,
-  "projectFilePath": "D:\\Giochi\\Progetti\\Plain C#\\HeistGame .net5\\HeistGame\\HeistGame.csproj",
+  "projectFilePath": "D:\\Giochi\\Progetti\\Plain C#\\HeistGame\\HeistGame\\HeistGame.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Utente\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\6.0.6\\microsoft.netcore.app.runtime.win-x86.6.0.6.nupkg.sha512",
-    "C:\\Users\\Utente\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\6.0.6\\microsoft.windowsdesktop.app.runtime.win-x86.6.0.6.nupkg.sha512",
-    "C:\\Users\\Utente\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\6.0.6\\microsoft.aspnetcore.app.runtime.win-x86.6.0.6.nupkg.sha512"
+    "C:\\Users\\Utente\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\6.0.7\\microsoft.netcore.app.runtime.win-x86.6.0.7.nupkg.sha512",
+    "C:\\Users\\Utente\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\6.0.7\\microsoft.windowsdesktop.app.runtime.win-x86.6.0.7.nupkg.sha512",
+    "C:\\Users\\Utente\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\6.0.7\\microsoft.aspnetcore.app.runtime.win-x86.6.0.7.nupkg.sha512"
   ],
   "logs": []
 }

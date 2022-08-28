@@ -1,10 +1,14 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 
 namespace HeistGame
 {
     internal class Door : Unlockable
     {
-        public Door(int lockLevel)
+        public Door(int lockLevel, ScreenDisplayer sc) : base(sc)
         {
             LockProp = new Lock(lockLevel);
         }
@@ -13,13 +17,13 @@ namespace HeistGame
         {
             if (!IsLocked())
             {
-                game.UserInterface.DisplayMessageOnLable(new string[] { "The door is already open." }, true);
+                screenDisplayer.DisplayMessageOnLable(new string[] { "The door is already open." }, true);
                 game.ActiveUnlockable = null;
                 return;
             }
 
             game.ActiveUnlockable = this;
-            game.UserInterface.DisplayMessageOnLable(base.GetUnlockProgress(), true);
+            screenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress(), true);
         }
 
         public override void Unlock(int deltaTimeMS, Game game)
@@ -27,11 +31,11 @@ namespace HeistGame
             if (LockProp.IsLocked())
             {
                 LockProp.Unlock(deltaTimeMS, game);
-                game.UserInterface.DisplayMessageOnLable(base.GetUnlockProgress(), false);
+                screenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress(), false);
                 return;
             }
-            game.UserInterface.DeleteLable();
-            game.UserInterface.DisplayMessageOnLable(new string[] { "Unlocked." }, true);
+            screenDisplayer.DeleteLable(game);
+            screenDisplayer.DisplayMessageOnLable(new string[] { "Unlocked." }, true);
             game.ActiveUnlockable = null;
         }
 
