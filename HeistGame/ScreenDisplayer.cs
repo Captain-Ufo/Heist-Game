@@ -17,19 +17,9 @@ namespace HeistGame
         private static UI ui;
         private static UI_Lable lable;
         private static SafeFileHandle safeFileHandle;
-        private static int rightBorder;
-        private static int bottomBorder;
         private static int leftOffset;
-        private static int rightOffset;
         private static int topOffset;
-        private static int bottomOffset;
 
-        //TODO: This is temporary, before the new display method is up and running. Remember to remove and make the calss static!
-        public ScreenDisplayer()
-        {
-            ui = new UI();
-            lable = new UI_Lable();
-        }
 
         //All these elements come from stackoverflow.com/questions/2754518/how-can-i-write-fast-colored-output-to-console.
         //Yeah, I'm code momnkeying this and I have no regrets for now :P
@@ -91,29 +81,11 @@ namespace HeistGame
         {
             ui = new UI();
             lable = new UI_Lable();
-            rightBorder = WindowWidth - 1;
-            bottomBorder = WindowHeight - 1;
             leftOffset = WindowWidth / 2;
-            rightOffset = WindowWidth - leftOffset;
             topOffset = WindowHeight / 2;
-            bottomOffset = WindowHeight - topOffset;
 
             //This bit is required for the fast screen writing from StackOverflow.
             safeFileHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
-        }
-
-        // Generate a full buffer of whitespaces
-        public static char[,] EmptyImage()
-        {
-            char[,] screen = new char[WindowHeight, WindowWidth];
-            for (int y = 0; y < WindowHeight; y++)
-            {
-                for (int x = 0; x < WindowWidth; x++)
-                {
-                    screen[y, x] = ' ';
-                }
-            }
-            return screen;
         }
 
         /// <summary>
@@ -133,6 +105,15 @@ namespace HeistGame
                     if (x == leftOffset && y == topOffset)
                     {
                         screen[y, x] = game.PlayerCharacter.PlayerMarker;
+                        continue;
+                    }
+
+                    //Add UI
+                    int uiPos = WindowHeight - 5;
+                    if (y >= uiPos)
+                    {
+                        screen[y, x] = ui.Grid[y - uiPos, x];
+                        //TODO: requiers to actually update the UI class to make this do anything.
                         continue;
                     }
 
@@ -188,8 +169,6 @@ namespace HeistGame
                     screen[y, x] = level.ExploredMap[tile];
                 }
             }
-            
-            //Add UI
 
             return screen;
         }

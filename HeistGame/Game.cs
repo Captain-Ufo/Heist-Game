@@ -30,7 +30,6 @@ namespace HeistGame
         private Menu missionsMenu;
         private SaveSystem saveSystem;
         private Random rng;
-        private ScreenDisplayer screenDisplayer;
 
         public bool HasDrawnBackground { get; set; }
         public TileSelector Selector { get; private set; }
@@ -44,9 +43,9 @@ namespace HeistGame
         public ChiptunePlayer TunePlayer { get; private set; }
         public Unlockable ActiveUnlockable { get; set; }
 
-        public Game (ScreenDisplayer displayer)
+        public Game ()
         {
-            this.screenDisplayer = displayer;
+
         }
 
         /// <summary>
@@ -129,7 +128,7 @@ namespace HeistGame
                     RunMainMenu();
                 }
 
-                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel, screenDisplayer);
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
 
                 if (levelInfo.PlayerStartX < 0)
                 {
@@ -147,7 +146,7 @@ namespace HeistGame
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                      levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                     missionConfig.Briefing, missionConfig.Outro, this, screenDisplayer));
+                                     missionConfig.Briefing, missionConfig.Outro, this));
 
                 totalGold += levelInfo.TotalGold;
             }
@@ -181,7 +180,7 @@ namespace HeistGame
                 RunMainMenu();
             }
 
-            LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel, screenDisplayer);
+            LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
 
             if (levelInfo.PlayerStartX < 0)
             {
@@ -199,7 +198,7 @@ namespace HeistGame
 
             levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                  levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                 missionConfig.Briefing, missionConfig.Outro, this, screenDisplayer));
+                                 missionConfig.Briefing, missionConfig.Outro, this));
 
             totalGold += levelInfo.TotalGold;
 
@@ -217,13 +216,13 @@ namespace HeistGame
 
             for (int i = 0; i < tutorial.TutorialMissions.Length; i++)
             {
-                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(tutorial.TutorialMissions[i], DifficultyLevel, screenDisplayer);
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(tutorial.TutorialMissions[i], DifficultyLevel);
 
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
                                      levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, 
-                                     levelInfo.UnlockablesDictionary, null, null, this, screenDisplayer));
+                                     levelInfo.UnlockablesDictionary, null, null, this));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());

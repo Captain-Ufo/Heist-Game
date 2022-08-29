@@ -14,9 +14,7 @@ namespace HeistGame
         {
             ConsoleHelper.SetConsole();
 
-            ScreenDisplayer displayer = new ScreenDisplayer();
-
-            Game game = new Game(displayer);
+            Game game = new Game();
             game.Start();
         }
     }

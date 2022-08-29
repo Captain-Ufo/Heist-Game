@@ -40,7 +40,7 @@ namespace HeistGame
         /// <summary>
         /// Instantiates a Guard Object and sets its parameters
         /// </summary>
-        public Guard(ScreenDisplayer sc) : base(sc)
+        public Guard()
         {
             rng = new Random();
             nextPatrolPoint = 0;

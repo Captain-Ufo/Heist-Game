@@ -8,7 +8,7 @@ namespace HeistGame
 {
     internal class Door : Unlockable
     {
-        public Door(int lockLevel, ScreenDisplayer sc) : base(sc)
+        public Door(int lockLevel)
         {
             LockProp = new Lock(lockLevel);
         }

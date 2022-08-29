@@ -10,6 +10,13 @@ namespace HeistGame
 {
     internal class UI
     {
+        public char[,] Grid { get; private set; }
+
+        public UI()
+        {
+            Grid = new char[4, WindowWidth];
+        }
+
         public void DrawUI(Game game)
         {
             int uiPosition = WindowHeight - 4;

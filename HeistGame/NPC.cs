@@ -20,12 +20,6 @@ namespace HeistGame
         protected int durationTimer;
 
         protected Random rng;
-        protected ScreenDisplayer screenDisplayer;
-
-        public NPC(ScreenDisplayer sc)
-        {
-            screenDisplayer = sc;
-        }
 
         /// <summary>
         /// The X coordinate of the NPC
@@ -56,7 +50,7 @@ namespace HeistGame
         {
             Vector2 tile = new Vector2(X, Y);
 
-            if (screenDisplayer.IsTileUnderLable(tile)) { return; }
+            if (ScreenDisplayer.IsTileUnderLable(tile)) { return; }
 
             if (!game.ActiveCampaign.Levels[game.CurrentRoom].CanPlayerHearTile(tile)) { return; }
 
@@ -218,7 +212,7 @@ namespace HeistGame
 
         protected void Move(Game game, Vector2 tileToMoveTo)
         {
-            if (!screenDisplayer.IsTileUnderLable(new Vector2(X, Y)))
+            if (!ScreenDisplayer.IsTileUnderLable(new Vector2(X, Y)))
             {
                 this.Clear(game.ActiveCampaign.Levels[game.CurrentRoom]);
             }

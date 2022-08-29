@@ -10,7 +10,7 @@ namespace HeistGame
         private int y;
 
 
-        public Chest(int lockLevel, int treasure, int x, int y, ScreenDisplayer sc) : base(sc)
+        public Chest(int lockLevel, int treasure, int x, int y)
         {
             LockProp = new Lock(lockLevel);
             this.treasure = treasure;

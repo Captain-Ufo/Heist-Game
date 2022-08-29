@@ -11,11 +11,6 @@ namespace HeistGame
 
         public Lock LockProp { get => lockProp; protected set => lockProp = value; }
 
-        public Unlockable(ScreenDisplayer sc)
-        {
-            screenDisplayer = sc;
-        }
-
         public abstract void Unlock(int deltaTimeMS, Game game);
 
         public abstract void Unlock(Game game);

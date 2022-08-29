@@ -27,7 +27,6 @@ namespace HeistGame
         private readonly Dictionary<Vector2, string[]> messagesDictionary;
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
-        private readonly ScreenDisplayer screenDisplayer;
 
         public Guard[] LevelGuards { get; private set; }
 
@@ -109,10 +108,8 @@ namespace HeistGame
         /// <param name="stopwatch">The game's Stopwatch field</param>
         public Level(string name, string[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
                      Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, 
-                     Unlockable> unlockables, string[] briefing, string[] outro, Game game, ScreenDisplayer displayer)
+                     Unlockable> unlockables, string[] briefing, string[] outro, Game game)
         {
-            this.screenDisplayer = displayer;
-
             VisibleMap = new HashSet<Vector2>();
             ExploredMap = new Dictionary<Vector2, char>();
             ExploredMapSet = new HashSet<Vector2>();
@@ -1003,7 +1000,7 @@ namespace HeistGame
         /// <param name="y">The Y coordinate of the collected key</param>
         public void CollectKeyPiece(int x, int y, Game game)
         {
-            IsLocked = levelLock.CollectKeyPiece(game, x, y, screenDisplayer);
+            IsLocked = levelLock.CollectKeyPiece(game, x, y);
 
             if (!IsLocked)
             {

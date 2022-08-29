@@ -19,7 +19,7 @@ namespace HeistGame
         /// <param name="mission">The config file for the mission</param>
         /// <param name="difficulty">The difficulty level of the run</param>
         /// <returns></returns>
-        public static LevelInfo ParseConfigToLevelInfo(MissionConfig mission, Difficulty difficulty, ScreenDisplayer sc)
+        public static LevelInfo ParseConfigToLevelInfo(MissionConfig mission, Difficulty difficulty)
         {
             //first, creating a whole bunch of variables that will hold the informations for the creation of the level
 
@@ -95,26 +95,26 @@ namespace HeistGame
 
             List<Guard> levelGuards = new List<Guard>();
 
-            Guard guard1 = new Guard(sc);
-            Guard guard2 = new Guard(sc);
-            Guard guard3 = new Guard(sc);
-            Guard guard4 = new Guard(sc);
-            Guard guard5 = new Guard(sc);
-            Guard guard6 = new Guard(sc);
-            Guard guard7 = new Guard(sc);
-            Guard guard8 = new Guard(sc);
-            Guard guard9 = new Guard(sc);
-            Guard guard10 = new Guard(sc);
-            Guard guard11 = new Guard(sc);
-            Guard guard12 = new Guard(sc);
-            Guard guard13 = new Guard(sc);
-            Guard guard14 = new Guard(sc);
-            Guard guard15 = new Guard(sc);
-            Guard guard16 = new Guard(sc);
-            Guard guard17 = new Guard(sc);
-            Guard guard18 = new Guard(sc);
-            Guard guard19 = new Guard(sc);
-            Guard guard20 = new Guard(sc);
+            Guard guard1 = new Guard();
+            Guard guard2 = new Guard();
+            Guard guard3 = new Guard();
+            Guard guard4 = new Guard();
+            Guard guard5 = new Guard();
+            Guard guard6 = new Guard();
+            Guard guard7 = new Guard();
+            Guard guard8 = new Guard();
+            Guard guard9 = new Guard();
+            Guard guard10 = new Guard();
+            Guard guard11 = new Guard();
+            Guard guard12 = new Guard();
+            Guard guard13 = new Guard();
+            Guard guard14 = new Guard();
+            Guard guard15 = new Guard();
+            Guard guard16 = new Guard();
+            Guard guard17 = new Guard();
+            Guard guard18 = new Guard();
+            Guard guard19 = new Guard();
+            Guard guard20 = new Guard();
 
             Dictionary<char, Guard> guardsLUT = new Dictionary<char, Guard>
             {
@@ -423,13 +423,13 @@ namespace HeistGame
                         //Chests
                         case SymbolsConfig.ChestEmpty:
                             Vector2 emptyChestTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(emptyChestTile, new Chest(2, 0, x, y, sc));
+                            unlockablesDictionary.Add(emptyChestTile, new Chest(2, 0, x, y));
                             currentChar = SymbolsConfig.ChestClosed;
                             floorTiles.Add(emptyChestTile); // Necessary for lighmaps
                             break;
                         case SymbolsConfig.ChestWithTreasure:
                             Vector2 treasureChestTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(treasureChestTile, new Chest(2, 200, x, y, sc));
+                            unlockablesDictionary.Add(treasureChestTile, new Chest(2, 200, x, y));
                             totalGold += 200;
                             currentChar = SymbolsConfig.ChestClosed;
                             floorTiles.Add(treasureChestTile); // Necessary for lighmaps
@@ -438,7 +438,7 @@ namespace HeistGame
                             Vector2 randomTreasureChestTile = new Vector2(x, y);
                             Random rand = new Random();
                             int treasureValue = rand.Next(0, 201);
-                            unlockablesDictionary.Add(randomTreasureChestTile, new Chest(2, treasureValue, x, y, sc));
+                            unlockablesDictionary.Add(randomTreasureChestTile, new Chest(2, treasureValue, x, y));
                             totalGold += treasureValue;
                             currentChar = SymbolsConfig.ChestClosed;
                             floorTiles.Add(randomTreasureChestTile); // Necessary for lighmaps
@@ -453,7 +453,7 @@ namespace HeistGame
                         case SymbolsConfig.VerticalDoorLock2:
                         case SymbolsConfig.VerticalDoorLock3:
                             Vector2 openHDoorTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(openHDoorTile, new Door(doorsLocksLUT[currentChar], sc));
+                            unlockablesDictionary.Add(openHDoorTile, new Door(doorsLocksLUT[currentChar]));
                             currentChar = doorsVisualsLUT[currentChar];
                             break;
                     }
