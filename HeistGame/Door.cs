@@ -17,13 +17,13 @@ namespace HeistGame
         {
             if (!IsLocked())
             {
-                screenDisplayer.DisplayMessageOnLable(new string[] { "The door is already open." }, true);
+                ScreenDisplayer.DisplayMessageOnLable(new string[] { "The door is already open." });
                 game.ActiveUnlockable = null;
                 return;
             }
 
             game.ActiveUnlockable = this;
-            screenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress(), true);
+            ScreenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress());
         }
 
         public override void Unlock(int deltaTimeMS, Game game)
@@ -31,11 +31,11 @@ namespace HeistGame
             if (LockProp.IsLocked())
             {
                 LockProp.Unlock(deltaTimeMS, game);
-                screenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress(), false);
+                ScreenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress());
                 return;
             }
-            screenDisplayer.DeleteLable(game);
-            screenDisplayer.DisplayMessageOnLable(new string[] { "Unlocked." }, true);
+            ScreenDisplayer.DeleteLable(game);
+            ScreenDisplayer.DisplayMessageOnLable(new string[] { "Unlocked." });
             game.ActiveUnlockable = null;
         }
 

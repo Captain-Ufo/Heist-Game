@@ -3,53 +3,122 @@
 ////////////////////////////////
 
 using System.Collections.Generic;
+using System.Text;
 using static System.Console;
 
 namespace HeistGame
 {
     internal class UI_Lable
     {
-        public HashSet<Vector2> LableTiles { get; private set; }
-        public char[,] Grid { get; private set; }
+        public Dictionary<Vector2, char> LableTiles { get; private set; }
         public bool IsActive { get; private set; }
 
         public UI_Lable()
         {
-            LableTiles = new HashSet<Vector2>();
+            LableTiles = new Dictionary<Vector2, char>();
         }
 
-        //TODO: modify to create the GRID instead.
-        public void DisplayLable(string[] message, bool firstDisplay)
+        public void ActivateLable(string[] message)
         {
-            int messageLength = EvaluateMessageLength(message) + 2;
-            int xOffset = messageLength / 2;
-            int x1 = WindowWidth / 2;
-            int x = x1 - xOffset;
+            int maxMessageLength = EvaluateMessageLength(message);
+            int xOffset = (maxMessageLength + 2) / 2;
+            int x = WindowWidth / 2;
+            int lableLeft = x - xOffset;
+            int lableRight = lableLeft + maxMessageLength;
 
-            int yOffset = message.Length;
-            int y1 = WindowHeight / 2 - 2;
-            int y = y1 - yOffset;
+            int lableHeight = message.Length + 2;
+            int yOffset =lableHeight;
+            int y = WindowHeight / 2 - 2;
+            int lableTop = y - yOffset;
+            int lableBottom = lableTop + lableHeight;
 
-            string firstLine = string.Empty;
-            string lastLine = string.Empty;
+            ComposeLable(lableLeft, lableRight, lableTop, lableBottom, maxMessageLength, message);
 
-            AddFrame(messageLength, ref firstLine, ref lastLine);
-
-            int lines = message.Length + 2;
-            DrawMessage(message, messageLength, x, y, firstLine, lastLine, lines);
-
-            if (firstDisplay) { SetLableTiles(x, x + messageLength + 1, y, y + message.Length + 1); }
             IsActive = true;
         }
+
+        private void ComposeLable(int lableLeft, int lableright, int lableTop, int lableBottom, int maxMessageLength, string[] message)
+        {
+            string[] lableMessage = new string[message.Length];
+
+            for (int i = 0; i < message.Length; i++)
+            {
+                if (message[i].Length == maxMessageLength) { continue; }
+
+                StringBuilder sb = new StringBuilder(maxMessageLength);
+
+                int lengthDifference = maxMessageLength - message[i].Length;
+                int firstHalf = lengthDifference / 2;
+                int secondHalf = lengthDifference - firstHalf;
+                string startingSpace = new string(' ', firstHalf);
+                string tailSpace = new string(' ', secondHalf);
+                sb.Append(startingSpace);
+                sb.Append(message[i]);
+                sb.Append(tailSpace);
+                lableMessage[i] = sb.ToString();
+            }
+
+            LableTiles.Clear();
+            for (int y = lableTop; y <= lableBottom; y++)
+            {
+                for (int x = lableLeft; x <= lableright; x++)
+                {
+
+                    if (y == lableTop)
+                    {
+                        if (x == lableLeft)
+                        {
+                            LableTiles.Add(new Vector2(x, y), '┌');
+                            continue;
+                        }
+
+                        if (x == lableright)
+                        {
+                            LableTiles.Add(new Vector2(x, y), '┐');
+                            continue;
+                        }
+
+                        LableTiles.Add(new Vector2(x, y), '─');
+                        continue;
+                    }
+
+                    if (y == lableBottom)
+                    {
+                        if (x == lableLeft)
+                        {
+                            LableTiles.Add(new Vector2(x, y), '└');
+                            continue;
+                        }
+
+                        if (x == lableright)
+                        {
+                            LableTiles.Add(new Vector2(x, y), '┘');
+                            continue;
+                        }
+
+                        LableTiles.Add(new Vector2(x, y), '─');
+                        continue;
+                    }
+
+                    if (x == lableLeft || x == lableright)
+                    {
+                        LableTiles.Add(new Vector2(x, y), '|');
+                        continue;
+                    }
+
+                    string line = lableMessage[y];
+                    char c = line[x];
+
+                    LableTiles.Add(new Vector2(x, y), c);
+
+                }
+            }
+        }
+
 
         public void Cancel (Level level)
         {
             if (!IsActive) { return; }
-
-            foreach (Vector2 tile in LableTiles)
-            {
-                level.DrawTile(tile.X, tile.Y, level.GetElementAt(tile.X, tile.Y, true));
-            }
             IsActive = false;
             LableTiles.Clear();
         }
@@ -66,84 +135,6 @@ namespace HeistGame
                 }
             }
             return messageLength;
-        }
-
-        private void AddFrame(int messageLength, ref string firstLine, ref string lastLine)
-        {
-            for (int i = 0; i <= messageLength + 1; i++)
-            {
-                char symbol1;
-                char symbol2;
-
-                if (i == 0)
-                {
-                    symbol1 = '┌';
-                    symbol2 = '└';
-                }
-                else if (i == messageLength + 1)
-                {
-                    symbol1 = '┐';
-                    symbol2 = '┘';
-                }
-                else
-                {
-                    symbol1 = '─';
-                    symbol2 = '─';
-                }
-                firstLine += symbol1;
-                lastLine += symbol2;
-            }
-        }
-
-        private void DrawMessage(string[] message, int messageLength, int x, int y, string firstLine, string lastLine, int lines)
-        {
-            for (int i = 0; i < lines; i++)
-            {
-                SetCursorPosition(x, y + i);
-                if (i == 0)
-                {
-                    Write(firstLine);
-                }
-                else if (i == lines - 1)
-                {
-                    Write(lastLine);
-                }
-                else
-                {
-                    Write("|");
-                    int lengthDifference = messageLength - message[i - 1].Length;
-                    int half = lengthDifference / 2;
-                    if (lengthDifference > 0)
-                    {
-                        for (int j = 1; j <= half; j++)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    Write(message[i - 1]);
-                    if (lengthDifference > 0)
-                    {
-                        lengthDifference -= half;
-                        for (int j = 1; j <= lengthDifference; j++)
-                        {
-                            Write(" ");
-                        }
-                    }
-                    Write("|");
-                }
-            }
-        }
-
-        private void SetLableTiles(int topX, int bottomX, int topY, int bottomY)
-        {
-            LableTiles.Clear();
-            for (int x = topX; x <= bottomX; x++)
-            {
-                for (int y = topY; y <= bottomY; y++)
-                {
-                    LableTiles.Add(new Vector2(x, y));
-                }
-            }
         }
     }
 }

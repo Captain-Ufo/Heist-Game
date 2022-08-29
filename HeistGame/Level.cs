@@ -68,10 +68,11 @@ namespace HeistGame
         /// </summary>
         public HashSet<Vector2> FloorTiles { get; private set; }
 
+        public Dictionary<Vector2, char> ExploredMap { get; private set; }
         /// <summary>
         /// The set of all map tiles that have been seen by the player at any point while moving through the level.
         /// </summary>
-        public HashSet<Vector2> ExploredMap { get; private set; }
+        public HashSet<Vector2> ExploredMapSet { get; private set; }
 
         /// <summary>
         /// The set of all map tiles currently visible to the player
@@ -113,7 +114,8 @@ namespace HeistGame
             this.screenDisplayer = displayer;
 
             VisibleMap = new HashSet<Vector2>();
-            ExploredMap = new HashSet<Vector2>();
+            ExploredMap = new Dictionary<Vector2, char>();
+            ExploredMapSet = new HashSet<Vector2>();
             PlayerHearingArea = new HashSet<Vector2>();
             tilesToDraw = new HashSet<Vector2>();
 
@@ -205,9 +207,13 @@ namespace HeistGame
                 VisibleMap.Add(tile);
             }
 
-            if (!ExploredMap.Contains(tile))
+            if (!ExploredMap.ContainsKey(tile))
             {
-                ExploredMap.Add(tile);
+                ExploredMap.Add(tile, Grid[tile.Y, tile.X]);
+            }
+            else
+            {
+                ExploredMap[tile] = Grid[tile.Y, tile.X];
             }
         }
 
@@ -453,7 +459,7 @@ namespace HeistGame
                 }
             }
 
-            foreach (Vector2 tile in ExploredMap)
+            foreach (Vector2 tile in ExploredMapSet)
             {
                 Vector2 tileWithOffset = new Vector2(tile.X + xOffset, tile.Y + yOffset);
                 if (guardsTiles.Contains(tileWithOffset))
@@ -728,7 +734,7 @@ namespace HeistGame
                 tile.Y -= yOffset;
             }
 
-            return ExploredMap.Contains(tile);
+            return ExploredMap.ContainsKey(tile);
         }
 
         public bool IsTileInsideBounds(Vector2 tile, bool removeOffset = true)
@@ -891,7 +897,7 @@ namespace HeistGame
 
             if (redraw)
             {
-                if (ExploredMap.Contains(new Vector2(x, y))) 
+                if (ExploredMapSet.Contains(new Vector2(x, y))) 
                 {
                     if (!withOffset)
                     {
@@ -914,6 +920,7 @@ namespace HeistGame
             ResetTreasures();
             ResetUnlockables();
             VisibleMap.Clear();
+            ExploredMap.Clear();
             Lights.CalculateLightMap(this);
         }
 
@@ -1061,7 +1068,7 @@ namespace HeistGame
         {
             Vector2 messageCoords = new Vector2(x, y);
             game.MyStopwatch.Stop();
-            screenDisplayer.DisplayTextFullScreen(messagesDictionary[messageCoords]);
+            ScreenDisplayer.DisplayTextFullScreen(messagesDictionary[messageCoords]);
             ControlsManager.ResetControlState(game);
             game.HasDrawnBackground = false;
             game.MyStopwatch.Start();

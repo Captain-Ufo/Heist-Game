@@ -23,13 +23,13 @@ namespace HeistGame
         {
             if (!IsLocked())
             {
-                screenDisplayer.DisplayMessageOnLable(new string[] { "The chest is empty." }, true);
+                ScreenDisplayer.DisplayMessageOnLable(new string[] { "The chest is empty." });
                 game.ActiveUnlockable = null;
                 return;
             }
 
             game.ActiveUnlockable = this;
-            screenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress(), true);
+            ScreenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress());
         }
 
         public override void Unlock(int deltaTimeMS, Game game)
@@ -37,24 +37,24 @@ namespace HeistGame
             if (LockProp.IsLocked())
             {
                 LockProp.Unlock(deltaTimeMS, game);
-                screenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress(), false);
+                ScreenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress());
                 return;
             }
 
-            game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.ChestOpened.ToString(), false);
+            game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.ChestOpened.ToString());
 
 
             if (treasure > 0)
             {
                 game.PlayerCharacter.ChangeLoot(treasure);
-                screenDisplayer.DeleteLable(game);
-                screenDisplayer.DisplayMessageOnLable(new string[] { $"The chest contains $ {treasure} in loot." }, true);
+                ScreenDisplayer.DeleteLable(game);
+                ScreenDisplayer.DisplayMessageOnLable(new string[] { $"The chest contains $ {treasure} in loot." });
                 treasure = 0;
             }
             else
             {
-                screenDisplayer.DeleteLable(game);
-                screenDisplayer.DisplayMessageOnLable(new string[] { "The chest doesn't contain anything of value." }, true);
+                ScreenDisplayer.DeleteLable(game);
+                ScreenDisplayer.DisplayMessageOnLable(new string[] { "The chest doesn't contain anything of value." });
             }
 
             game.ActiveUnlockable = null;

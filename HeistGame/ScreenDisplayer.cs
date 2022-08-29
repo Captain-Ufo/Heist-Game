@@ -129,10 +129,17 @@ namespace HeistGame
             {
                 for (int x = 0; x < WindowWidth; x++)
                 {
-                    //Check if it's the center of the screen (that is, where the player would be in this scrolling map system)
+                    //Check if it's the center of the screen (that is, where the player would be in the scrolling map system)
                     if (x == leftOffset && y == topOffset)
                     {
                         screen[y, x] = game.PlayerCharacter.PlayerMarker;
+                        continue;
+                    }
+
+                    //Check if the tile is under a lable
+                    if (IsTileUnderLable(new Vector2(x, y)))
+                    {
+                        screen[y, x] = lable.LableTiles[new Vector2(x, y)];
                         continue;
                     }
 
@@ -142,20 +149,12 @@ namespace HeistGame
 
                     Level level = game.ActiveCampaign.Levels[game.CurrentRoom];
 
-                    //Check if the tile is under a lable
                     Vector2 tile = new Vector2(offsetX, offsetY);
-
-                    if (IsTileUnderLable(tile))
-                    {
-                        screen[y, x] = lable.Grid[y, x];
-                        //Needs refactoring the lable so that it contains its own grid of characters
-                        continue;
-                    }
 
                     //Check guard tiles
 
                     //Check if tile has not been explored, in which case it has to be empty
-                    if (!level.ExploredMap.Contains(tile))
+                    if (!level.ExploredMap.ContainsKey(tile))
                     {
                         screen[y, x] = ' ';
                         continue;
@@ -185,8 +184,8 @@ namespace HeistGame
                         continue;
                     }
 
-                    //Finally, if all else fails, just add the tile from the map
-                    screen[y, x] = level.Grid[y, x];
+                    //Finally, if all special conditions fail, just add the tile from the map
+                    screen[y, x] = level.ExploredMap[tile];
                 }
             }
             
@@ -230,22 +229,22 @@ namespace HeistGame
             ui.DrawUI(game);
         }
 
-        public void DisplayMessageOnLable(string[] message, bool newLable)
+        public static void DisplayMessageOnLable(string[] message)
         {
-            lable.DisplayLable(message, newLable);
+            lable.ActivateLable(message);
         }
 
-        public void DeleteLable(Game game)
+        public static void DeleteLable(Game game)
         {
             lable.Cancel(game.ActiveCampaign.Levels[game.CurrentRoom]);
         }
 
         public static bool IsTileUnderLable(Vector2 tile)
         {
-            return lable.LableTiles.Contains(tile);
+            return lable.LableTiles.ContainsKey(tile);
         }
 
-        public void DisplayAboutScreen(Game game)
+        public static void DisplayAboutScreen(Game game)
         {
             Clear();
             string authorName = "Cristian";
@@ -304,7 +303,7 @@ namespace HeistGame
             game.Restart();
         }
 
-        public void DisplayLoading()
+        public static void DisplayLoading()
         {
             string loadingText = "...Loading...";
             int posY = WindowHeight / 2;
@@ -317,7 +316,7 @@ namespace HeistGame
         }
 
         //TODO: refactor this so that text can be scrolled one line at a time
-        public void DisplayTextFullScreen(string[] text, bool withFraming = true)
+        public static void DisplayTextFullScreen(string[] text, bool withFraming = true)
         {
             if (text == null) { return; }
 
@@ -377,7 +376,7 @@ namespace HeistGame
             while (firstLineToDisplay < text.Length);
         }
 
-        private void DisplayScreenDecoration()
+        private static void DisplayScreenDecoration()
         {
             SetCursorPosition(1, 0);
             Write("╬");
