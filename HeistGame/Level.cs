@@ -28,6 +28,8 @@ namespace HeistGame
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
 
+        public Dictionary<Vector2, Guard> VisibleGuards { get; private set; }
+
         public Guard[] LevelGuards { get; private set; }
 
         public char[,] Grid { get; private set; }
@@ -115,6 +117,7 @@ namespace HeistGame
             ExploredMapSet = new HashSet<Vector2>();
             PlayerHearingArea = new HashSet<Vector2>();
             tilesToDraw = new HashSet<Vector2>();
+            VisibleGuards = new Dictionary<Vector2, Guard>();
 
             Name = name;
             Briefing = briefing;
@@ -1025,9 +1028,16 @@ namespace HeistGame
         {
             if (LevelGuards.Length > 0)
             {
+                VisibleGuards.Clear();
                 foreach (Guard guard in LevelGuards)
                 {
                     guard.UpdateBehavior(this, game, deltaDimeMS);
+
+                    Vector2 guardPosition = new Vector2(guard.X, guard.Y);
+                    if (PlayerHearingArea.Contains(guardPosition))
+                    {
+                        VisibleGuards.Add(guardPosition, guard);
+                    }
                 }
             }
         }

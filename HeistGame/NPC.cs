@@ -9,11 +9,7 @@ namespace HeistGame
     {
         protected ConsoleColor npcSymbolColor = ConsoleColor.White;
         protected ConsoleColor npcTileColor = ConsoleColor.Black;
-        protected string[] npcMarkersLUT = new string[] { "^", ">", "V", "<" };
-        protected string npcMarker;
-
-        protected Directions direction = Directions.down;
-
+        protected char[] npcMarkersLUT = new char[] { '^', '>', 'V', '<' };
         protected int pivotTimer;
         protected int pivotDirection;
         protected int minTimeBetweenPivots;
@@ -29,6 +25,8 @@ namespace HeistGame
         /// The Y coordinate of the NPC
         /// </summary>
         public int Y { get; protected set; }
+        public Directions Direction { get; private set; } = Directions.down;
+        public char NPCMarker { get; private set; }
 
         /// <summary>
         /// Restores the NPC to their conditions at the beginning of the level. To be used only when retrying levels
@@ -44,7 +42,7 @@ namespace HeistGame
         public abstract void UpdateBehavior(Level level, Game game, int deltaTimeMS);
 
         /// <summary>
-        /// Draws the guard symbol
+        /// Draws the NPC's symbol
         /// </summary>
         public void Draw(Game game)
         {
@@ -69,7 +67,7 @@ namespace HeistGame
             }
 
             SetCursorPosition(X, Y);
-            Write(npcMarker);
+            Write(NPCMarker);
             ForegroundColor = previousFColor;
             BackgroundColor = previusBGColor;
         }
@@ -224,7 +222,7 @@ namespace HeistGame
                     if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X - 1, Y))
                     {
                         X--;
-                        direction = Directions.left;
+                        Direction = Directions.left;
                     }
                 }
                 else
@@ -232,7 +230,7 @@ namespace HeistGame
                     if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X + 1, Y))
                     {
                         X++;
-                        direction = Directions.right;
+                        Direction = Directions.right;
                     }
                 }
             }
@@ -243,7 +241,7 @@ namespace HeistGame
                     if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X, Y - 1))
                     {
                         Y--;
-                        direction = Directions.up;
+                        Direction = Directions.up;
                     }
                 }
                 else
@@ -251,12 +249,12 @@ namespace HeistGame
                     if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X, Y + 1))
                     {
                         Y++;
-                        direction = Directions.down;
+                        Direction = Directions.down;
                     }
                 }
             }
 
-            npcMarker = npcMarkersLUT[(int)direction];
+            NPCMarker = npcMarkersLUT[(int)Direction];
 
             if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == SymbolsConfig.LeverOn.ToString())
             {
@@ -275,20 +273,20 @@ namespace HeistGame
 
             if (timer % frequency == 0)
             {
-                if (direction == Directions.left && pivotDirection == 1)
+                if (Direction == Directions.left && pivotDirection == 1)
                 {
-                    direction = Directions.up;
+                    Direction = Directions.up;
                 }
-                else if (direction == Directions.up && pivotDirection == -1)
+                else if (Direction == Directions.up && pivotDirection == -1)
                 {
-                    direction = Directions.left;
+                    Direction = Directions.left;
                 }
                 else
                 {
-                    direction += pivotDirection;
+                    Direction += pivotDirection;
                 }
 
-                npcMarker = npcMarkersLUT[(int)direction];
+                NPCMarker = npcMarkersLUT[(int)Direction];
 
                 minTimeBetweenPivots = minTime;
             }

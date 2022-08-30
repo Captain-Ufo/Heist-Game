@@ -57,8 +57,8 @@ namespace HeistGame
             durationTimer = searchPivotDuration;
             minTimeBetweenPivots = 0;
             timeBetweenMoves = walkingSpeed;
-            direction = (Directions)rng.Next(0, 4);
-            npcMarker = npcMarkersLUT[(int)direction];
+            Direction = (Directions)rng.Next(0, 4);
+            NPCMarker = npcMarkersLUT[(int)Direction];
             npcSymbolColor = ConsoleColor.Black;
             npcTileColor = ConsoleColor.DarkRed;
             ChoosePivotDirection();
@@ -258,7 +258,7 @@ namespace HeistGame
             if (verticalAggroDistance <= 0) { verticalAggroDistance = 1; }
             int horizontalAggroDistance = verticalAggroDistance;
 
-            switch (direction)
+            switch (Direction)
             {
                 case Directions.up:
                     if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
@@ -367,7 +367,7 @@ namespace HeistGame
                 int x = X;
                 int y = Y;
 
-                switch (direction)
+                switch (Direction)
                 {
                     case Directions.up:
                         y -= 10;

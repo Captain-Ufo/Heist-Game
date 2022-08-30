@@ -15,6 +15,23 @@ namespace HeistGame
         public UI()
         {
             Grid = new char[4, WindowWidth];
+
+            string firstline = new string('─', WindowWidth);
+            string emptyLine = new string(' ', WindowWidth);
+
+            for (int y = 0; y < Grid.GetLength(0); y++)
+            {
+                for (int x = 0; x < WindowWidth; x++)
+                {
+                    string line;
+
+                    if (y == 0) { line = firstline; }
+                    else { line = emptyLine; }
+
+                    Grid[y, x] = line[x];
+                }
+            }
+
         }
 
         public void DrawUI(Game game)

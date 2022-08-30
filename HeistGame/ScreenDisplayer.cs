@@ -133,6 +133,11 @@ namespace HeistGame
                     Vector2 tile = new Vector2(offsetX, offsetY);
 
                     //Check guard tiles
+                    if (level.VisibleGuards.ContainsKey(tile))
+                    {
+                        screen[y, x] = level.VisibleGuards[tile].NPCMarker;
+                        //TODO: check offsets and such in the cleanup/refactor round
+                    }
 
                     //Check if tile has not been explored, in which case it has to be empty
                     if (!level.ExploredMap.ContainsKey(tile))
