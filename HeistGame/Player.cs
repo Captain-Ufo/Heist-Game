@@ -13,7 +13,6 @@ namespace HeistGame
         private int timeSinceLastMove;
         private int sightDistance;
         private ConsoleColor playerBaseColor;
-        private ConsoleColor playerCurrentColor;
         private Directions peekDirection;
         private Vector2 peekOffset;
 
@@ -21,6 +20,7 @@ namespace HeistGame
         /// The symbols that indicates the player on screen
         /// </summary>
         public char PlayerMarker { get; private set; }
+        public ConsoleColor CurrentColor { get; private set; }
         /// <summary>
         /// The player's current X position
         /// </summary>
@@ -50,7 +50,7 @@ namespace HeistGame
         /// <param name="startingY">The initial Y position</param>
         /// <param name="marker">(Optional) The symbol that represents the player on the map</param>
         /// <param name="color">(Optional) The color of the player's symbol</param>
-        public Player(Level level, char marker = '☺', ConsoleColor color = ConsoleColor.Cyan)
+        public Player(Level level, char marker = SymbolsConfig.PlayerSymbol, ConsoleColor color = ConsoleColor.Cyan)
         { 
 
             X = level.PlayerStartX;
@@ -62,7 +62,7 @@ namespace HeistGame
 
             PlayerMarker = marker;
             playerBaseColor = color;
-            playerCurrentColor = color;
+            CurrentColor = color;
 
             timeBetweenMoves = 115;
             timeSinceLastMove = 0;
@@ -93,9 +93,7 @@ namespace HeistGame
         public void Move(Directions direction, Level level, Game game, int deltaTimeMS)
         {
             timeSinceLastMove += deltaTimeMS;
-            playerCurrentColor = playerBaseColor;
-
-            Clear(level);
+            CurrentColor = playerBaseColor;
 
             switch (direction)
             {
@@ -126,8 +124,6 @@ namespace HeistGame
             }
 
             CalculateVisibleArea(level);
-            level.Draw();
-            Draw();
             HasMoved = true;
             SetVisibility(X, Y, level);
             timeSinceLastMove -= timeBetweenMoves;
@@ -135,8 +131,7 @@ namespace HeistGame
 
         public void StartPeek()
         {
-            playerCurrentColor = ConsoleColor.DarkCyan;
-            Draw();
+            CurrentColor = ConsoleColor.DarkCyan;
         }
 
         public void Peek(Directions direction, Level level)
@@ -169,10 +164,8 @@ namespace HeistGame
                     break;
             }
 
-            playerCurrentColor = ConsoleColor.DarkCyan;
+            CurrentColor = ConsoleColor.DarkCyan;
             CalculateVisibleArea(level);
-            level.Draw();
-            Draw();
 
             peekOffset.X = 0;
             peekOffset.Y = 0;
@@ -180,8 +173,7 @@ namespace HeistGame
 
         public void ResetPeek(Level level)
         {
-            playerCurrentColor = playerBaseColor;
-            Draw();
+            CurrentColor = playerBaseColor;
 
             if (peekDirection == Directions.idle) { return; }
 
@@ -189,73 +181,14 @@ namespace HeistGame
             peekOffset.X = 0;
             peekOffset.Y = 0;
             CalculateVisibleArea(level);
-            level.Draw();
             
         }
 
         public void MakeNoise(Level level, Game game)
         {
-            playerCurrentColor = ConsoleColor.White;
-            Draw();
+            CurrentColor = ConsoleColor.White;
             game.TunePlayer.PlaySFX(1000, 600);
             level.AlertGuards(new Vector2(X, Y));
-        }
-
-        /// <summary>
-        /// Draws the player's symbol
-        /// </summary>
-        public void Draw()
-        {
-            ConsoleColor previousColor = ForegroundColor;
-            ForegroundColor = playerCurrentColor;
-            SetCursorPosition(X, Y);
-            Write(PlayerMarker);
-            ForegroundColor = previousColor;
-        }
-
-        /// <summary>
-        /// Replaces the player's symbol with whatever map symbol should be present in that position
-        /// </summary>
-        /// <param name="level">The level from which to gather the information required (which symbol to use, the state of the exit, etc)</param>
-        public void Clear(Level level)
-        {
-            string symbol = level.GetElementAt(X, Y);
-
-            SetCursorPosition(X, Y);
-
-            if (symbol == SymbolsConfig.Empty.ToString())
-            {
-                Vector2 tile = new Vector2(X, Y);
-                int lightValue = level.GetLightLevelInItile(tile);
-                ForegroundColor = ConsoleColor.DarkBlue;
-                switch (lightValue)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        symbol = SymbolsConfig.Light1.ToString();
-                        break;
-                    case 2:
-                        symbol = SymbolsConfig.Light2.ToString();
-                        break;
-                    case 3:
-                        symbol = SymbolsConfig.Light3.ToString();
-                        break;
-                }
-            }
-            else if (symbol == SymbolsConfig.Exit.ToString())
-            {
-                if (level.IsLocked)
-                {
-                    ForegroundColor = ConsoleColor.Red;
-                }
-            }
-            else
-            {
-                ResetColor();
-            }
-            Write(symbol);
-            ResetColor();
         }
 
         /// <summary>
@@ -278,9 +211,9 @@ namespace HeistGame
 
         public void CalculateVisibleArea(Level level)
         {
-            HashSet<string> wallCorners = new HashSet<string>()
+            HashSet<char> wallCorners = new HashSet<char>()
             {
-                "╔", "╗", "╝", "╚", "╠", "╣", "╦", "╩", "╬"
+                '╔', '╗', '╝', '╚', '╠', '╣', '╦', '╩', '╬'
             };
 
             level.ClearPlayerPercetionMaps();
@@ -304,51 +237,63 @@ namespace HeistGame
                         continue;
                     }
 
-                    if (!level.IsTileTransparent(tile.X, tile.Y, true))
+                    if (!level.IsTileTransparent(tile.X, tile.Y))
                     {
-                        if (level.IsTileInsideBounds(tile, true))
+                        if (level.IsTileInsideBounds(tile))
                         {
                             level.UpdateVisibleMap(tile);
                         }
-                        string tileXplus1 = level.GetElementAt(tile.X + 1, tile.Y);
-                        string tileXminus1 = level.GetElementAt(tile.X - 1, tile.Y);
-                        string tileYplus1 = level.GetElementAt(tile.X, tile.Y + 1);
-                        string tileYminus1 = level.GetElementAt(tile.Y, tile.Y - 1);
 
-                        if (wallCorners.Contains(tileXplus1)) 
+                        if (level.IsTileInsideBounds(tile.X + 1, tile.Y))
                         {
-                            Vector2 cornerTile = new Vector2(tile.X + 1, tile.Y);
-
-                            if (level.IsTileInsideBounds(cornerTile))
+                            char tileXplus1 = level.GetElementAt(tile.X + 1, tile.Y);
+                            if (wallCorners.Contains(tileXplus1))
                             {
-                                level.UpdateVisibleMap(cornerTile);
+                                Vector2 cornerTile = new Vector2(tile.X + 1, tile.Y);
+
+                                if (level.IsTileInsideBounds(cornerTile))
+                                {
+                                    level.UpdateVisibleMap(cornerTile);
+                                }
                             }
                         }
-                        if (wallCorners.Contains(tileXminus1)) 
+                        if (level.IsTileInsideBounds(tile.X - 1, tile.Y))
                         {
-                            Vector2 cornerTile = new Vector2(tile.X - 1, tile.Y);
-
-                            if (level.IsTileInsideBounds(cornerTile))
+                            char tileXminus1 = level.GetElementAt(tile.X - 1, tile.Y);
+                            if (wallCorners.Contains(tileXminus1))
                             {
-                                level.UpdateVisibleMap(cornerTile);
+                                Vector2 cornerTile = new Vector2(tile.X - 1, tile.Y);
+
+                                if (level.IsTileInsideBounds(cornerTile))
+                                {
+                                    level.UpdateVisibleMap(cornerTile);
+                                }
                             }
                         }
-                        if (wallCorners.Contains(tileYplus1)) 
+                        if (level.IsTileInsideBounds(tile.X, tile.Y + 1))
                         {
-                            Vector2 cornerTile = new Vector2(tile.X, tile.Y + 1);
-
-                            if (level.IsTileInsideBounds(cornerTile))
+                            char tileYplus1 = level.GetElementAt(tile.X, tile.Y + 1);
+                            if (wallCorners.Contains(tileYplus1))
                             {
-                                level.UpdateVisibleMap(cornerTile);
+                                Vector2 cornerTile = new Vector2(tile.X, tile.Y + 1);
+
+                                if (level.IsTileInsideBounds(cornerTile))
+                                {
+                                    level.UpdateVisibleMap(cornerTile);
+                                }
                             }
                         }
-                        if (wallCorners.Contains(tileYminus1))
+                        if (level.IsTileInsideBounds(tile.Y, tile.Y - 1))
                         {
-                            Vector2 cornerTile = new Vector2(tile.X, tile.Y - 1);
-
-                            if (level.IsTileInsideBounds(cornerTile))
+                            char tileYminus1 = level.GetElementAt(tile.Y, tile.Y - 1);
+                            if (wallCorners.Contains(tileYminus1))
                             {
-                                level.UpdateVisibleMap(cornerTile);
+                                Vector2 cornerTile = new Vector2(tile.X, tile.Y - 1);
+
+                                if (level.IsTileInsideBounds(cornerTile))
+                                {
+                                    level.UpdateVisibleMap(cornerTile);
+                                }
                             }
                         }
 
@@ -357,8 +302,7 @@ namespace HeistGame
 
                     level.UpdateVisibleMap(tile);
                 }
-            }
-            level.CalculateTilesToDraw();  
+            }  
         }
 
         private void SetVisibility(int xPos, int yPos, Level level)

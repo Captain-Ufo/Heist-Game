@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static System.Console;
@@ -7,9 +11,10 @@ namespace HeistGame
 {
     internal abstract class NPC
     {
-        protected ConsoleColor npcSymbolColor = ConsoleColor.White;
-        protected ConsoleColor npcTileColor = ConsoleColor.Black;
-        protected char[] npcMarkersLUT = new char[] { '^', '>', 'V', '<' };
+        protected char[] npcMarkersLUT = new char[] { SymbolsConfig.NPCMarkerUp, 
+                                                      SymbolsConfig.NPCMarkerRight,
+                                                      SymbolsConfig.NPCMarkerDown,
+                                                      SymbolsConfig.NPCMarkerLeft };
         protected int pivotTimer;
         protected int pivotDirection;
         protected int minTimeBetweenPivots;
@@ -25,8 +30,10 @@ namespace HeistGame
         /// The Y coordinate of the NPC
         /// </summary>
         public int Y { get; protected set; }
-        public Directions Direction { get; private set; } = Directions.down;
-        public char NPCMarker { get; private set; }
+        public Directions Direction { get; protected set; } = Directions.down;
+        public char NPCMarker { get; protected set; }
+        public ConsoleColor NPCSymbolColor { get; protected set; } = ConsoleColor.White;
+        public ConsoleColor NPCTileColor { get; protected set; } = ConsoleColor.Black;
 
         /// <summary>
         /// Restores the NPC to their conditions at the beginning of the level. To be used only when retrying levels
@@ -40,108 +47,6 @@ namespace HeistGame
         /// <param name="game">The current game</param>
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
         public abstract void UpdateBehavior(Level level, Game game, int deltaTimeMS);
-
-        /// <summary>
-        /// Draws the NPC's symbol
-        /// </summary>
-        public void Draw(Game game)
-        {
-            Vector2 tile = new Vector2(X, Y);
-
-            if (ScreenDisplayer.IsTileUnderLable(tile)) { return; }
-
-            if (!game.ActiveCampaign.Levels[game.CurrentRoom].CanPlayerHearTile(tile)) { return; }
-
-            ConsoleColor previousFColor = ForegroundColor;
-            ConsoleColor previusBGColor = BackgroundColor;
-
-            if (game.ActiveCampaign.Levels[game.CurrentRoom].CanPlayerSeeTile(tile))
-            {
-                ForegroundColor = npcSymbolColor;
-                BackgroundColor = npcTileColor;
-            }
-            else
-            {
-                ForegroundColor = ConsoleColor.DarkGray;
-                BackgroundColor = ConsoleColor.DarkGray;
-            }
-
-            SetCursorPosition(X, Y);
-            Write(NPCMarker);
-            ForegroundColor = previousFColor;
-            BackgroundColor = previusBGColor;
-        }
-
-        /// <summary>
-        /// Replaces the guard symbol with whatever static tile is in the map grid in the previous position of the guard
-        /// </summary>
-        /// <param name="level">The level from which to gather the information required (which symbol to use, the state of the exit, etc)</param>
-        public void Clear(Level level)
-        {
-            Vector2 tile = new Vector2(X, Y);
-            string symbol = level.GetElementAt(X, Y);
-
-            SetCursorPosition(X, Y);
-
-            if (symbol == SymbolsConfig.Empty.ToString())
-            {
-                if (level.CanPlayerSeeTile(tile))
-                {
-                    int lightValue = level.GetLightLevelInItile(tile);
-                    ForegroundColor = ConsoleColor.DarkBlue;
-                    switch (lightValue)
-                    {
-                        case 0:
-                            symbol = SymbolsConfig.Light0.ToString();
-                            break;
-                        case 1:
-                            symbol = SymbolsConfig.Light1.ToString();
-                            break;
-                        case 2:
-                            symbol = SymbolsConfig.Light2.ToString();
-                            break;
-                        case 3:
-                            symbol = SymbolsConfig.Light3.ToString();
-                            break;
-                    }
-                }
-            }
-            else if (symbol == SymbolsConfig.Treasure.ToString())
-            {
-                if (level.CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.Yellow; }
-                else if (level.HasPlayerExploredTile(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { symbol = SymbolsConfig.Empty.ToString(); }
-            }
-            else if (symbol == SymbolsConfig.Key.ToString())
-            {
-                if (level.CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.Yellow; }
-                else if (level.HasPlayerExploredTile(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { symbol = SymbolsConfig.Empty.ToString(); }
-            }
-            else if (symbol == SymbolsConfig.Exit.ToString())
-            {
-                if (level.CanPlayerSeeTile(tile))
-                {
-                    if (level.IsLocked)
-                    {
-                        ForegroundColor = ConsoleColor.Red;
-                    }
-                    else
-                    {
-                        ForegroundColor = ConsoleColor.Green;
-                    }
-                }
-                else if(level.HasPlayerExploredTile(tile)) 
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                else { symbol = SymbolsConfig.Empty.ToString(); }
-            }
-            Write(symbol);
-            ResetColor();
-        }
 
         protected Tile Pathfind(Level level, Tile pathStart, Tile destination)
         {
@@ -196,7 +101,7 @@ namespace HeistGame
         {
             Tile guardTile = new Tile(X, Y);
             Tile destinationTile = new Tile(destination.X, destination.Y);
-            Tile tileToMoveTo = Pathfind(game.ActiveCampaign.Levels[game.CurrentRoom], destinationTile, guardTile);
+            Tile tileToMoveTo = Pathfind(game.ActiveCampaign.Levels[game.CurrentLevel], destinationTile, guardTile);
 
             if (tileToMoveTo != null)
             {
@@ -210,16 +115,11 @@ namespace HeistGame
 
         protected void Move(Game game, Vector2 tileToMoveTo)
         {
-            if (!ScreenDisplayer.IsTileUnderLable(new Vector2(X, Y)))
-            {
-                this.Clear(game.ActiveCampaign.Levels[game.CurrentRoom]);
-            }
-
             if (X != tileToMoveTo.X)
             {
                 if (X - tileToMoveTo.X > 0)
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X - 1, Y))
+                    if (game.ActiveCampaign.Levels[game.CurrentLevel].IsTileWalkable(X - 1, Y))
                     {
                         X--;
                         Direction = Directions.left;
@@ -227,7 +127,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X + 1, Y))
+                    if (game.ActiveCampaign.Levels[game.CurrentLevel].IsTileWalkable(X + 1, Y))
                     {
                         X++;
                         Direction = Directions.right;
@@ -238,7 +138,7 @@ namespace HeistGame
             {
                 if (Y - tileToMoveTo.Y > 0)
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X, Y - 1))
+                    if (game.ActiveCampaign.Levels[game.CurrentLevel].IsTileWalkable(X, Y - 1))
                     {
                         Y--;
                         Direction = Directions.up;
@@ -246,7 +146,7 @@ namespace HeistGame
                 }
                 else
                 {
-                    if (game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(X, Y + 1))
+                    if (game.ActiveCampaign.Levels[game.CurrentLevel].IsTileWalkable(X, Y + 1))
                     {
                         Y++;
                         Direction = Directions.down;
@@ -256,9 +156,9 @@ namespace HeistGame
 
             NPCMarker = npcMarkersLUT[(int)Direction];
 
-            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == SymbolsConfig.LeverOn.ToString())
+            if (game.ActiveCampaign.Levels[game.CurrentLevel].GetElementAt(X, Y) == SymbolsConfig.LeverOn)
             {
-                game.ActiveCampaign.Levels[game.CurrentRoom].ToggleLever(X, Y);
+                game.ActiveCampaign.Levels[game.CurrentLevel].ToggleLever(X, Y);
             }
         }
 

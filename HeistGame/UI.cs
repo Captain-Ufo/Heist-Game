@@ -3,7 +3,7 @@
 ////////////////////////////////
 
 using System;
-using System.Collections.Generic;
+using System.Text;
 using static System.Console;
 
 namespace HeistGame
@@ -12,8 +12,13 @@ namespace HeistGame
     {
         public char[,] Grid { get; private set; }
 
+        public int UITop { get; private set; }
+
         public UI()
         {
+            //TODO: maybe update this to account for different screen sizes/ratios?
+            UITop = WindowHeight - 4;
+
             Grid = new char[4, WindowWidth];
 
             string firstline = new string('─', WindowWidth);
@@ -31,15 +36,13 @@ namespace HeistGame
                     Grid[y, x] = line[x];
                 }
             }
-
         }
 
         public void DrawUI(Game game)
         {
-            int uiPosition = WindowHeight - 4;
+            int uiPosition = WindowHeight - 2;
 
             SetCursorPosition(0, uiPosition);
-            DrawSeparator();
             DisplayGameData(game);
             DrawVisibilityIndicator(game);
             DisplayObjectivesIndicator(game);
@@ -49,19 +52,10 @@ namespace HeistGame
             Write(quitInfo);
         }
 
-        private void DrawSeparator()
-        {
-            for (int i = 0; i < WindowWidth; i++)
-            {
-                Write("_");
-            }
-            WriteLine("");
-        }
-
         private void DisplayGameData(Game game)
         {
             WriteLine();
-            Write($"   {game.ActiveCampaign.Levels[game.CurrentRoom].Name}");
+            Write($"   {game.ActiveCampaign.Levels[game.CurrentLevel].Name}");
             SetCursorPosition(32, CursorTop);
             Write($"Difficulty: {game.DifficultyLevel}");
             SetCursorPosition(54, CursorTop);
@@ -73,7 +67,7 @@ namespace HeistGame
             SetCursorPosition((WindowWidth / 2) - 10, CursorTop);
             Write("Visibility: [ ");
             int visibilityLevel = game.PlayerCharacter.Visibility / 5;
-            string visibilityDisplay = "";
+            string visibilityDisplay;
             switch (visibilityLevel)
             {
                 default:
@@ -101,7 +95,7 @@ namespace HeistGame
         private void DisplayObjectivesIndicator(Game game)
         {
             SetCursorPosition(CursorLeft + 6, CursorTop);
-            Write($"Objectives: {game.ActiveCampaign.Levels[game.CurrentRoom].GetKeyPiecesProgress()}");
+            Write($"Objectives: {game.ActiveCampaign.Levels[game.CurrentLevel].GetKeyPiecesProgress()}");
         }
     }
 }

@@ -11,7 +11,14 @@ namespace HeistGame
     /// </summary>
     public static class SymbolsConfig
     {
-        public const char Exit = 'Ω';
+        public const char PlayerSymbol = '☺';
+        public const char NPCMarkerUp = '^';
+        public const char NPCMarkerRight = '>';
+        public const char NPCMarkerDown = 'V';
+        public const char NPCMarkerLeft = '<';
+
+        public const char Exit = 'D';
+        public const char ExitConfigSymbol = 'Ω';
 
         public const char Entrance = '≡';
 

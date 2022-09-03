@@ -6,10 +6,7 @@ namespace HeistGame
 {
     internal abstract class Unlockable
     {
-        private Lock lockProp;
-        protected ScreenDisplayer screenDisplayer;
-
-        public Lock LockProp { get => lockProp; protected set => lockProp = value; }
+        public Lock LockProp { get; protected set; }
 
         public abstract void Unlock(int deltaTimeMS, Game game);
 
@@ -23,15 +20,15 @@ namespace HeistGame
         {
             string[] progressText = new string[2];
 
-            progressText[0] = $"Lock level: {lockProp.GetCurrentLockLevel()} / {lockProp.GetLockLevel()}";
-            progressText[1] = $"{lockProp.GetUnlockingProgress()}%";
+            progressText[0] = $"Lock level: {LockProp.GetCurrentLockLevel()} / {LockProp.GetLockLevel()}";
+            progressText[1] = $"{LockProp.GetUnlockingProgress()}%";
 
             return progressText;
         }
 
         public void CancelUnlocking()
         {
-            lockProp.CancelUnlocking();
+            LockProp.CancelUnlocking();
         }
     }
 }

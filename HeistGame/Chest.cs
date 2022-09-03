@@ -41,7 +41,7 @@ namespace HeistGame
                 return;
             }
 
-            game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.ChestOpened.ToString());
+            game.ActiveCampaign.Levels[game.CurrentLevel].ChangeElementAt(x, y, SymbolsConfig.ChestOpened);
 
 
             if (treasure > 0)

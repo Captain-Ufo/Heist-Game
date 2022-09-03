@@ -32,7 +32,7 @@ namespace HeistGame
         /// <param name="game">the current game, required to get the data to save</param>
         public void SaveGame(Game game)
         {
-            GameData data = new GameData(game.ActiveCampaign.Name, game.CurrentRoom, game.PlayerCharacter.Loot, game.TimesSpotted, game.TimesCaught, game.DifficultyLevel);
+            GameData data = new GameData(game.ActiveCampaign.Name, game.CurrentLevel, game.PlayerCharacter.Loot, game.TimesSpotted, game.TimesCaught, game.DifficultyLevel);
 
             string saveGame = JsonSerializer.Serialize(data);
             string saveGameName = "/" + game.ActiveCampaign.Name + "_" + game.DifficultyLevel + ".sav";

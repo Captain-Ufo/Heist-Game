@@ -30,20 +30,16 @@ namespace HeistGame
         {
             IsActive = true;
             SetPosition(game.PlayerCharacter.X, game.PlayerCharacter.Y);
-            Draw();
         }
 
         public void Deactivate()
         {
             IsActive = false;
-            Clear();
         }
 
 
         public void Move(Directions direction)
         {
-            Clear();
-
             switch (direction)
             {
                 case Directions.up:
@@ -51,12 +47,12 @@ namespace HeistGame
                     {
                         if (X == anchorX)
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y - 2) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X, Y - 2)) { return; }
                             Y -= 2;
                         }
                         else
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y - 1) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X, Y - 1)) { return; }
                             Y--;
                         }
                     }
@@ -66,12 +62,12 @@ namespace HeistGame
                     {
                         if (X == anchorX)
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y + 2) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X, Y + 2)) { return; }
                             Y += 2;
                         }
                         else
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y + 1) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X, Y + 1)) { return; }
                             Y++;
                         }
                     }
@@ -81,12 +77,12 @@ namespace HeistGame
                     {
                         if (Y == anchorY)
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X - 2, Y) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X - 2, Y)) { return; }
                             X -= 2;
                         }
                         else
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X - 1, Y) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X - 1, Y)) { return; }
                             X--;
                         }
                     }
@@ -96,19 +92,17 @@ namespace HeistGame
                     {
                         if (Y == anchorY)
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X + 2, Y) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X + 2, Y)) { return; }
                             X += 2;
                         }
                         else
                         {
-                            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X + 1, Y) == null) { return; }
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X + 1, Y)) { return; }
                             X++;
                         }
                     }
                     break;
             }
-
-            Draw();
         }
 
         private void SetPosition(int x, int y)
@@ -117,23 +111,10 @@ namespace HeistGame
             anchorY = y;
             X = anchorX;
             Y = anchorY + 1;
-            if (game.ActiveCampaign.Levels[game.CurrentRoom].GetElementAt(X, Y) == null)
+            if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileInsideBounds(X, Y))
             {
                 Y = anchorY - 1;
             }
-        }
-
-        public void Draw()
-        {
-            Level level = game.ActiveCampaign.Levels[game.CurrentRoom];
-            level.DrawTile(X, Y, level.GetElementAt(X, Y), true);
-
-        }
-
-        private void Clear()
-        {
-            Level level = game.ActiveCampaign.Levels[game.CurrentRoom];
-            level.DrawTile(X, Y, level.GetElementAt(X, Y), false);
         }
     }
 }

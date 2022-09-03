@@ -36,7 +36,7 @@ namespace HeistGame
         public Campaign ActiveCampaign { get; private set; }
         public Player PlayerCharacter { get; private set; }
         public Difficulty DifficultyLevel { get; private set; }
-        public int CurrentRoom { get; private set; }
+        public int CurrentLevel { get; private set; }
         public int TimesSpotted { get; set; }
         public int TimesCaught { get; private set; }
         public Stopwatch MyStopwatch { get; private set; }
@@ -278,7 +278,7 @@ namespace HeistGame
 
             Clear();
 
-            CurrentRoom = startRoom;
+            CurrentLevel = startRoom;
             HasDrawnBackground = false;
             bool hasDisplayedBriefing = false;
 
@@ -287,7 +287,7 @@ namespace HeistGame
                 if (!hasDisplayedBriefing)
                 {
                     MyStopwatch.Stop();
-                    ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Briefing);
+                    ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
                     hasDisplayedBriefing = true;
                 }
 
@@ -303,52 +303,54 @@ namespace HeistGame
                 int deltaTimeMS = (int)(MyStopwatch.ElapsedMilliseconds - timeAtPreviousFrame);
                 timeAtPreviousFrame = MyStopwatch.ElapsedMilliseconds;
 
-                if (!HandleInputs(CurrentRoom, deltaTimeMS))
+                if (!HandleInputs(CurrentLevel, deltaTimeMS))
                 {
                     return;
                 }
 
-                ActiveCampaign.Levels[CurrentRoom].UpdateGuards(deltaTimeMS, this);
+                if (ActiveCampaign.Levels[CurrentLevel].ExploredMap.Count <= 0)
+                {
+                    PlayerCharacter.CalculateVisibleArea(ActiveCampaign.Levels[CurrentLevel]);
+                }
 
-                DrawFrame(CurrentRoom);
+                ActiveCampaign.Levels[CurrentLevel].UpdateGuards(deltaTimeMS, this);
+
+                DrawFrame();
 
                 if (tutorial != null)
                 {
-                    tutorial.DisplayTutorialInstructions(CurrentRoom);
+                    tutorial.DisplayTutorialInstructions(CurrentLevel);
                 }
 
-                string elementAtPlayerPosition = ActiveCampaign.Levels[CurrentRoom].GetElementAt(PlayerCharacter.X, PlayerCharacter.Y);
+                char elementAtPlayerPosition = ActiveCampaign.Levels[CurrentLevel].GetElementAt(PlayerCharacter.X, PlayerCharacter.Y);
 
-                if (elementAtPlayerPosition == SymbolsConfig.Treasure.ToString())
+                if (elementAtPlayerPosition == SymbolsConfig.Treasure)
                 {
                     TunePlayer.PlaySFX(1000, 100);
-                    ActiveCampaign.Levels[CurrentRoom].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.Empty.ToString());
-                    PlayerCharacter.Draw();
+                    ActiveCampaign.Levels[CurrentLevel].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.Empty);
                     PlayerCharacter.ChangeLoot(100);
                 }
-                else if (elementAtPlayerPosition == SymbolsConfig.Key.ToString())
+                else if (elementAtPlayerPosition == SymbolsConfig.Key)
                 {
                     TunePlayer.PlaySFX(800, 100);
-                    ActiveCampaign.Levels[CurrentRoom].CollectKeyPiece(PlayerCharacter.X, PlayerCharacter.Y, this);
-                    PlayerCharacter.Draw();
+                    ActiveCampaign.Levels[CurrentLevel].CollectKeyPiece(PlayerCharacter.X, PlayerCharacter.Y, this);
                 }
-                else if ((elementAtPlayerPosition == SymbolsConfig.LeverOff.ToString()
-                    || elementAtPlayerPosition == SymbolsConfig.LeverOn.ToString())
+                else if ((elementAtPlayerPosition == SymbolsConfig.LeverOff
+                    || elementAtPlayerPosition == SymbolsConfig.LeverOn)
                     && PlayerCharacter.HasMoved)
                 {
                     TunePlayer.PlaySFX(100, 100);
-                    ActiveCampaign.Levels[CurrentRoom].ToggleLever(PlayerCharacter.X, PlayerCharacter.Y);
-                    PlayerCharacter.Draw();
+                    ActiveCampaign.Levels[CurrentLevel].ToggleLever(PlayerCharacter.X, PlayerCharacter.Y);
                 }
-                else if (elementAtPlayerPosition == SymbolsConfig.Exit.ToString() && !ActiveCampaign.Levels[CurrentRoom].IsLocked)
+                else if (elementAtPlayerPosition == SymbolsConfig.Exit && !ActiveCampaign.Levels[CurrentLevel].IsLocked)
                 {
                     MyStopwatch.Stop();
-                    ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentRoom].Outro);
+                    ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Outro);
 
-                    if (ActiveCampaign.Levels.Length > CurrentRoom + 1)
+                    if (ActiveCampaign.Levels.Length > CurrentLevel + 1)
                     {
-                        CurrentRoom++;
-                        PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[CurrentRoom].PlayerStartX, ActiveCampaign.Levels[CurrentRoom].PlayerStartY);
+                        CurrentLevel++;
+                        PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[CurrentLevel].PlayerStartX, ActiveCampaign.Levels[CurrentLevel].PlayerStartY);
                         HasDrawnBackground = false;
                         hasDisplayedBriefing = false;
 
@@ -371,10 +373,10 @@ namespace HeistGame
                 if (ActiveUnlockable != null)
                 {
                     ActiveUnlockable.Unlock(deltaTimeMS, this);
-                    ActiveCampaign.Levels[CurrentRoom].AlertGuards(new Vector2(PlayerCharacter.X, PlayerCharacter.Y), 3);
+                    ActiveCampaign.Levels[CurrentLevel].AlertGuards(new Vector2(PlayerCharacter.X, PlayerCharacter.Y), 3);
                 }
 
-                Thread.Sleep(20);
+                //Thread.Sleep(20);
             }
 
             if (playerHasBeenCaught)
@@ -385,9 +387,9 @@ namespace HeistGame
                     HasDrawnBackground = false;
                     playerHasBeenCaught = false;
                     TimesCaught = 0;
-                    PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[CurrentRoom].PlayerStartX, ActiveCampaign.Levels[CurrentRoom].PlayerStartY);
-                    ActiveCampaign.Levels[CurrentRoom].Reset();
-                    RunGameLoop(CurrentRoom, tutorial);
+                    PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[CurrentLevel].PlayerStartX, ActiveCampaign.Levels[CurrentLevel].PlayerStartY);
+                    ActiveCampaign.Levels[CurrentLevel].Reset();
+                    RunGameLoop(CurrentLevel, tutorial);
                 }
                 else
                 {
@@ -426,10 +428,10 @@ namespace HeistGame
 
 
 
-        private void DrawFrame(int currentRoom)
+        private void DrawFrame()
         {
-            ScreenDisplayer.DrawScreen(ScreenDisplayer.ComposeGameplayScreen(this));
-            if (Selector.IsActive) { Selector.Draw(); }
+            ScreenDisplayer.DrawGameplayScreen(this);
+            ScreenDisplayer.DisplayUI(this);
             CursorVisible = false;
         }
 
@@ -758,7 +760,7 @@ namespace HeistGame
 
             TunePlayer.PlayGameOverTune();
 
-            if (CurrentRoom == 0 || DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.Hard || DifficultyLevel == Difficulty.Ironman)
+            if (CurrentLevel == 0 || DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.Hard || DifficultyLevel == Difficulty.Ironman)
             {
                 RestartMenu();
                 ResetGame(true);
@@ -850,7 +852,7 @@ namespace HeistGame
             TimesSpotted = 0;
             PlayerCharacter.SetLoot(0);
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[0].PlayerStartX, ActiveCampaign.Levels[0].PlayerStartY);
-            CurrentRoom = 0;
+            CurrentLevel = 0;
             totalGold = 0;
             foreach (Level level in ActiveCampaign.Levels)
             {
@@ -1382,7 +1384,7 @@ namespace HeistGame
                 " "
              };
 
-            if (CurrentRoom > 0)
+            if (CurrentLevel > 0)
             {
                 quitMenuPrompt[1] = "The game automatically saved the last level you played, but all your progress in the current level will be lost.";
             }

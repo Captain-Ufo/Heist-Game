@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static System.Console;
@@ -59,8 +63,8 @@ namespace HeistGame
             timeBetweenMoves = walkingSpeed;
             Direction = (Directions)rng.Next(0, 4);
             NPCMarker = npcMarkersLUT[(int)Direction];
-            npcSymbolColor = ConsoleColor.Black;
-            npcTileColor = ConsoleColor.DarkRed;
+            NPCSymbolColor = ConsoleColor.Black;
+            NPCTileColor = ConsoleColor.DarkRed;
             ChoosePivotDirection();
         }
 
@@ -79,26 +83,6 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Assigns the offsets to account for map centering. To be used only at the beginning of the game
-        /// </summary>
-        /// <param name="xOffset">The X offset (from 0)</param>
-        /// <param name="yOffset">The Y offset (from 0)</param>
-        public void AssignOffset(int xOffset, int yOffset)
-        {
-            X += xOffset;
-            Y += yOffset;
-
-            originPoint.X = X;
-            originPoint.Y = Y;
-
-            for (int i = 0; i < patrolPath.Length; i++)
-            {
-                patrolPath[i].X += xOffset;
-                patrolPath[i].Y += yOffset;
-            }
-        }
-
-        /// <summary>
         /// Assigns the patrol path
         /// </summary>
         /// <param name="path">An array of patrol path points in the form of a Coordinates objects</param>
@@ -114,11 +98,6 @@ namespace HeistGame
 
         public override void UpdateBehavior(Level level, Game game, int deltaTimeMS)
         {
-            if (!level.CanPlayerHearTile(new Vector2(X, Y), false))
-            {
-                this.Clear(level);
-            }
-
             timeSinceLastMove += deltaTimeMS;
 
             CatchPlayer(game);
@@ -138,7 +117,7 @@ namespace HeistGame
                     game.TimesSpotted++;
                 }
 
-                npcTileColor = ConsoleColor.Red;
+                NPCTileColor = ConsoleColor.Red;
                 searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
                 isAlerted = true;
                 firstSighted = false;
@@ -148,18 +127,18 @@ namespace HeistGame
             }
             else if (isAlerted)
             {
-                npcTileColor = ConsoleColor.Magenta;
+                NPCTileColor = ConsoleColor.Magenta;
                 firstSighted = true;
                 AlertedBehavior(game);
             }
             else if (isReturning)
             {
-                npcTileColor = ConsoleColor.DarkRed;
+                NPCTileColor = ConsoleColor.DarkRed;
                 ReturnToPatrol(game);
             }
             else
             {
-                npcTileColor = ConsoleColor.DarkRed;
+                NPCTileColor = ConsoleColor.DarkRed;
                 timeBetweenMoves = walkingSpeed;
                 if (patrolPath.Length > 0)
                 {
@@ -386,7 +365,7 @@ namespace HeistGame
                 Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, x, y);
                 foreach (Vector2 tile in tilesToTarget)
                 {
-                    if (!game.ActiveCampaign.Levels[game.CurrentRoom].IsTileWalkable(tile.X, tile.Y))
+                    if (!game.ActiveCampaign.Levels[game.CurrentLevel].IsTileWalkable(tile.X, tile.Y))
                     {
                         break;
                     }
@@ -401,7 +380,7 @@ namespace HeistGame
                 isSearching = true;
                 return;
             }
-            else { SearchPlayer(game.ActiveCampaign.Levels[game.CurrentRoom]); }
+            else { SearchPlayer(game.ActiveCampaign.Levels[game.CurrentLevel]); }
 
             alertTimer++;
 
@@ -410,7 +389,7 @@ namespace HeistGame
                 alertTimer = 0;
                 isAlerted = false;
                 isSearching = false;
-                npcTileColor = ConsoleColor.DarkRed;
+                NPCTileColor = ConsoleColor.DarkRed;
                 timeBetweenMoves = walkingSpeed;
                 isReturning = true;
             }

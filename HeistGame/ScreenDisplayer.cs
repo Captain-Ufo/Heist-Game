@@ -22,7 +22,7 @@ namespace HeistGame
 
 
         //All these elements come from stackoverflow.com/questions/2754518/how-can-i-write-fast-colored-output-to-console.
-        //Yeah, I'm code momnkeying this and I have no regrets for now :P
+        //Yeah, I'm code monkeying this and I have no regrets for now :P
         [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern SafeFileHandle CreateFile(
             string fileName,
@@ -77,6 +77,7 @@ namespace HeistGame
             public short Bottom;
         }
 
+        [STAThread]
         public static void Initialise()
         {
             ui = new UI();
@@ -89,93 +90,208 @@ namespace HeistGame
         }
 
         /// <summary>
-        /// Collects and compare data from the various game elements and creates a the matrix that will be displayed
+        /// Collects and compare data from the various game elements and creates a the matrix that will be displayed.
+        /// After that, it raws (very quickly) the whole screen from said data.
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public static char[,] ComposeGameplayScreen(Game game)
+        [STAThread]
+        public static void DrawGameplayScreen(Game game)
         {
-            char[,] screen = new char[WindowHeight, WindowWidth];
+            if (safeFileHandle.IsInvalid) { return; }
 
-            for (int y = 0; y < WindowHeight; y++)
+            short windowWidth = (short)WindowWidth;
+            short windowHeight = (short)WindowHeight;
+
+            CharInfo[] buffer = new CharInfo[windowWidth * windowHeight];
+            SmallRect rect = new SmallRect() { Left = 0, Top = 0, Right = windowWidth, Bottom = windowHeight };
+            char c = ' ';
+
+            Random random = new Random();
+
+            for (int y = 0; y < windowHeight; y++)
             {
-                for (int x = 0; x < WindowWidth; x++)
+                for (int x = 0; x < windowWidth; x++)
                 {
-                    //Check if it's the center of the screen (that is, where the player would be in the scrolling map system)
-                    if (x == leftOffset && y == topOffset)
-                    {
-                        screen[y, x] = game.PlayerCharacter.PlayerMarker;
-                        continue;
-                    }
-
-                    //Add UI
-                    int uiPos = WindowHeight - 5;
-                    if (y >= uiPos)
-                    {
-                        screen[y, x] = ui.Grid[y - uiPos, x];
-                        //TODO: requiers to actually update the UI class to make this do anything.
-                        continue;
-                    }
-
-                    //Check if the tile is under a lable
-                    if (IsTileUnderLable(new Vector2(x, y)))
-                    {
-                        screen[y, x] = lable.LableTiles[new Vector2(x, y)];
-                        continue;
-                    }
-
                     //translate screen tile coordinates to map tile coordinates
                     int offsetX = x - leftOffset + game.PlayerCharacter.X;
                     int offsetY = y - topOffset + game.PlayerCharacter.Y;
 
-                    Level level = game.ActiveCampaign.Levels[game.CurrentRoom];
+                    Level level = game.ActiveCampaign.Levels[game.CurrentLevel];
 
                     Vector2 tile = new Vector2(offsetX, offsetY);
 
-                    //Check guard tiles
-                    if (level.VisibleGuards.ContainsKey(tile))
+                    //Check if it's the center of the screen (that is, where the player would be in the scrolling map system)
+                    if (x == leftOffset && y == topOffset)
                     {
-                        screen[y, x] = level.VisibleGuards[tile].NPCMarker;
-                        //TODO: check offsets and such in the cleanup/refactor round
+                        c = game.PlayerCharacter.PlayerMarker;
                     }
 
-                    //Check if tile has not been explored, in which case it has to be empty
-                    if (!level.ExploredMap.ContainsKey(tile))
+                    //Add UI
+                    else if (y >= ui.UITop)
                     {
-                        screen[y, x] = ' ';
-                        continue;
+                        c = ui.Grid[y - ui.UITop, x];
                     }
 
-                    //Check if the tile is visible floor, in roder to add the lighting marks to it
-                    if (level.Grid[y, x] == SymbolsConfig.Empty && level.VisibleMap.Contains(tile))
+                    //Check if the tile is under a lable
+                    else if (IsTileUnderLable(new Vector2(x, y)))
                     {
-                        int lightLevel = level.GetLightLevelInItile(tile, false);
+                        c = lable.LableTiles[new Vector2(x, y)];
+                    }
 
-                        switch (lightLevel)
+                    else
+                    {
+                        //Check guard tiles
+                        if (level.VisibleGuards.ContainsKey(tile))
                         {
-                            case 0:
-                                screen[y, x] = SymbolsConfig.Light0;
-                                break;
-                            case 1:
-                                screen[y, x] = SymbolsConfig.Light1;
-                                break;
-                            case 2:
-                                screen[y, x] = SymbolsConfig.Light2;
-                                break;
-                            case 3:
-                                screen[y, x] = SymbolsConfig.Light3;
-                                break;
+                            c = level.VisibleGuards[tile].NPCMarker;
+                            //TODO: check offsets and such in the cleanup/refactor round
                         }
 
-                        continue;
+                        //Check if tile has not been explored, in which case it has to be empty
+                        else if (!level.ExploredMap.ContainsKey(tile))
+                        {
+                            c = SymbolsConfig.Empty;
+                        }
+
+                        //Check if tile has not been explored, in which case it has to be empty
+                        else if (level.Grid[tile.Y, tile.X] == SymbolsConfig.Empty && level.VisibleMap.Contains(tile))
+                        {
+                            int lightLevel = level.GetLightLevelInItile(tile);
+
+                            switch (lightLevel)
+                            {
+                                case 0:
+                                    c = SymbolsConfig.Light0;
+                                    break;
+                                case 1:
+                                    c = SymbolsConfig.Light1;
+                                    break;
+                                case 2:
+                                    c = SymbolsConfig.Light2;
+                                    break;
+                                case 3:
+                                    c = SymbolsConfig.Light3;
+                                    break;
+                            }
+                        }
+
+                        else
+                        {
+                            //Finally, if all special conditions fail, just add the tile from the map
+                            c = level.ExploredMap[tile];
+                        }
                     }
 
-                    //Finally, if all special conditions fail, just add the tile from the map
-                    screen[y, x] = level.ExploredMap[tile];
+                    buffer[y * windowWidth + x].Char.UnicodeChar = c;
+
+                    if (c == SymbolsConfig.PlayerSymbol)
+                    {
+                        buffer[y * windowWidth + x].Attributes = (short)game.PlayerCharacter.CurrentColor;
+                    }
+
+                    if (game.Selector.IsActive && game.Selector.X == tile.X && game.Selector.Y == tile.Y)
+                    {
+                        //if the tile is selected, set colors to balck symbol + white background
+                        buffer[y * windowWidth + x].Attributes = (0 | (15 << 4));
+                    }
+                    else if (level.VisibleMap.Contains(tile))
+                    {
+                        //set colors
+                        //black = 0
+                        //dark blue = 1
+                        //dark green = 2
+                        //dark cyan = 3
+                        //dark red = 4
+                        //dark magenta = 5
+                        //dark yellow = 6
+                        //grey = 7
+                        //dark grey = 8
+                        //blue = 9
+                        //green = 10
+                        //cyan = 11
+                        //red = 12
+                        //magenta = 13
+                        //yellow = 14
+                        //white = 15
+                        short color;
+
+                        switch (c)
+                        {
+                            case SymbolsConfig.Light0:
+                            case SymbolsConfig.Light1:
+                            case SymbolsConfig.Light2:
+                            case SymbolsConfig.Light3:
+                                //blue
+                                if (level.GetElementAt(tile.X, tile.Y) == SymbolsConfig.Empty)
+                                {
+                                    //blue
+                                    buffer[y * windowWidth + x].Attributes = 1;
+                                }
+                                else
+                                {
+                                    //light grey (because the horizontal window uses the same character as light0)
+                                    buffer[y * windowWidth + x].Attributes = 7;
+                                }
+                                break;
+                            case SymbolsConfig.Treasure:
+                                //jellow
+                                buffer[y * windowWidth + x].Attributes = 14;
+                                break;
+                            case SymbolsConfig.Exit:
+                                if (level.IsLocked)
+                                {
+                                    //red
+                                    buffer[y * windowWidth + x].Attributes = 12;
+                                }
+                                else
+                                {
+                                    //green
+                                    buffer[y * windowWidth + x].Attributes = 10;
+                                }
+                                break;
+                            case SymbolsConfig.Key:
+                                //dark yellow
+                                buffer[y * windowWidth + x].Attributes = 6;
+                                break;
+                            case SymbolsConfig.NPCMarkerUp:
+                            case SymbolsConfig.NPCMarkerRight:
+                            case SymbolsConfig.NPCMarkerDown:
+                            case SymbolsConfig.NPCMarkerLeft:
+                                color = (short)level.VisibleGuards[tile].NPCSymbolColor;
+                                short bgColor = (short)level.VisibleGuards[tile].NPCTileColor;
+                                buffer[y * windowWidth + x].Attributes = (short)(color | (short)(bgColor << 4));
+                                break;
+                            case SymbolsConfig.ChestClosed:
+                            case SymbolsConfig.ChestOpened:
+                            case SymbolsConfig.Signpost:
+                                //white
+                                buffer[y * windowWidth + x].Attributes = 15;
+                                break;
+                            default:
+                                //grey
+                                buffer[y * windowWidth + x].Attributes = 7;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if (c == SymbolsConfig.NPCMarkerDown || c == SymbolsConfig.NPCMarkerUp ||
+                            c == SymbolsConfig.NPCMarkerLeft || c == SymbolsConfig.NPCMarkerRight)
+                        {
+                            //dark grey
+                            buffer[y * windowWidth + x].Attributes = (8 | (8 << 4));
+                        }
+                        else
+                        {
+                            //dark grey
+                            buffer[y * windowWidth + x].Attributes = 8;
+                        }
+                    }
                 }
             }
 
-            return screen;
+            WriteConsoleOutputW(safeFileHandle, buffer, new Coord() { X = windowWidth, Y = windowHeight }, new Coord() { X = 0, Y = 0 }, ref rect);
         }
 
         /// <summary>
@@ -205,10 +321,9 @@ namespace HeistGame
             }
 
             WriteConsoleOutputW(safeFileHandle, buffer, new Coord() { X = windowWidth, Y = windowHeight }, new Coord() { X = 0, Y = 0 }, ref rect);
-
         }
 
-        public void DisplayUI(Game game)
+        public static void DisplayUI(Game game)
         {
             ui.DrawUI(game);
         }
@@ -220,7 +335,7 @@ namespace HeistGame
 
         public static void DeleteLable(Game game)
         {
-            lable.Cancel(game.ActiveCampaign.Levels[game.CurrentRoom]);
+            lable.Cancel(game.ActiveCampaign.Levels[game.CurrentLevel]);
         }
 
         public static bool IsTileUnderLable(Vector2 tile)

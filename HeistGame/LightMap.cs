@@ -117,7 +117,7 @@ namespace HeistGame
 
                     foreach (Vector2 IlluminatedPoint in points)
                     {
-                        if (!Level.IsTileTransparent(IlluminatedPoint.X, IlluminatedPoint.Y, false))
+                        if (!Level.IsTileTransparent(IlluminatedPoint.X, IlluminatedPoint.Y))
                         {
                             break;
                         }

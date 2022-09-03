@@ -56,7 +56,7 @@ namespace HeistGame
         /// <returns>returns whether the level is still locked or not (so true if there are other pieces to collect, false if there are none)</returns>
         public bool CollectKeyPiece(Game game, int x, int y)
         {
-            game.ActiveCampaign.Levels[game.CurrentRoom].ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
+            game.ActiveCampaign.Levels[game.CurrentLevel].ChangeElementAt(x, y, SymbolsConfig.Empty);
 
             revealedKeyPieces--;
             TotalCollectedKeys++;
@@ -67,7 +67,7 @@ namespace HeistGame
                 {
                     DisplayObjectiveMessage(game);
 
-                    RevealKeys(game.ActiveCampaign.Levels[game.CurrentRoom]);
+                    RevealKeys(game.ActiveCampaign.Levels[game.CurrentLevel]);
                     return true;
                 }
                 return false;
@@ -125,12 +125,12 @@ namespace HeistGame
                     if (i == 1)
                     {
                         revealedKeyPieces++;
-                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key.ToString(), false, false);
+                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key);
                     }
                     else
                     {
                         hiddenKeyPieces++;
-                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Empty.ToString(), false, false);
+                        level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Empty);
                     }
                 }
             }
@@ -144,7 +144,7 @@ namespace HeistGame
                 revealedKeyPieces++;
                 TotalKnownKeys++;
                 hiddenKeyPieces--;
-                level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key.ToString(), false);
+                level.ChangeElementAt(key.X, key.Y, SymbolsConfig.Key);
             }
             hiddenKeyGroup++;
         }

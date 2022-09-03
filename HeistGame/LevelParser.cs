@@ -28,7 +28,7 @@ namespace HeistGame
             int rows = mission.LevelMap.Length;
             int columns = firstLine.Length;
 
-            string[,] grid = new string[rows, columns];
+            char[,] grid = new char[rows, columns];
 
             int playerStartX = -1;
             int playerStartY = -1;
@@ -220,7 +220,6 @@ namespace HeistGame
                 string line = mission.LevelMap[y];
                 for (int x = 0; x < columns; x++)
                 {
-                    int l = line.Length;
                     char currentChar = line[x];
 
                     Vector2 leverGate;
@@ -255,8 +254,9 @@ namespace HeistGame
                             floorTiles.Add(new Vector2(x, y));
                             break;
                         //Exit
-                        case SymbolsConfig.Exit:
+                        case SymbolsConfig.ExitConfigSymbol:
                             exit = new Vector2(x, y);
+                            currentChar = SymbolsConfig.Exit;
                             floorTiles.Add(exit);
                             break;
                         //keys
@@ -457,7 +457,7 @@ namespace HeistGame
                             currentChar = doorsVisualsLUT[currentChar];
                             break;
                     }
-                    grid[y, x] = currentChar.ToString();
+                    grid[y, x] = currentChar;
                 }
             }
 
@@ -581,7 +581,7 @@ namespace HeistGame
     /// </summary>
     class LevelInfo
     {
-        public string[,] Grid { get; }
+        public char[,] Grid { get; }
         public LevelLock LevLock { get; }
         public int PlayerStartX { get; }
         public int PlayerStartY { get; }
@@ -596,7 +596,7 @@ namespace HeistGame
         public Dictionary<Vector2, string[]> MessagesDictionary { get; }
         public Dictionary<Vector2, Unlockable> UnlockablesDictionary { get; }
 
-        public LevelInfo(string[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
+        public LevelInfo(char[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
                          Light[] strongLights, Light[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards,
                          Dictionary<Vector2, string[]> messagesDictionary, Dictionary<Vector2, Unlockable> unlockablesDictionary)
         {

@@ -14,11 +14,8 @@ namespace HeistGame
     /// </summary>
     class Level
     {
-        private readonly string[,] grid;
         private readonly int rows;
         private readonly int columns;
-        private readonly int xOffset;
-        private readonly int yOffset;
         private readonly Vector2 exit;
         private readonly LevelLock levelLock;
         private readonly Dictionary<Vector2, Lever> leversDictionary;
@@ -83,7 +80,6 @@ namespace HeistGame
         /// The set of all map tiles the player can hear movement from
         /// </summary>
         public HashSet<Vector2> PlayerHearingArea { get; private set; }
-        private HashSet<Vector2> tilesToDraw;
 
         /// <summary>
         /// The lightmap of the level
@@ -108,7 +104,7 @@ namespace HeistGame
         /// <param name="briefing">The intro text to the level; an array of strings, one per each line.</param>
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
-        public Level(string name, string[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
+        public Level(string name, char[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
                      Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, 
                      Unlockable> unlockables, string[] briefing, string[] outro, Game game)
         {
@@ -116,20 +112,16 @@ namespace HeistGame
             ExploredMap = new Dictionary<Vector2, char>();
             ExploredMapSet = new HashSet<Vector2>();
             PlayerHearingArea = new HashSet<Vector2>();
-            tilesToDraw = new HashSet<Vector2>();
             VisibleGuards = new Dictionary<Vector2, Guard>();
 
             Name = name;
             Briefing = briefing;
             Outro = outro;
 
-            this.grid = grid;
+            Grid = grid;
 
-            rows = this.grid.GetLength(0);
-            columns = this.grid.GetLength(1);
-
-            xOffset = (WindowWidth / 2) - (columns / 2);
-            yOffset = ((WindowHeight - 5) / 2) - (rows / 2);
+            rows = Grid.GetLength(0);
+            columns = Grid.GetLength(1);
 
             this.game = game;
             this.stopwatch = game.MyStopwatch;
@@ -142,36 +134,31 @@ namespace HeistGame
 
             foreach (KeyValuePair<Vector2, Lever> leverInfo in levers)
             {
-                Vector2 coordinatesWithOffset = new Vector2(leverInfo.Key.X + xOffset, leverInfo.Key.Y + yOffset);
+                Vector2 LeverCoordinates = new Vector2(leverInfo.Key.X, leverInfo.Key.Y);
                 Lever lever = leverInfo.Value;
 
-                leversDictionary[coordinatesWithOffset] = lever;
+                leversDictionary[LeverCoordinates] = lever;
             }
 
             messagesDictionary = new Dictionary<Vector2, string[]>();
 
             foreach (KeyValuePair<Vector2, string[]> messageInfo in messages)
             {
-                Vector2 coordinatesWithOffset = new Vector2(messageInfo.Key.X + xOffset, messageInfo.Key.Y + yOffset);
+                Vector2 SignpostCoordinates = new Vector2(messageInfo.Key.X , messageInfo.Key.Y);
 
-                messagesDictionary[coordinatesWithOffset] = messageInfo.Value;
+                messagesDictionary[SignpostCoordinates] = messageInfo.Value;
             }
 
             LevelGuards = guards;
 
             this.unlockables = unlockables;
 
-            foreach (Guard guard in guards)
-            {
-                guard.AssignOffset(xOffset, yOffset);
-            }
-
             this.levelLock = levelLock;
 
             IsLocked = levelLock.IsLocked();
 
-            PlayerStartX = startX + xOffset;
-            PlayerStartY = startY + yOffset;
+            PlayerStartX = startX;
+            PlayerStartY = startY;
 
             FloorTiles = floorTiles;
             Lights = lightmap;
@@ -179,14 +166,8 @@ namespace HeistGame
             Lights.CalculateLightMap(this);
         }
 
-        public void UpdatePlayerHearingArea(Vector2 tile, bool withOffset = true)
+        public void UpdatePlayerHearingArea(Vector2 tile)
         {
-            if (withOffset)
-            {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
-            }
-
             PlayerHearingArea.Add(tile);
             if (!PlayerHearingArea.Contains(tile))
             {
@@ -194,14 +175,8 @@ namespace HeistGame
             }
         }
 
-        public void UpdateVisibleMap(Vector2 tile, bool withOffset = true)
+        public void UpdateVisibleMap(Vector2 tile)
         {
-            if (withOffset)
-            {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
-            }
-
             if (!VisibleMap.Contains(tile))
             {
                 VisibleMap.Add(tile);
@@ -217,435 +192,14 @@ namespace HeistGame
             }
         }
 
-        public void CalculateTilesToDraw()
-        {
-            HashSet<Vector2> temp = new HashSet<Vector2>();
-
-            foreach (Vector2 tile in VisibleMap)
-            {
-                temp.Add(tile);
-            }
-
-            tilesToDraw.SymmetricExceptWith(temp);
-        }
-
         public void ClearPlayerPercetionMaps()
         {
             PlayerHearingArea.Clear();
 
             if (VisibleMap.Count > 0)
             {
-                tilesToDraw = VisibleMap;
                 VisibleMap = new HashSet<Vector2>();
             }
-        }
-
-        /// <summary>
-        /// Draws the map on screen, automatically centered
-        /// </summary>
-        public void Draw()
-        {
-            HashSet<Vector2> guardsTiles = new HashSet<Vector2>();
-            for (int i = 0; i < LevelGuards.Length; i++)
-            {
-                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
-                if (!guardsTiles.Contains(guardPos))
-                {
-                    guardsTiles.Add(guardPos);
-                }
-            }
-
-            foreach (Vector2 tile in tilesToDraw)
-            {
-                Vector2 tileWithOffset = new Vector2(tile.X + xOffset, tile.Y + yOffset);
-                if (guardsTiles.Contains(tileWithOffset))
-                {
-                    //skips tiles with guards to prevent flickering. The guard's update will take care of
-                    //redrawing the tile once they move.
-                    continue;
-                }
-
-                string element = grid[tile.Y, tile.X];
-                SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
-                ForegroundColor = ConsoleColor.DarkGray;
-
-                if (element == SymbolsConfig.EnclosedSpace.ToString())
-                {
-                    element = SymbolsConfig.Empty.ToString();
-                }
-                else if (element == SymbolsConfig.Empty.ToString())
-                {
-                    int lightValue = Lights.FloorTilesValues[tile];
-                    if (VisibleMap.Contains(tile))
-                    {
-                        ForegroundColor = ConsoleColor.DarkBlue;
-
-                        switch (lightValue)
-                        {
-                            case 0:
-                                element = SymbolsConfig.Light0.ToString();
-                                break;
-                            case 1:
-                                element = SymbolsConfig.Light1.ToString();
-                                break;
-                            case 2:
-                                element = SymbolsConfig.Light2.ToString();
-                                break;
-                            case 3:
-                                element = SymbolsConfig.Light3.ToString();
-                                break;
-                            default:
-                                element = SymbolsConfig.Light0.ToString();
-                                break;
-                        }
-                    }
-                }
-                else if (element == SymbolsConfig.Exit.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                    {
-                        if (IsLocked)
-                        {
-                            ForegroundColor = ConsoleColor.Red;
-                        }
-                        else
-                        {
-                            ForegroundColor = ConsoleColor.Green;
-                        }
-                    }
-                }
-                else if (element == SymbolsConfig.Key.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.DarkYellow;
-                }
-                else if (element == SymbolsConfig.Treasure.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.Yellow;
-                }
-                else if (element == "☺")
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.DarkMagenta;
-                }
-                else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.White;
-                }
-                else
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.Gray;
-                }
-                Write(element);
-            }
-
-            ResetColor();
-        }
-
-        public void DrawVisibleArea()
-        {
-            HashSet<Vector2> guardsTiles = new HashSet<Vector2>();
-            for (int i = 0; i < LevelGuards.Length; i++)
-            {
-                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
-                if (!guardsTiles.Contains(guardPos))
-                {
-                    guardsTiles.Add(guardPos);
-                }
-            }
-
-            foreach (Vector2 tile in VisibleMap)
-            {
-                Vector2 tileWithOffset = new Vector2(tile.X + xOffset, tile.Y + yOffset);
-                if (guardsTiles.Contains(tileWithOffset))
-                {
-                    //skips tiles with guards to prevent flickering. The guard's update will take care of
-                    //redrawing the tile once they move.
-                    continue;
-                }
-
-                string element = grid[tile.Y, tile.X];
-                SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
-                ForegroundColor = ConsoleColor.DarkGray;
-
-                if (element == SymbolsConfig.EnclosedSpace.ToString())
-                {
-                    element = SymbolsConfig.Empty.ToString();
-                }
-                else if (element == SymbolsConfig.Empty.ToString())
-                {
-                    int lightValue = Lights.FloorTilesValues[tile];
-                    if (VisibleMap.Contains(tile))
-                    {
-                        ForegroundColor = ConsoleColor.DarkBlue;
-
-                        switch (lightValue)
-                        {
-                            case 0:
-                                element = SymbolsConfig.Light0.ToString();
-                                break;
-                            case 1:
-                                element = SymbolsConfig.Light1.ToString();
-                                break;
-                            case 2:
-                                element = SymbolsConfig.Light2.ToString();
-                                break;
-                            case 3:
-                                element = SymbolsConfig.Light3.ToString();
-                                break;
-                        }
-                    }
-                }
-                else if (element == SymbolsConfig.Exit.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                    {
-                        if (IsLocked)
-                        {
-                            ForegroundColor = ConsoleColor.Red;
-                        }
-                        else
-                        {
-                            ForegroundColor = ConsoleColor.Green;
-                        }
-                    }
-                }
-                else if (element == SymbolsConfig.Key.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.DarkYellow;
-                }
-                else if (element == SymbolsConfig.Treasure.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.Yellow;
-                }
-                else if (element == "☺")
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.DarkMagenta;
-                }
-                else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.White;
-                }
-                else
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.Gray;
-                }
-                Write(element);
-            }
-
-            ResetColor();
-        }
-
-        /// <summary>
-        /// Draws the whole explored map on screen, automatically centered
-        /// </summary>
-        public void DrawWholeMap()
-        {
-            HashSet<Vector2> guardsTiles = new HashSet<Vector2>();
-            for (int i = 0; i < LevelGuards.Length; i++)
-            {
-                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
-                if (!guardsTiles.Contains(guardPos))
-                {
-                    guardsTiles.Add(guardPos);
-                }
-            }
-
-            foreach (Vector2 tile in ExploredMapSet)
-            {
-                Vector2 tileWithOffset = new Vector2(tile.X + xOffset, tile.Y + yOffset);
-                if (guardsTiles.Contains(tileWithOffset))
-                {
-                    //skips tiles with guards to prevent flickering. The guard's update will take care of
-                    //redrawing the tile once they move.
-                    continue;
-                }
-
-                string element = grid[tile.Y, tile.X];
-                SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
-                ForegroundColor = ConsoleColor.DarkGray;
-
-                if (element == SymbolsConfig.EnclosedSpace.ToString())
-                {
-                    element = SymbolsConfig.Empty.ToString();
-                }
-                else if (element == SymbolsConfig.Empty.ToString())
-                {
-                    int lightValue = Lights.FloorTilesValues[tile];
-                    if (VisibleMap.Contains(tile))
-                    {
-                        ForegroundColor = ConsoleColor.DarkBlue;
-
-                        switch (lightValue)
-                        {
-                            case 0:
-                                element = SymbolsConfig.Light0.ToString();
-                                break;
-                            case 1:
-                                element = SymbolsConfig.Light1.ToString();
-                                break;
-                            case 2:
-                                element = SymbolsConfig.Light2.ToString();
-                                break;
-                            case 3:
-                                element = SymbolsConfig.Light3.ToString();
-                                break;
-                        }
-                    }
-                }
-                else if (element == SymbolsConfig.Exit.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                    {
-                        if (IsLocked)
-                        {
-                            ForegroundColor = ConsoleColor.Red;
-                        }
-                        else
-                        {
-                            ForegroundColor = ConsoleColor.Green;
-                        }
-                    }
-                }
-                else if (element == SymbolsConfig.Key.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.DarkYellow;
-                }
-                else if (element == SymbolsConfig.Treasure.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.Yellow;
-                }
-                else if (element == "☺")
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.DarkMagenta;
-                }
-                else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.White;
-                }
-                else
-                {
-                    if (VisibleMap.Contains(tile))
-                        ForegroundColor = ConsoleColor.Gray;
-                }
-                Write(element);
-            }
-
-            ResetColor();
-        }
-
-        public void DrawTile(int x, int y, string element, bool highlighted = false)
-        {
-            if (highlighted) { BackgroundColor = ConsoleColor.White; }
-
-            SetCursorPosition(x, y);
-            Vector2 tile = new Vector2(x, y);
-            if (element == SymbolsConfig.Empty.ToString())
-            {
-                if (CanPlayerSeeTile(tile))
-                {
-                    int lightValue = GetLightLevelInItile(tile);
-                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                    else
-                    { ForegroundColor = ConsoleColor.DarkBlue; }
-                    switch (lightValue)
-                    {
-                        case 0:
-                            element = SymbolsConfig.Light0.ToString();
-                            break;
-                        case 1:
-                            element = SymbolsConfig.Light1.ToString();
-                            break;
-                        case 2:
-                            element = SymbolsConfig.Light2.ToString();
-                            break;
-                        case 3:
-                            element = SymbolsConfig.Light3.ToString();
-                            break;
-                    }
-                }
-            }
-            else if (element == SymbolsConfig.Exit.ToString())
-            {
-                if (IsLocked)
-                {
-                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                    else if (CanPlayerSeeTile(tile))
-                        { ForegroundColor = ConsoleColor.Red; }
-                    else if (HasPlayerExploredTile(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                    else { element = " "; }
-                }
-                else
-                {
-                    if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                    else if (CanPlayerSeeTile(tile))
-                        { ForegroundColor = ConsoleColor.Green; }
-                    else if (HasPlayerExploredTile(tile))
-                        { ForegroundColor = ConsoleColor.DarkGray; }
-                    else { element = " "; }
-                }
-            }
-            else if (element == SymbolsConfig.Key.ToString())
-            {
-                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkYellow; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
-                else { element = " "; }
-            }
-            else if (element == SymbolsConfig.Treasure.ToString())
-            {
-                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
-                else if (CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.Yellow; }
-                else { element = " "; }
-            }
-            else if (element == "☺")
-            {
-                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkMagenta; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
-                else { element = " "; }
-            }
-            else if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestClosed.ToString())
-            {
-                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.White; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
-                else { element = " "; }
-            }
-            else
-            {
-                if (highlighted) { ForegroundColor = ConsoleColor.Black; }
-                else if (CanPlayerSeeTile(tile))
-                    { ForegroundColor = ConsoleColor.Gray; }
-                else if (HasPlayerExploredTile(tile))
-                    { ForegroundColor = ConsoleColor.DarkGray; }
-                else
-                { element = " "; }
-            }
-            Write(element);
-            ResetColor();
         }
 
         /// <summary>
@@ -654,15 +208,9 @@ namespace HeistGame
         /// <param name="tile">The coordinates of the tile to be checked, as a Vector2</param>
         /// <param name="withOffset">Set to true if the coordinates provided are with the centering offsets</param>
         /// <returns></returns>
-        public int GetLightLevelInItile(Vector2 tile, bool withOffset = true)
+        public int GetLightLevelInItile(Vector2 tile)
         {
-            if (withOffset)
-            {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
-            }
-
-            if (grid[tile.Y, tile.X] == "-" || grid[tile.Y, tile.X] == "|")
+            if (Grid[tile.Y, tile.X] == '-' || Grid[tile.Y, tile.X] == '|')
             {
                 return 0;
             }
@@ -678,74 +226,57 @@ namespace HeistGame
         /// <returns>Returns true if walkable, false if not</returns>
         public bool IsTileWalkable(int x, int y)
         {
-            x -= xOffset;
-            y -= yOffset;
-
             if (x < 0 || y < 0 || x >= columns || y >= rows)
             {
                 return false;
             }
 
-            if (grid[y, x] == SymbolsConfig.VerticalDoorVisual.ToString() || grid[y, x] == SymbolsConfig.HorizontalDoorVisual.ToString())
+            if (Grid[y, x] == SymbolsConfig.VerticalDoorVisual || Grid[y, x] == SymbolsConfig.HorizontalDoorVisual)
             {
                 Vector2 tile = new Vector2(x, y);
                 return !unlockables[tile].IsLocked();
             }
 
-            return grid[y, x] == SymbolsConfig.Empty.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light1.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light2.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light3.ToString() ||
-                   grid[y, x] == SymbolsConfig.Entrance.ToString() ||
-                   grid[y, x] == SymbolsConfig.Exit.ToString() ||
-                   grid[y, x] == SymbolsConfig.Key.ToString() ||
-                   grid[y, x] == SymbolsConfig.Treasure.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOff.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOn.ToString();
+            return Grid[y, x] == SymbolsConfig.Empty ||
+                   Grid[y, x] == SymbolsConfig.Light1 ||
+                   Grid[y, x] == SymbolsConfig.Light2 ||
+                   Grid[y, x] == SymbolsConfig.Light3 ||
+                   Grid[y, x] == SymbolsConfig.Entrance ||
+                   Grid[y, x] == SymbolsConfig.Exit ||
+                   Grid[y, x] == SymbolsConfig.Key ||
+                   Grid[y, x] == SymbolsConfig.Treasure ||
+                   Grid[y, x] == SymbolsConfig.LeverOff ||
+                   Grid[y, x] == SymbolsConfig.LeverOn;
         }
 
-        public bool CanPlayerHearTile (Vector2 tile, bool WithOffset = true)
+        public bool CanPlayerHearTile (Vector2 tile)
         {
-            if (WithOffset)
-            {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
-            }
-
             return PlayerHearingArea.Contains(tile);
         }
 
-        public bool CanPlayerSeeTile(Vector2 tile, bool WithOffset = true)
+        public bool CanPlayerSeeTile(Vector2 tile)
         {
-            if (WithOffset)
-            {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
-            }
-
             return VisibleMap.Contains(tile);
         }
 
-        public bool HasPlayerExploredTile(Vector2 tile, bool WithOffset = true)
+        public bool HasPlayerExploredTile(Vector2 tile)
         {
-            if (WithOffset)
-            {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
-            }
-
             return ExploredMap.ContainsKey(tile);
         }
 
-        public bool IsTileInsideBounds(Vector2 tile, bool removeOffset = true)
+        public bool IsTileInsideBounds(Vector2 tile)
         {
-            if (removeOffset)
+            if (tile.X < 0 || tile.Y < 0 || tile.X >= columns || tile.Y >= rows)
             {
-                tile.X -= xOffset;
-                tile.Y -= yOffset;
+                return false;
             }
 
-            if (tile.X < 0 || tile.Y < 0 || tile.X >= columns || tile.Y >= rows)
+            return true;
+        }
+
+        public bool IsTileInsideBounds(int x, int y)
+        {
+            if (x < 0 || y < 0 || x >= columns || y >= rows)
             {
                 return false;
             }
@@ -758,36 +289,29 @@ namespace HeistGame
         /// </summary>
         /// <param name="x">The X coordinate of the position to check</param>
         /// <param name="y">The Y coordinate of the position to check</param>
-        /// <param name="removeOffset">Indicates whether the check must be performed with or without the offsets used to center the map on the screen</param>
         /// <returns></returns>
-        public bool IsTileTransparent(int x, int y, bool removeOffset = true)
+        public bool IsTileTransparent(int x, int y)
         {
-            if (removeOffset)
-            {
-                x -= xOffset;
-                y -= yOffset;
-            }
-
             if (x < 0 || y < 0 || x >= columns || y >= rows)
             {
                 return false;
             }
 
-            return grid[y, x] == SymbolsConfig.Empty.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light1.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light2.ToString() ||
-                   grid[y, x] == SymbolsConfig.Light3.ToString() ||
-                   grid[y, x] == SymbolsConfig.Exit.ToString() ||
-                   grid[y, x] == SymbolsConfig.Entrance.ToString() ||
-                   grid[y, x] == SymbolsConfig.Key.ToString() ||
-                   grid[y, x] == SymbolsConfig.Treasure.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOff.ToString() ||
-                   grid[y, x] == SymbolsConfig.LeverOn.ToString()||
-                   grid[y, x] == SymbolsConfig.Signpost.ToString()||
-                   grid[y, x] == SymbolsConfig.ChestClosed.ToString()||
-                   grid[y, x] == SymbolsConfig.ChestOpened.ToString()||
-                   grid[y, x] == SymbolsConfig.TransparentWallHorizontal.ToString()||
-                   grid[y, x] == SymbolsConfig.TransparentWallVertical.ToString();
+            return Grid[y, x] == SymbolsConfig.Empty ||
+                   Grid[y, x] == SymbolsConfig.Light1 ||
+                   Grid[y, x] == SymbolsConfig.Light2 ||
+                   Grid[y, x] == SymbolsConfig.Light3 ||
+                   Grid[y, x] == SymbolsConfig.Exit ||
+                   Grid[y, x] == SymbolsConfig.Entrance ||
+                   Grid[y, x] == SymbolsConfig.Key ||
+                   Grid[y, x] == SymbolsConfig.Treasure ||
+                   Grid[y, x] == SymbolsConfig.LeverOff ||
+                   Grid[y, x] == SymbolsConfig.LeverOn||
+                   Grid[y, x] == SymbolsConfig.Signpost||
+                   Grid[y, x] == SymbolsConfig.ChestClosed||
+                   Grid[y, x] == SymbolsConfig.ChestOpened||
+                   Grid[y, x] == SymbolsConfig.TransparentWallHorizontal||
+                   Grid[y, x] == SymbolsConfig.TransparentWallVertical;
         }
 
         /// <summary>
@@ -796,83 +320,68 @@ namespace HeistGame
         /// <param name="x">The X coordinate of the position to check</param>
         /// <param name="y">The Y coordinate of the position to check</param>
         /// <returns>Returns the symbol found at these coordinates on the grid</returns>
-        public string GetElementAt(int x, int y)
+        public char GetElementAt(int x, int y)
         {
-            int _x = x - xOffset;
-            int _y = y - yOffset;
-
-            if (_x < 0 || _y < 0 || _x >= columns || _y >= rows) { return null; }
-
-            return grid[_y, _x];
-        }
-
-        public string GetElementAt(int x, int y, bool withOffset = true)
-        {
-            if (withOffset)
-            {
-                y -= yOffset;
-
-                x -= xOffset;
-            }
-
-            if (x < 0 || y < 0 || x >= columns || y >= rows) { return null; }
-
-            return grid[y, x];
+            return Grid[y, x];
         }
 
         public bool InteractWithElementAt(int x, int y, Game game)
         {
-            string element = GetElementAt (x, y);
+            if (!IsTileInsideBounds(x, y)) { return false; }
 
-            if (element == null) { return false; }
+            char element = GetElementAt(x, y);
 
-            if (element == SymbolsConfig.Empty.ToString()) { return false; }
-            if (element == "═" || element == "╔" || element == "╗" || element == "║" || element == "╚" || element == "╝" ||
-                element == "╠" || element == "╣" || element == "╩" || element == "╦" || element == "╬" || 
-                element == SymbolsConfig.Gate.ToString())
+            switch (element)
             {
-                return false;
-            }
+                case SymbolsConfig.Empty:
+                case '═':
+                case '╔':
+                case '╗':
+                case '║':
+                case '╚':
+                case '╝':
+                case '╠':
+                case '╣':
+                case '╩':
+                case '╦':
+                case '╬':
+                case SymbolsConfig.Gate:
+                    return false;
 
-            if (element == SymbolsConfig.Treasure.ToString()) 
-            {
-                game.TunePlayer.PlaySFX(1000, 100);
-                game.PlayerCharacter.ChangeLoot(100);
-                ChangeElementAt(x, y, SymbolsConfig.Empty.ToString());
-                return true;
-            }
-            if (element == SymbolsConfig.Key.ToString())
-            {
-                game.TunePlayer.PlaySFX(800, 100);
-                CollectKeyPiece(x, y, game);
-                return true;
-            }
-            if (element == SymbolsConfig.LeverOff.ToString() || element == SymbolsConfig.LeverOn.ToString())
-            {
-                game.TunePlayer.PlaySFX(100, 100);
-                ToggleLever(x, y);
-                game.PlayerCharacter.Draw();
-                return true;
-            }
-            if (element == SymbolsConfig.Signpost.ToString())
-            {
-                ReadMessage(x, y, game);
-                return true;
-            }
-            if (element == SymbolsConfig.ChestClosed.ToString() || element == SymbolsConfig.ChestOpened.ToString())
-            {
-                ControlsManager.ResetControlState(game);
-                Lockpick(x, y, game);
-                return true;
-            }
-            if (element == SymbolsConfig.HorizontalDoorVisual.ToString() || element == SymbolsConfig.VerticalDoorVisual.ToString())
-            {
-                ControlsManager.ResetControlState(game);
-                Lockpick(x, y, game);
-                return true;
-            }
+                case SymbolsConfig.Treasure:
+                    game.TunePlayer.PlaySFX(1000, 100);
+                    game.PlayerCharacter.ChangeLoot(100);
+                    ChangeElementAt(x, y, SymbolsConfig.Empty);
+                    return true;
 
-            return false;
+                case SymbolsConfig.Key:
+                    game.TunePlayer.PlaySFX(800, 100);
+                    CollectKeyPiece(x, y, game);
+                    return true;
+
+                case SymbolsConfig.LeverOff:
+                case SymbolsConfig.LeverOn:
+                    game.TunePlayer.PlaySFX(100, 100);
+                    ToggleLever(x, y);
+                    return true;
+
+                case SymbolsConfig.Signpost:
+                    ReadMessage(x, y, game);
+                    return true;
+
+                case SymbolsConfig.ChestClosed:
+                case SymbolsConfig.ChestOpened:
+                    ReadMessage(x, y, game);
+                    return true;
+
+                case SymbolsConfig.HorizontalDoorVisual:
+                case SymbolsConfig.VerticalDoorVisual:
+                    ControlsManager.ResetControlState(game);
+                    Lockpick(x, y, game);
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         /// <summary>
@@ -881,32 +390,9 @@ namespace HeistGame
         /// <param name="x">The X coordinate of the symbol to replace</param>
         /// <param name="y">The X coordinate of the symbol to replace</param>
         /// <param name="newElement">The new symbol</param>
-        /// <param name="withOffset">(optional) default true, set to false if the indicated coordinates are without the offset applied</param>
-        public void ChangeElementAt(int x, int y, string newElement, bool withOffset = true, bool redraw = true)
+        public void ChangeElementAt(int x, int y, char newElement)
         {
-            int destX = x;
-            int destY = y;
-
-            if (withOffset)
-            {
-                destX -= xOffset;
-                destY -= yOffset;
-            }
-
-            grid[destY, destX] = newElement;
-
-            if (redraw)
-            {
-                if (ExploredMapSet.Contains(new Vector2(x, y))) 
-                {
-                    if (!withOffset)
-                    {
-                        x += xOffset;
-                        y += yOffset;
-                    }
-                    DrawTile(x, y, newElement);
-                }
-            }
+            Grid[y, x] = newElement;
         }
 
         /// <summary>
@@ -939,7 +425,7 @@ namespace HeistGame
                 neighborsList.Add(CreateNewTile(currentTile.X, currentTile.Y - 1));
             }
 
-            if (currentTile.Y + 1 < rows + yOffset && IsTileWalkable(currentTile.X, currentTile.Y + 1))
+            if (currentTile.Y + 1 < rows && IsTileWalkable(currentTile.X, currentTile.Y + 1))
             {
                 neighborsList.Add(CreateNewTile(currentTile.X, currentTile.Y + 1));
             }
@@ -949,7 +435,7 @@ namespace HeistGame
                 neighborsList.Add(CreateNewTile(currentTile.X - 1, currentTile.Y));
             }
 
-            if (currentTile.X + 1 < columns + xOffset && IsTileWalkable(currentTile.X + 1, currentTile.Y))
+            if (currentTile.X + 1 < columns && IsTileWalkable(currentTile.X + 1, currentTile.Y))
             {
                 neighborsList.Add(CreateNewTile(currentTile.X + 1, currentTile.Y));
             }
@@ -972,7 +458,7 @@ namespace HeistGame
         /// </summary>
         /// <param name="x">The X coordinate on the grid of the level to toggle</param>
         /// <param name="y">The Y coordinate on the grid of the level to toggle</param>
-        public void ToggleLever(int x, int y, bool withOffset = true)
+        public void ToggleLever(int x, int y)
         {
             stopwatch.Stop();
 
@@ -981,18 +467,10 @@ namespace HeistGame
             if (leversDictionary.ContainsKey(leverCoord))
             {
                 Lever lever = leversDictionary[leverCoord];
-                int xOffsetLocal = 0;
-                int yOffsetLocal = 0;
-                if (withOffset)
-                {
-                    xOffsetLocal = xOffset;
-                    yOffsetLocal = yOffset;
-                }
-                lever.Toggle(this, game, xOffsetLocal, yOffsetLocal, false);
+                lever.Toggle(this, game);
             }
 
             Lights.CalculateLightMap(this);
-            RedrawFloors();
             stopwatch.Start();
         }
 
@@ -1004,11 +482,6 @@ namespace HeistGame
         public void CollectKeyPiece(int x, int y, Game game)
         {
             IsLocked = levelLock.CollectKeyPiece(game, x, y);
-
-            if (!IsLocked)
-            {
-                DrawTile(exit.X + xOffset, exit.Y + yOffset, SymbolsConfig.Exit.ToString());
-            }
         }
 
         /// <summary>
@@ -1057,20 +530,6 @@ namespace HeistGame
             }
         }
 
-        /// <summary>
-        /// Draws all guards
-        /// </summary>
-        public void DrawGuards(Game game)
-        {
-            if (LevelGuards.Length > 0)
-            {
-                foreach (Guard guard in LevelGuards)
-                {
-                    guard.Draw(game);
-                }
-            }
-        }
-
         private void ReadMessage(int x, int y, Game game)
         {
             Vector2 messageCoords = new Vector2(x, y);
@@ -1083,9 +542,6 @@ namespace HeistGame
 
         private void Lockpick(int x, int y, Game game)
         {
-            x -= xOffset;
-            y -= yOffset;
-
             Vector2 tile = new Vector2(x, y);
 
             if (!unlockables.ContainsKey(tile))
@@ -1096,67 +552,11 @@ namespace HeistGame
             unlockables[tile].Unlock(game);
         }
 
-        private void RedrawFloors()
-        {
-            HashSet<Vector2> guardsPositions = new HashSet<Vector2>();
-            for (int i = 0; i < LevelGuards.Length; i++)
-            {
-                Vector2 guardPos = new Vector2(LevelGuards[i].X, LevelGuards[i].Y);
-                guardsPositions.Add(guardPos);
-            }
-
-            foreach (Vector2 tile in FloorTiles)
-            {
-                if (!VisibleMap.Contains(tile))
-                {
-                    continue;
-                }
-
-                if (GetElementAt(tile.X, tile.Y, false) != SymbolsConfig.Empty.ToString())
-                {
-                    continue;
-                }
-
-                Vector2 tileWithOffset = new Vector2(tile.X + xOffset, tile.Y + yOffset);
-
-                if (guardsPositions.Contains(tileWithOffset))
-                {
-                    //skips tiles with guards to prevent flickering. The guard's update will take care of redrawing the tile once they move.
-                    continue;
-                }
-
-                SetCursorPosition(tile.X + xOffset, tile.Y + yOffset);
-
-                char symbol = SymbolsConfig.Empty;
-
-                int lightValue = GetLightLevelInItile(tile, false);
-
-                ForegroundColor = ConsoleColor.DarkBlue;
-                switch (lightValue)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                        symbol = SymbolsConfig.Light1;
-                        break;
-                    case 2:
-                        symbol = SymbolsConfig.Light2;
-                        break;
-                    case 3:
-                        symbol = SymbolsConfig.Light3;
-                        break;
-                }
-
-                Write(symbol);
-                ResetColor();
-            }
-        }
-
         private void ResetTreasures()
         {
             foreach (Vector2 treasure in treasures)
             {
-                ChangeElementAt(treasure.X, treasure.Y, SymbolsConfig.Treasure.ToString(), false, false);
+                ChangeElementAt(treasure.X, treasure.Y, SymbolsConfig.Treasure);
             }
         }
 
@@ -1166,7 +566,7 @@ namespace HeistGame
             {
                 if (lever.IsOn)
                 {
-                    lever.Toggle(this, game, xOffset, yOffset, false);
+                    lever.Toggle(this, game);
                 }
             }
         }

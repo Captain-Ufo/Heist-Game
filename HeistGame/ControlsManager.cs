@@ -114,7 +114,7 @@ namespace HeistGame
                         }
                         else
                         {
-                            if (!game.ActiveCampaign.Levels[game.CurrentRoom].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
                             {
                                 State = ControlState.Idle;
                                 game.Selector.Deactivate();
@@ -135,7 +135,7 @@ namespace HeistGame
                         }
                         else
                         {
-                            if (!game.ActiveCampaign.Levels[game.CurrentRoom].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
+                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
                             { 
                                 State = ControlState.Idle;
                                 game.Selector.Deactivate(); 

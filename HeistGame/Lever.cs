@@ -25,33 +25,32 @@ namespace HeistGame
         /// <param name="level">The level the lever and the connected gates are in</param>
         /// <param name="xOffset">Horizontal offset to account for the centering of the World map on the screen</param>
         /// <param name="yOffset">Vertical offset to account for the centering of the World map on the screen</param>
-        public void Toggle(Level level, Game game, int xOffset, int yOffset, bool redraw = true)
+        public void Toggle(Level level, Game game)
         {
             IsOn = !IsOn;
 
-            string leverSymbol = SymbolsConfig.LeverOn.ToString();
+            char leverSymbol = SymbolsConfig.LeverOn;
 
             if (!IsOn)
             {
-                leverSymbol = SymbolsConfig.LeverOff.ToString();
+                leverSymbol = SymbolsConfig.LeverOff;
             }
 
             foreach (Vector2 coordinates in connectedGates)
             {
-                if (level.GetElementAt(coordinates.X + xOffset, coordinates.Y + yOffset) == SymbolsConfig.Gate.ToString())
+                if (level.GetElementAt(coordinates.X, coordinates.Y) == SymbolsConfig.Gate)
                 {
-                    level.ChangeElementAt(coordinates.X + xOffset, coordinates.Y + yOffset, SymbolsConfig.Empty.ToString(), true, redraw);
+                    level.ChangeElementAt(coordinates.X, coordinates.Y, SymbolsConfig.Empty);
                 }
                 else
                 {
-                    level.ChangeElementAt(coordinates.X + xOffset, coordinates.Y + yOffset, SymbolsConfig.Gate.ToString(), true, redraw);
+                    level.ChangeElementAt(coordinates.X, coordinates.Y, SymbolsConfig.Gate);
                 }
             }
 
-            level.ChangeElementAt(x + xOffset, y + yOffset, leverSymbol, true, redraw);
+            level.ChangeElementAt(x, y, leverSymbol);
 
             game.PlayerCharacter.CalculateVisibleArea(level);
-            level.DrawVisibleArea();
         }
 
         /// <summary>
