@@ -120,7 +120,7 @@ namespace HeistGame
                     Level level = game.ActiveCampaign.Levels[game.CurrentLevel];
 
                     Vector2 tile = new Vector2(offsetX, offsetY);
-
+                    
                     //Check if it's the center of the screen (that is, where the player would be in the scrolling map system)
                     if (x == leftOffset && y == topOffset)
                     {
@@ -145,7 +145,6 @@ namespace HeistGame
                         if (level.VisibleGuards.ContainsKey(tile))
                         {
                             c = level.VisibleGuards[tile].NPCMarker;
-                            //TODO: check offsets and such in the cleanup/refactor round
                         }
 
                         //Check if tile has not been explored, in which case it has to be empty
@@ -214,7 +213,6 @@ namespace HeistGame
                         //magenta = 13
                         //yellow = 14
                         //white = 15
-                        short color;
 
                         switch (c)
                         {
@@ -258,7 +256,7 @@ namespace HeistGame
                             case SymbolsConfig.NPCMarkerRight:
                             case SymbolsConfig.NPCMarkerDown:
                             case SymbolsConfig.NPCMarkerLeft:
-                                color = (short)level.VisibleGuards[tile].NPCSymbolColor;
+                                short color = (short)level.VisibleGuards[tile].NPCSymbolColor;
                                 short bgColor = (short)level.VisibleGuards[tile].NPCTileColor;
                                 buffer[y * windowWidth + x].Attributes = (short)(color | (short)(bgColor << 4));
                                 break;
@@ -276,7 +274,11 @@ namespace HeistGame
                     }
                     else
                     {
-                        if (c == SymbolsConfig.NPCMarkerDown || c == SymbolsConfig.NPCMarkerUp ||
+                        if (c == SymbolsConfig.PlayerSymbol)
+                        {
+                            buffer[y * windowWidth + x].Attributes = (short)game.PlayerCharacter.CurrentColor;
+                        }
+                        else if (c == SymbolsConfig.NPCMarkerDown || c == SymbolsConfig.NPCMarkerUp ||
                             c == SymbolsConfig.NPCMarkerLeft || c == SymbolsConfig.NPCMarkerRight)
                         {
                             //dark grey
@@ -315,8 +317,6 @@ namespace HeistGame
                     char c = screen[y, x];
 
                     buffer[y * WindowWidth + x].Char.AsciiChar = Convert.ToByte(c);
-
-                    //TODO: Set colors
                 }
             }
 

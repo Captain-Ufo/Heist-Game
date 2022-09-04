@@ -40,7 +40,7 @@ namespace HeistGame
 
         public void DrawUI(Game game)
         {
-            int uiPosition = WindowHeight - 2;
+            int uiPosition = WindowHeight - 3;
 
             SetCursorPosition(0, uiPosition);
             DisplayGameData(game);

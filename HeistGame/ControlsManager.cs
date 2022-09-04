@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using static System.Console;
 
 namespace HeistGame

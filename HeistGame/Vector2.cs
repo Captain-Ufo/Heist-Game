@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 
 namespace HeistGame
 {

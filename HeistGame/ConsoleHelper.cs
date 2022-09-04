@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Text.Json;

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
 
 namespace HeistGame
 {

@@ -25,8 +25,6 @@ namespace HeistGame
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
 
-        public Dictionary<Vector2, Guard> VisibleGuards { get; private set; }
-
         public Guard[] LevelGuards { get; private set; }
 
         public char[,] Grid { get; private set; }
@@ -65,7 +63,10 @@ namespace HeistGame
         /// The set of all walkable tiles on the floor, including those under gates, levers, treasures and keys
         /// </summary>
         public HashSet<Vector2> FloorTiles { get; private set; }
-
+        /// <summary>
+        /// The set of all tiles seen by the player since the beginning of the level (not necessarily those they see now).
+        /// The tile symbol is keyed with the tile's coordinates as Vector2
+        /// </summary>
         public Dictionary<Vector2, char> ExploredMap { get; private set; }
         /// <summary>
         /// The set of all map tiles that have been seen by the player at any point while moving through the level.
@@ -80,6 +81,10 @@ namespace HeistGame
         /// The set of all map tiles the player can hear movement from
         /// </summary>
         public HashSet<Vector2> PlayerHearingArea { get; private set; }
+        /// <summary>
+        /// The set of all guards currently in the player's hearing range, keyed with their current tile in this frame
+        /// </summary>
+        public Dictionary<Vector2, Guard> VisibleGuards { get; private set; }
 
         /// <summary>
         /// The lightmap of the level
@@ -371,7 +376,8 @@ namespace HeistGame
 
                 case SymbolsConfig.ChestClosed:
                 case SymbolsConfig.ChestOpened:
-                    ReadMessage(x, y, game);
+                    ControlsManager.ResetControlState(game);
+                    Lockpick(x, y, game);
                     return true;
 
                 case SymbolsConfig.HorizontalDoorVisual:
@@ -393,6 +399,12 @@ namespace HeistGame
         public void ChangeElementAt(int x, int y, char newElement)
         {
             Grid[y, x] = newElement;
+
+            Vector2 tile = new Vector2(x, y);
+            if (VisibleMap.Contains(tile))
+            {
+                ExploredMap[tile] = newElement;
+            }
         }
 
         /// <summary>

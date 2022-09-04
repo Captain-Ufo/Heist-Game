@@ -287,7 +287,14 @@ namespace HeistGame
                 if (!hasDisplayedBriefing)
                 {
                     MyStopwatch.Stop();
-                    ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
+                    if (tutorial != null)
+                    {
+                        ScreenDisplayer.DisplayTextFullScreen(tutorial.TutorialMissions[CurrentLevel].Briefing);
+                    }
+                    else
+                    {
+                        ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
+                    }
                     hasDisplayedBriefing = true;
                 }
 
@@ -316,11 +323,6 @@ namespace HeistGame
                 ActiveCampaign.Levels[CurrentLevel].UpdateGuards(deltaTimeMS, this);
 
                 DrawFrame();
-
-                if (tutorial != null)
-                {
-                    tutorial.DisplayTutorialInstructions(CurrentLevel);
-                }
 
                 char elementAtPlayerPosition = ActiveCampaign.Levels[CurrentLevel].GetElementAt(PlayerCharacter.X, PlayerCharacter.Y);
 

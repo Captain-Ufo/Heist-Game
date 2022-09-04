@@ -24,13 +24,13 @@ namespace HeistGame
             int xOffset = (maxMessageLength + 2) / 2;
             int x = WindowWidth / 2;
             int lableLeft = x - xOffset;
-            int lableRight = lableLeft + maxMessageLength;
+            int lableRight = lableLeft + maxMessageLength + 1;
 
             int lableHeight = message.Length + 2;
-            int yOffset =lableHeight;
+            int yOffset = lableHeight;
             int y = WindowHeight / 2 - 2;
             int lableTop = y - yOffset;
-            int lableBottom = lableTop + lableHeight;
+            int lableBottom = lableTop + lableHeight - 1;
 
             ComposeLable(lableLeft, lableRight, lableTop, lableBottom, maxMessageLength, message);
 
@@ -40,13 +40,17 @@ namespace HeistGame
         private void ComposeLable(int lableLeft, int lableright, int lableTop, int lableBottom, int maxMessageLength, string[] message)
         {
             string[] lableMessage = new string[message.Length];
+            StringBuilder sb = new StringBuilder(maxMessageLength);
 
             for (int i = 0; i < message.Length; i++)
             {
-                if (message[i].Length == maxMessageLength) { continue; }
+                if (message[i].Length == maxMessageLength) 
+                { 
+                    lableMessage[i] = message[i];
+                    continue; 
+                }
 
-                StringBuilder sb = new StringBuilder(maxMessageLength);
-
+                sb.Clear();
                 int lengthDifference = maxMessageLength - message[i].Length;
                 int firstHalf = lengthDifference / 2;
                 int secondHalf = lengthDifference - firstHalf;
@@ -59,10 +63,14 @@ namespace HeistGame
             }
 
             LableTiles.Clear();
+            int yIndex = -2;
             for (int y = lableTop; y <= lableBottom; y++)
             {
+                yIndex++;
+                int xIndex = -2;
                 for (int x = lableLeft; x <= lableright; x++)
                 {
+                    xIndex++;
 
                     if (y == lableTop)
                     {
@@ -106,8 +114,9 @@ namespace HeistGame
                         continue;
                     }
 
-                    string line = lableMessage[y];
-                    char c = line[x];
+
+                    string line = lableMessage[yIndex];
+                    char c = line[xIndex];
 
                     LableTiles.Add(new Vector2(x, y), c);
 

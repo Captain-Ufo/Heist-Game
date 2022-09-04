@@ -1,4 +1,8 @@
-﻿namespace HeistGame
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+namespace HeistGame
 {
     class Campaign
     {

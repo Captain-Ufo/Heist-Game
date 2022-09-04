@@ -1,4 +1,8 @@
-﻿using System.Threading;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System.Threading;
 using System.Threading.Tasks;
 using static System.Console;
 

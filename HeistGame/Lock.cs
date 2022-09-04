@@ -1,4 +1,8 @@
-﻿using System;
+﻿////////////////////////////////
+//Hest!, © Cristian Baldi 2022//
+////////////////////////////////
+
+using System;
 
 namespace HeistGame
 {
@@ -14,7 +18,7 @@ namespace HeistGame
         {
             lockLevel = level;
             currentLockLevel = level;
-            timeBetweenTicks = 100;
+            timeBetweenTicks = 50;
             timeSinceLastTick = 0;
             unlockingProgress = 0;
         }
@@ -51,6 +55,7 @@ namespace HeistGame
             if (timeSinceLastTick > timeBetweenTicks)
             {
                 unlockingProgress++;
+                timeSinceLastTick = 0;
                 if (unlockingProgress % 20 == 0)
                 {
                     game.TunePlayer.PlaySFX(150, 50);
