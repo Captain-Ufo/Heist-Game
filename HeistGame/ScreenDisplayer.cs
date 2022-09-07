@@ -194,6 +194,10 @@ namespace HeistGame
                         //if the tile is selected, set colors to balck symbol + white background
                         buffer[y * windowWidth + x].Attributes = (0 | (15 << 4));
                     }
+                    else if (IsTileUnderLable(new Vector2(x, y)))
+                    {
+                        buffer[y * windowWidth + x].Attributes = 7;
+                    }
                     else if (level.VisibleMap.Contains(tile))
                     {
                         //set colors
@@ -274,20 +278,56 @@ namespace HeistGame
                     }
                     else
                     {
-                        if (c == SymbolsConfig.PlayerSymbol)
+                        switch (c)
                         {
-                            buffer[y * windowWidth + x].Attributes = (short)game.PlayerCharacter.CurrentColor;
-                        }
-                        else if (c == SymbolsConfig.NPCMarkerDown || c == SymbolsConfig.NPCMarkerUp ||
-                            c == SymbolsConfig.NPCMarkerLeft || c == SymbolsConfig.NPCMarkerRight)
-                        {
-                            //dark grey
-                            buffer[y * windowWidth + x].Attributes = (8 | (8 << 4));
-                        }
-                        else
-                        {
-                            //dark grey
-                            buffer[y * windowWidth + x].Attributes = 8;
+                            case SymbolsConfig.Light3:
+                                if (y >= ui.UITop)
+                                {
+                                    //yellow (at this position, it can only be the visibility indicator)
+                                    buffer[y * windowWidth + x].Attributes = 14;
+                                    break;
+                                }
+                                //dark grey
+                                buffer[y * windowWidth + x].Attributes = 8;
+                                break;
+
+                            case SymbolsConfig.Light2:
+                                if (y >= ui.UITop)
+                                {
+                                    //dark yellow (at this position, it can only be the visibility indicator)
+                                    buffer[y * windowWidth + x].Attributes = 6;
+                                    break;
+                                }
+                                //dark grey
+                                buffer[y * windowWidth + x].Attributes = 8;
+                                break;
+
+                            case SymbolsConfig.PlayerSymbol:
+                                buffer[y * windowWidth + x].Attributes = (short)game.PlayerCharacter.CurrentColor;
+                                break;
+
+                            case SymbolsConfig.NPCMarkerDown:
+                            case SymbolsConfig.NPCMarkerRight:
+                            case SymbolsConfig.NPCMarkerLeft:
+                            case SymbolsConfig.NPCMarkerUp:
+                                if (y >= ui.UITop)
+                                {
+                                    //grey (at this position, it can only be UI text)
+                                    buffer[y * windowWidth + x].Attributes = 8;
+                                    break;
+                                }
+                                else
+                                {
+                                    //it's a guard
+                                    //dark grey (ArrayWithOffset background too)
+                                    buffer[y * windowWidth + x].Attributes = (8 | (8 << 4));
+                                }
+                                break;
+
+                            default:
+                                //dark grey
+                                buffer[y * windowWidth + x].Attributes = 8;
+                                break;
                         }
                     }
                 }
@@ -323,9 +363,9 @@ namespace HeistGame
             WriteConsoleOutputW(safeFileHandle, buffer, new Coord() { X = windowWidth, Y = windowHeight }, new Coord() { X = 0, Y = 0 }, ref rect);
         }
 
-        public static void DisplayUI(Game game)
+        public static void UpdateUI(Game game)
         {
-            ui.DrawUI(game);
+            ui.UpdateUI(game);
         }
 
         public static void DisplayMessageOnLable(string[] message)

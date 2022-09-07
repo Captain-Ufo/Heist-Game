@@ -432,8 +432,8 @@ namespace HeistGame
 
         private void DrawFrame()
         {
+            ScreenDisplayer.UpdateUI(this);
             ScreenDisplayer.DrawGameplayScreen(this);
-            ScreenDisplayer.DisplayUI(this);
             CursorVisible = false;
         }
 
