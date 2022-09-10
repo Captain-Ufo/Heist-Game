@@ -22,7 +22,7 @@ namespace HeistGame
     }
 
     //TODO / Nice to have?: 
-    // 1 - Scrolling levels and decouple level size from screen size
+    // 1 - Adapt UI elements to different screen sizes (whithin reason)
     // 2? - Custom difficulty settings? Being able to set parameters individually
     // 3? - The above requires not only a refactoring of everything impacted by difficulty, but also a change in the savegame system.
     // 4? - Civilians. Basically similar to guards, except they don't patrol (they only move close to their spawn point) and don't chase
@@ -34,7 +34,7 @@ namespace HeistGame
     //      knock out guards and civilians, lethal darts would hurt them (one hit kill seems too easy)
     // 9? - Player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
     // 10? - Awake guards can spot and revive unconscious guards (same visibility as player)
-    // 11? - Maps in the level. Different types: all walls/layout, exit location, objectives and exit. Maybe two versions each: one in chest,
+    // 11? - Maps in the level. Different types: all walls/layout, exit location, objectives. Maybe two versions each: one in chest,
     //       one "in the wild" to be collected straight away.
     // 12 - Redesign the tutorial to better explain concepts and be more interesting (series of backalleys maps)
     // 13 - List of messages read so far (only for the level? Including briefiengs and outros too? Color coded for type?)

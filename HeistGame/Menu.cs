@@ -61,6 +61,7 @@ namespace HeistGame
         {
             ConsoleKey keyPressed;
             selectedIndex = 0;
+            ResetColor();
 
             do
             {
@@ -121,6 +122,7 @@ namespace HeistGame
         public int RunWithUpdatingPrompt(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, string[][] updatedPrompts)
         {
             selectedIndex = 0;
+            ResetColor();
 
             ConsoleKey keyPressed;
 
@@ -186,6 +188,7 @@ namespace HeistGame
         public int RunWithScrollingOptions(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions)
         {
             selectedIndex = 0;
+            ResetColor();
 
             ConsoleKey keyPressed;
 
@@ -295,6 +298,7 @@ namespace HeistGame
         public int RunWithDeleteEntry(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd, int numberOfDisplayedOptions, out bool delete)
         {
             selectedIndex = 0;
+            ResetColor();
 
             ConsoleKey keyPressed;
             delete = false;

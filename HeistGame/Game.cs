@@ -128,27 +128,37 @@ namespace HeistGame
                     RunMainMenu();
                 }
 
-                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
-
-                if (levelInfo.PlayerStartX < 0)
+                try
                 {
-                    ErrorWarnings.MissingPlayerStartingPoint(levelFile);
-                    RunMainMenu();
-                }
+                    LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
 
-                if (levelInfo.Exit.X < 0)
+                    if (levelInfo.PlayerStartX < 0)
+                    {
+                        ErrorWarnings.MissingPlayerStartingPoint(levelFile);
+                        RunMainMenu();
+                    }
+
+                    if (levelInfo.Exit.X < 0)
+                    {
+                        ErrorWarnings.MissingExit(levelFile);
+                        RunMainMenu();
+                    }
+
+                    LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+                    levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
+                                         levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
+                                         levelInfo.MapsDictionary, levelInfo.Walls, missionConfig.Briefing, missionConfig.Outro, this));
+
+                    totalGold += levelInfo.TotalGold;
+                }
+                catch (Exception e)
                 {
-                    ErrorWarnings.MissingExit(levelFile);
-                    RunMainMenu();
+                    {
+                        ErrorWarnings.IncorrectLevelData(levelFile, e);
+                        RunMainMenu();
+                    }
                 }
-
-                LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
-
-                levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
-                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                     missionConfig.Briefing, missionConfig.Outro, this));
-
-                totalGold += levelInfo.TotalGold;
             }
 
             ActiveCampaign = new Campaign(config.Name, levels.ToArray());
@@ -180,32 +190,43 @@ namespace HeistGame
                 RunMainMenu();
             }
 
-            LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
-
-            if (levelInfo.PlayerStartX < 0)
+            try
             {
-                ErrorWarnings.MissingPlayerStartingPoint(levelFile);
-                RunMainMenu();
-            }
+                LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(missionConfig, DifficultyLevel);
 
-            if (levelInfo.Exit.X < 0)
+                if (levelInfo.PlayerStartX < 0)
+                {
+                    ErrorWarnings.MissingPlayerStartingPoint(levelFile);
+                    RunMainMenu();
+                }
+
+                if (levelInfo.Exit.X < 0)
+                {
+                    ErrorWarnings.MissingExit(levelFile);
+                    RunMainMenu();
+                }
+
+                LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+
+                levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
+                                     levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
+                                     levelInfo.MapsDictionary, levelInfo.Walls, missionConfig.Briefing, missionConfig.Outro, this));
+
+                totalGold += levelInfo.TotalGold;
+
+                ActiveCampaign = new Campaign(levelFile, levels.ToArray());
+
+                PlayerCharacter = new Player(levels[0]);
+                PlayerCharacter.SetLoot(0);
+            }
+            catch (Exception e)
             {
-                ErrorWarnings.MissingExit(levelFile);
-                RunMainMenu();
+                {
+                    //Safeguard
+                    ErrorWarnings.IncorrectLevelData(levelFile, e);
+                    RunMainMenu();
+                }
             }
-
-            LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
-
-            levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
-                                 levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                 missionConfig.Briefing, missionConfig.Outro, this));
-
-            totalGold += levelInfo.TotalGold;
-
-            ActiveCampaign = new Campaign(levelFile, levels.ToArray());
-
-            PlayerCharacter = new Player(levels[0]);
-            PlayerCharacter.SetLoot(0);
         }
 
 
@@ -222,7 +243,7 @@ namespace HeistGame
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
                                      levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, 
-                                     levelInfo.UnlockablesDictionary, null, null, this));
+                                     levelInfo.UnlockablesDictionary, levelInfo.MapsDictionary, levelInfo.Walls, null, null, this));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
@@ -480,6 +501,7 @@ namespace HeistGame
             ActiveUnlockable = null;
             ScreenDisplayer.DeleteLable(this);
             Clear();
+            ResetColor();
             SetCursorPosition(0, 3);
 
             int bribeCostIncrease = 50;
@@ -672,6 +694,7 @@ namespace HeistGame
         private void GameOver()
         {
             Clear();
+            ResetColor();
 
             string[] gameOverArt =
             {
@@ -819,7 +842,9 @@ namespace HeistGame
 
             Clear();
 
+            ForegroundColor = ConsoleColor.Yellow;
             WriteLine(SymbolsConfig.OutroArt);
+            ResetColor();
 
             SetCursorPosition(0, (WindowHeight / 3) - (outro.Length / 2) + 5);
 
@@ -975,6 +1000,7 @@ namespace HeistGame
         private void RunMainMenu()
         {
             Clear();
+            ResetColor();
             string[] saveFiles = saveSystem.CheckForSavedGames();
 
             string gameVersionText = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -1379,6 +1405,7 @@ namespace HeistGame
         {
             Selector.Deactivate();
             Clear();
+            ResetColor();
             string[] quitMenuPrompt =
              {
                 "Are you sure you want to quit?",

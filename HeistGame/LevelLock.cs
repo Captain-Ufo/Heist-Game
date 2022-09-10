@@ -149,6 +149,11 @@ namespace HeistGame
             hiddenKeyGroup++;
         }
 
+        public List<Vector2> GetTierKeys(int index = 1)
+        {
+            return levelKeys[index];
+        }
+
         private void DisplayObjectiveMessage(Game game)
         {
             if (objectiveMessages != null)

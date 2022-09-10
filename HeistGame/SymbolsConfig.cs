@@ -24,7 +24,7 @@ namespace HeistGame
 
         public const char Key = '¶';
 
-        public const char Spawn = '»';
+        public const char Spawn = '@';
 
         public const char Empty = ' ';
 
@@ -47,11 +47,16 @@ namespace HeistGame
 
         public const char Signpost = '?';
 
+        public const char WallsMap = '!';
+        public const char ExitMap = '¡';
+        public const char ObjectivesMap = '¿';
+        public const char FullMap = '?';
+
         public const char VerticalDoorVisual = '|';
         public const char VerticalDoorOpen = '¦';
-        public const char VerticalDoorLock1 = '!';
-        public const char VerticalDoorLock2 = '¡';
-        public const char VerticalDoorLock3 = '|';
+        public const char VerticalDoorLock1 = '▎';
+        public const char VerticalDoorLock2 = '▌';
+        public const char VerticalDoorLock3 = '█';
 
         public const char HorizontalDoorVisual = '-';
         public const char HorizontalDoorOpen = '~';

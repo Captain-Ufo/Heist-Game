@@ -22,7 +22,6 @@ namespace HeistGame
         public static LevelInfo ParseConfigToLevelInfo(MissionConfig mission, Difficulty difficulty)
         {
             //first, creating a whole bunch of variables that will hold the informations for the creation of the level
-
             string firstLine = mission.LevelMap[0];
 
             int rows = mission.LevelMap.Length;
@@ -209,6 +208,10 @@ namespace HeistGame
                 [SymbolsConfig.VerticalDoorLock3] = SymbolsConfig.VerticalDoorVisual,
             };
 
+            Dictionary<Vector2, IMap> mapLUT = new Dictionary<Vector2, IMap>();
+
+            List<Vector2> wallTiles = new List<Vector2>();
+
             //Looping through every single character in the grid to find special characters for special gameplay elements 
             //(keys, treasures, levers, guards), and in the end create a bidimensional string array that will be the grid
             //used by the game to display the level.
@@ -222,18 +225,17 @@ namespace HeistGame
                 {
                     char currentChar = line[x];
 
-                    Vector2 leverGate;
-                    Vector2 patrolPoint;
+                    Vector2 coordinates = new Vector2(x, y);
 
                     switch (currentChar)
                     {
                         //lights and floors (for lighting purposes)
                         case SymbolsConfig.Empty:
                         case SymbolsConfig.Entrance:
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
                         case SymbolsConfig.StrongLight:
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             strongLights.Add(new Light(x, y, 6));
                             currentChar = SymbolsConfig.Empty;
                             break;
@@ -244,76 +246,89 @@ namespace HeistGame
                             break;
                         case SymbolsConfig.TransparentWallHorizontal:
                         case SymbolsConfig.TransparentWallVertical:
-                            floorTiles.Add(new Vector2(x, y));
+                            wallTiles.Add(coordinates);
+                            floorTiles.Add(coordinates);
+                            break;
+                        // Walls
+                        case '╔':
+                        case '╗':
+                        case '╝':
+                        case '╚':
+                        case '╠':
+                        case '╣':
+                        case '╦':
+                        case '╩':
+                        case '╬':
+                        case '═':
+                        case '║':
+                        case '#':
+                            wallTiles.Add(coordinates);
                             break;
                         //player spawn point
                         case SymbolsConfig.Spawn:
                             playerStartX = x;
                             playerStartY = y;
                             currentChar = SymbolsConfig.Empty;
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
                         //Exit
                         case SymbolsConfig.ExitConfigSymbol:
-                            exit = new Vector2(x, y);
                             currentChar = SymbolsConfig.Exit;
-                            floorTiles.Add(exit);
+                            exit = coordinates;
+                            floorTiles.Add(coordinates);
                             break;
                         //keys
                         case SymbolsConfig.Key:
                             currentChar = SymbolsConfig.Key;
                             levLock.AddKey(x, y, 1);
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
-                        case '¹':
+                        case '§':
                             currentChar = SymbolsConfig.Empty;
                             levLock.AddKey(x, y, 2);
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
-                        case '²':
+                        case 'ç':
                             currentChar = SymbolsConfig.Empty;
                             levLock.AddKey(x, y, 3);
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
-                        case '³':
+                        case '&':
                             currentChar = SymbolsConfig.Empty;
                             levLock.AddKey(x, y, 4);
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
                         //treasures
                         case SymbolsConfig.Treasure:
                             totalGold += 100;
-                            Vector2 treasureTile1 = new Vector2(x, y);
-                            treasures.Add(treasureTile1);
-                            floorTiles.Add(treasureTile1);
+                            treasures.Add(coordinates);
+                            floorTiles.Add(coordinates);
                             break;
                         case '£':
-                            Vector2 treasureTile2 = new Vector2(x, y);
                             if (difficulty == Difficulty.VeryEasy || difficulty == Difficulty.Easy || difficulty == Difficulty.Normal || difficulty == Difficulty.Hard)
                             {
                                 totalGold += 100;
-                                treasures.Add(treasureTile2);
+                                treasures.Add(coordinates);
                                 currentChar = SymbolsConfig.Treasure;
                             }
                             else
                             {
                                 currentChar = SymbolsConfig.Empty;
                             }
-                            floorTiles.Add(treasureTile2);
+                            floorTiles.Add(coordinates);
                             break;
                         case '€':
-                            Vector2 treasureTile3 = new Vector2(x, y);
                             if (difficulty == Difficulty.VeryEasy || difficulty == Difficulty.Easy)
                             {
                                 totalGold += 100;
-                                treasures.Add(treasureTile3);
+                                treasures.Add(coordinates);
                                 currentChar = SymbolsConfig.Treasure;
                             }
                             else
                             {
                                 currentChar = SymbolsConfig.Empty;
                             }
-                            floorTiles.Add(treasureTile3);
+                            floorTiles.Add(coordinates);
                             break;
                         //levers
                         case 'A':
@@ -323,10 +338,9 @@ namespace HeistGame
                         case 'U':
                         case 'Y':
                             leversLUT[currentChar].SetLeverCoordinates(x, y);
-                            Vector2 leverCoord = new Vector2(x, y);
-                            leversDictionary[leverCoord] = leversLUT[currentChar];
+                            leversDictionary[coordinates] = leversLUT[currentChar];
                             currentChar = SymbolsConfig.LeverOff;
-                            floorTiles.Add(leverCoord);
+                            floorTiles.Add(coordinates);
                             break;
                         //lever gates that are closed when the game begins
                         case 'a':
@@ -335,10 +349,10 @@ namespace HeistGame
                         case 'o':
                         case 'u':
                         case 'y':
-                            leverGate = new Vector2(x, y);
-                            leverGatesLUT[currentChar].Add(leverGate);
+                            leverGatesLUT[currentChar].Add(coordinates);
                             currentChar = SymbolsConfig.Gate;
-                            floorTiles.Add(leverGate);
+                            wallTiles.Add(coordinates);
+                            floorTiles.Add(coordinates);
                             break;
                         //lever gates that are open when the game begins
                         case 'à':
@@ -347,10 +361,9 @@ namespace HeistGame
                         case 'ò':
                         case 'ù':
                         case 'ÿ':
-                            leverGate = new Vector2(x, y);
-                            leverGatesLUT[currentChar].Add(leverGate);
+                            leverGatesLUT[currentChar].Add(coordinates);
                             currentChar = SymbolsConfig.Empty;
-                            floorTiles.Add(leverGate);
+                            floorTiles.Add(coordinates);
                             break;
                         //guards
                         case 'B':
@@ -376,7 +389,7 @@ namespace HeistGame
                             guardsLUT[currentChar].AssignOriginPoint(x, y);
                             levelGuards.Add(guardsLUT[currentChar]);
                             currentChar = SymbolsConfig.Empty;
-                            floorTiles.Add(new Vector2(x, y));
+                            floorTiles.Add(coordinates);
                             break;
                         //guards patrols
                         case 'b':
@@ -399,10 +412,9 @@ namespace HeistGame
                         case 'w':
                         case 'x':
                         case 'z':
-                            patrolPoint = new Vector2(x, y);
-                            guardPatrolsLUT[currentChar].Add(patrolPoint);
+                            guardPatrolsLUT[currentChar].Add(coordinates);
                             currentChar = SymbolsConfig.Empty;
-                            floorTiles.Add(patrolPoint);
+                            floorTiles.Add(coordinates);
                             break;
                         //Messages/signs
                         case '0':
@@ -415,33 +427,88 @@ namespace HeistGame
                         case '7':
                         case '8':
                         case '9':
-                            Vector2 messageTile = new Vector2(x, y);
-                            messagesDictionary.Add(messageTile, mission.Messages[Int32.Parse(currentChar.ToString())]);
+                        case '₀':
+                        case '₁':
+                        case '₂':
+                        case '₃':
+                        case '₄':
+                        case '₅':
+                        case '₆':
+                        case '₇':
+                        case '₈':
+                        case '₉':
+                            int messageIndex = 0;
+                            string[] messageText;
+                            if (currentChar == '0' || currentChar == '1' || currentChar == '2' || currentChar == '3' ||
+                                currentChar == '4' || currentChar == '5' || currentChar == '6' || currentChar == '7' ||
+                                currentChar == '8' || currentChar == '9')
+                            {
+                                messageIndex = Int32.Parse(currentChar.ToString());
+                            }
+                            else if (currentChar == '₀')
+                            {
+                                messageIndex = 10;
+                            }
+                            else if (currentChar == '₁')
+                            {
+                                messageIndex = 11;
+                            }
+                            else if (currentChar == '₂')
+                            {
+                                messageIndex = 12;
+                            }
+                            else if (currentChar == '₃')
+                            {
+                                messageIndex = 13;
+                            }
+                            else if (currentChar == '₄')
+                            {
+                                messageIndex = 14;
+                            }
+                            else if (currentChar == '₅')
+                            {
+                                messageIndex = 15;
+                            }
+                            else if (currentChar == '₆')
+                            {
+                                messageIndex = 16;
+                            }
+                            else if (currentChar == '₇')
+                            {
+                                messageIndex = 17;
+                            }
+                            else if (currentChar == '₈')
+                            {
+                                messageIndex = 18;
+                            }
+                            else if (currentChar == '₉')
+                            {
+                                messageIndex = 19;
+                            }
+                            messageText = mission.Messages[messageIndex];
+                            messagesDictionary.Add(coordinates, messageText);
                             currentChar = SymbolsConfig.Signpost;
-                            floorTiles.Add(messageTile); // Necessary for lighmaps
+                            floorTiles.Add(coordinates); // Necessary for lighmaps
                             break;
                         //Chests
                         case SymbolsConfig.ChestEmpty:
-                            Vector2 emptyChestTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(emptyChestTile, new Chest(2, 0, x, y));
+                            unlockablesDictionary.Add(coordinates, new Chest(2, 0, x, y));
                             currentChar = SymbolsConfig.ChestClosed;
-                            floorTiles.Add(emptyChestTile); // Necessary for lighmaps
+                            floorTiles.Add(coordinates); // Necessary for lighmaps
                             break;
                         case SymbolsConfig.ChestWithTreasure:
-                            Vector2 treasureChestTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(treasureChestTile, new Chest(2, 200, x, y));
+                            unlockablesDictionary.Add(coordinates, new Chest(2, 200, x, y));
                             totalGold += 200;
                             currentChar = SymbolsConfig.ChestClosed;
-                            floorTiles.Add(treasureChestTile); // Necessary for lighmaps
+                            floorTiles.Add(coordinates); // Necessary for lighmaps
                             break;
                         case SymbolsConfig.ChestWithRandomTresture:
-                            Vector2 randomTreasureChestTile = new Vector2(x, y);
                             Random rand = new Random();
                             int treasureValue = rand.Next(0, 201);
-                            unlockablesDictionary.Add(randomTreasureChestTile, new Chest(2, treasureValue, x, y));
+                            unlockablesDictionary.Add(coordinates, new Chest(2, treasureValue, x, y));
                             totalGold += treasureValue;
                             currentChar = SymbolsConfig.ChestClosed;
-                            floorTiles.Add(randomTreasureChestTile); // Necessary for lighmaps
+                            floorTiles.Add(coordinates); // Necessary for lighmaps
                             break;
                         //Doors
                         case SymbolsConfig.HorizontalDoorOpen:
@@ -452,9 +519,30 @@ namespace HeistGame
                         case SymbolsConfig.VerticalDoorLock1:
                         case SymbolsConfig.VerticalDoorLock2:
                         case SymbolsConfig.VerticalDoorLock3:
-                            Vector2 openHDoorTile = new Vector2(x, y);
-                            unlockablesDictionary.Add(openHDoorTile, new Door(doorsLocksLUT[currentChar]));
+                            unlockablesDictionary.Add(coordinates, new Door(doorsLocksLUT[currentChar]));
+                            wallTiles.Add(coordinates);
                             currentChar = doorsVisualsLUT[currentChar];
+                            break;
+                        //Maps
+                        case SymbolsConfig.ExitMap:
+                            mapLUT[coordinates] = new ExitMap();
+                            currentChar = SymbolsConfig.Signpost;
+                            floorTiles.Add(coordinates);
+                            break;
+                        case SymbolsConfig.WallsMap:
+                            mapLUT[coordinates] = new WallsMap();
+                            currentChar = SymbolsConfig.Signpost;
+                            floorTiles.Add(coordinates);
+                            break;
+                        case SymbolsConfig.ObjectivesMap:
+                            mapLUT[coordinates] = new ObjectvesMap();
+                            currentChar = SymbolsConfig.Signpost;
+                            floorTiles.Add(coordinates);
+                            break;
+                        case SymbolsConfig.FullMap:
+                            mapLUT[coordinates] = new FullMap();
+                            currentChar = SymbolsConfig.Signpost;
+                            floorTiles.Add(coordinates);
                             break;
                     }
                     grid[y, x] = currentChar;
@@ -491,7 +579,8 @@ namespace HeistGame
 
             //Create the LevelInfo with all the parameters collected by parsing the map
             LevelInfo levelInfo = new LevelInfo(grid, playerStartX, playerStartY, totalGold, exit, treasures.ToArray(), floorTiles, strongLights.ToArray(),
-                                                weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray(), messagesDictionary, unlockablesDictionary);
+                                                weakLights.ToArray(), levLock, leversDictionary, levelGuards.ToArray(), messagesDictionary, unlockablesDictionary,
+                                                mapLUT, wallTiles.ToArray());
 
             return levelInfo;
         }
@@ -595,10 +684,13 @@ namespace HeistGame
         public Guard[] Guards { get; }
         public Dictionary<Vector2, string[]> MessagesDictionary { get; }
         public Dictionary<Vector2, Unlockable> UnlockablesDictionary { get; }
+        public Dictionary<Vector2, IMap> MapsDictionary { get; }
+        public Vector2[] Walls { get; }
 
         public LevelInfo(char[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
                          Light[] strongLights, Light[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards,
-                         Dictionary<Vector2, string[]> messagesDictionary, Dictionary<Vector2, Unlockable> unlockablesDictionary)
+                         Dictionary<Vector2, string[]> messagesDictionary, Dictionary<Vector2, Unlockable> unlockablesDictionary,
+                         Dictionary<Vector2, IMap> mapsDictionary, Vector2[] walls)
         {
             Grid = grid;
             LevLock = levelLock;
@@ -614,6 +706,8 @@ namespace HeistGame
             Guards = guards;
             MessagesDictionary = messagesDictionary;
             UnlockablesDictionary = unlockablesDictionary;
+            MapsDictionary = mapsDictionary;
+            Walls = walls;
         }
     }
 }

@@ -386,6 +386,7 @@ namespace HeistGame
         public static void DisplayAboutScreen(Game game)
         {
             Clear();
+            ResetColor();
             string authorName = "Cristian";
             string[] credits = new string[]
             {
@@ -460,6 +461,8 @@ namespace HeistGame
             if (text == null) { return; }
 
             if (string.IsNullOrEmpty(text[0])) { return; }
+
+            ResetColor();
 
             int firstLineToDisplay = 0;
             int lastLineToDisplay;

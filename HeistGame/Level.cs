@@ -25,6 +25,8 @@ namespace HeistGame
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
 
+        private Vector2[] wallTiles;
+
         public Guard[] LevelGuards { get; private set; }
 
         public char[,] Grid { get; private set; }
@@ -85,11 +87,15 @@ namespace HeistGame
         /// The set of all guards currently in the player's hearing range, keyed with their current tile in this frame
         /// </summary>
         public Dictionary<Vector2, Guard> VisibleGuards { get; private set; }
-
+        /// <summary>
+        /// The set of all maps on the level
+        /// </summary>
+        public Dictionary<Vector2, IMap> Maps { get; private set; }
         /// <summary>
         /// The lightmap of the level
         /// </summary>
         public LightMap Lights { get; private set; }
+
 
         /// <summary>
         /// Instantiates a World object
@@ -111,14 +117,14 @@ namespace HeistGame
         /// <param name="stopwatch">The game's Stopwatch field</param>
         public Level(string name, char[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
                      Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, 
-                     Unlockable> unlockables, string[] briefing, string[] outro, Game game)
+                     Unlockable> unlockables, Dictionary<Vector2, IMap> maps, Vector2[] walls, string[] briefing, string[] outro, Game game)
         {
             VisibleMap = new HashSet<Vector2>();
             ExploredMap = new Dictionary<Vector2, char>();
             ExploredMapSet = new HashSet<Vector2>();
             PlayerHearingArea = new HashSet<Vector2>();
             VisibleGuards = new Dictionary<Vector2, Guard>();
-
+            
             Name = name;
             Briefing = briefing;
             Outro = outro;
@@ -167,6 +173,8 @@ namespace HeistGame
 
             FloorTiles = floorTiles;
             Lights = lightmap;
+            Maps = maps;
+            wallTiles = walls;
 
             Lights.CalculateLightMap(this);
         }
@@ -371,7 +379,15 @@ namespace HeistGame
                     return true;
 
                 case SymbolsConfig.Signpost:
-                    ReadMessage(x, y, game);
+                    Vector2 tile = new Vector2(x, y);
+                    if (Maps.ContainsKey(tile))
+                    {
+                        Maps[tile].RevealMap(this);
+                    }
+                    else 
+                    {
+                        ReadMessage(x, y, game); 
+                    }
                     return true;
 
                 case SymbolsConfig.ChestClosed:
@@ -404,6 +420,136 @@ namespace HeistGame
             if (VisibleMap.Contains(tile))
             {
                 ExploredMap[tile] = newElement;
+            }
+        }
+
+        public bool RevealExitTile()
+        {
+            if (ExploredMap.ContainsKey(exit))
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "You can't get any other useful information."
+                });
+
+                return false;
+            }
+
+            ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "You find directions that give you an idea",
+                    "about where to go to leave this place"
+                });
+            ExploredMap.Add(exit, SymbolsConfig.Exit);
+            return true;
+        }
+
+        public bool RevealAllAWalls()
+        {
+            int revealedTiles = 0;
+            foreach (Vector2 tile in wallTiles)
+            {
+                if (ExploredMap.ContainsKey(tile))
+                {
+                    continue;
+                }
+
+                ExploredMap.Add(tile, Grid[tile.Y, tile.X]);
+                revealedTiles++;
+            }
+
+            if (revealedTiles > 0)
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "You find details about the layout of the sorrounding area."
+                });
+                return true;
+            }
+            else
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "You can't get any other useful information."
+                });
+                return false;
+            }
+        }
+
+        public bool RevealObjectives()
+        {
+            List<Vector2> objectives = levelLock.GetTierKeys();
+            int revealedTiles = 0;
+
+            foreach (Vector2 tile in objectives)
+            {
+                if (ExploredMap.ContainsKey(tile))
+                {
+                    continue;
+                }
+
+                ExploredMap.Add(tile, Grid[tile.Y, tile.X]);
+                revealedTiles++;
+            }
+
+            if (revealedTiles > 0)
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "You find useful informations about your objectives."
+                });
+                return true;
+            }
+            else
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "This document contains informations about your objectives,",
+                    "but you can't find anything you don't already know."
+                });
+                return false;
+            }
+        }
+
+        public void RevealAllMap()
+        {
+            int revealedElements = 0;
+
+            if (RevealAllAWalls()) { revealedElements++; }
+            if (RevealExitTile()) { revealedElements++; }
+            if (RevealObjectives()) { revealedElements++; }
+
+            if (revealedElements == 0)
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                    new string[]
+                    {
+                        "You can't get any other useful information."
+                    });
+            }
+            else if (revealedElements == 3)
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "You find detailed directions about this location,",
+                    "covering every aspects of the place."
+                });
+            }
+            else
+            {
+                ScreenDisplayer.DisplayMessageOnLable(
+                new string[]
+                {
+                    "Even though you already knew some of this info,",
+                    "you were able to get some useful elements out of this map."
+                });
             }
         }
 
