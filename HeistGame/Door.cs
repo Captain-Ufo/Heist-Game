@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System;
 
@@ -17,13 +17,13 @@ namespace HeistGame
         {
             if (!IsLocked())
             {
-                ScreenDisplayer.DisplayMessageOnLable(new string[] { "The door is already open." });
+                ScreenDisplayer.DisplayMessageOnLabel(new string[] { "The door is already open." });
                 game.ActiveUnlockable = null;
                 return;
             }
 
             game.ActiveUnlockable = this;
-            ScreenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress());
+            ScreenDisplayer.DisplayMessageOnLabel(base.GetUnlockProgress());
         }
 
         public override void Unlock(int deltaTimeMS, Game game)
@@ -31,11 +31,11 @@ namespace HeistGame
             if (LockProp.IsLocked())
             {
                 LockProp.Unlock(deltaTimeMS, game);
-                ScreenDisplayer.DisplayMessageOnLable(base.GetUnlockProgress());
+                ScreenDisplayer.DisplayMessageOnLabel(base.GetUnlockProgress());
                 return;
             }
-            ScreenDisplayer.DeleteLable(game);
-            ScreenDisplayer.DisplayMessageOnLable(new string[] { "Unlocked." });
+            ScreenDisplayer.DeleteLabel();
+            ScreenDisplayer.DisplayMessageOnLabel(new string[] { "Unlocked." });
             game.ActiveUnlockable = null;
         }
 

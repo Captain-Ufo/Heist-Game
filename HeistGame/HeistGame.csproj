@@ -16,6 +16,12 @@
     <None Update="Config\Config.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Levels\Deep Cells.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Levels\High Security Confinement.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Levels\Labyrinth.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

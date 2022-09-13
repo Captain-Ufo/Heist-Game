@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System.Collections.Generic;
 
@@ -21,7 +21,7 @@ namespace HeistGame
         private List<Vector2> keysGroup3;
         private List<Vector2> keysGroup4;
 
-        private string[][] objectiveMessages;
+        private Message[] objectiveMessages;
 
         public int TotalKnownKeys { get; private set; }
         public int TotalCollectedKeys { get; private set; }
@@ -102,7 +102,7 @@ namespace HeistGame
             TotalKnownKeys = revealedKeyPieces;
         }
 
-        public void AddMessages(string[][] messages)
+        public void AddMessages(Message[] messages)
         {
             objectiveMessages = messages;
         }
@@ -158,7 +158,7 @@ namespace HeistGame
         {
             if (objectiveMessages != null)
             {
-                if (objectiveMessages[hiddenKeyGroup - 2].Length > 0)
+                if (objectiveMessages[hiddenKeyGroup - 2].Text.Length > 0)
                 {
                     game.MyStopwatch.Stop();
                     ControlsManager.ResetControlState(game);

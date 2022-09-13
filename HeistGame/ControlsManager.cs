@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System;
 using static System.Console;
@@ -163,6 +163,16 @@ namespace HeistGame
                             game.PlayerCharacter.StartPeek();
                         }
                         break;
+
+                    case ConsoleKey.M:
+                        game.Selector.Deactivate();
+                        game.CancelUnlocking();
+                        State = ControlState.Idle;
+                        game.MyStopwatch.Stop();
+                        ScreenDisplayer.DisplayMessageLog();
+                        game.MyStopwatch.Start();
+                        break;
+
                     case ConsoleKey.Escape:
                         if (State != ControlState.Interact)
                         {
@@ -176,6 +186,7 @@ namespace HeistGame
                             game.CancelUnlocking();
                         }
                         break;
+
                     default:
                         game.Selector.Deactivate();
                         game.CancelUnlocking();

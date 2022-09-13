@@ -1,8 +1,9 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -15,8 +16,9 @@ namespace HeistGame
     internal class ScreenDisplayer
     {
         private static UI ui;
-        private static UI_Lable lable;
+        private static UI_Label lable;
         private static SafeFileHandle safeFileHandle;
+        private static MessageLog messageLog;
         private static int leftOffset;
         private static int topOffset;
 
@@ -81,9 +83,10 @@ namespace HeistGame
         public static void Initialise()
         {
             ui = new UI();
-            lable = new UI_Lable();
+            lable = new UI_Label();
             leftOffset = WindowWidth / 2;
             topOffset = WindowHeight / 2;
+            messageLog = new MessageLog();
 
             //This bit is required for the fast screen writing from StackOverflow.
             safeFileHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
@@ -136,7 +139,7 @@ namespace HeistGame
                     //Check if the tile is under a lable
                     else if (IsTileUnderLable(new Vector2(x, y)))
                     {
-                        c = lable.LableTiles[new Vector2(x, y)];
+                        c = lable.LabelTiles[new Vector2(x, y)];
                     }
 
                     else
@@ -343,7 +346,6 @@ namespace HeistGame
         public static void DrawScreen(char[,] screen)
         {
             if (safeFileHandle.IsInvalid) { return; }
-
             short windowWidth = (short)WindowWidth;
             short windowHeight = (short)WindowHeight;
 
@@ -368,19 +370,19 @@ namespace HeistGame
             ui.UpdateUI(game);
         }
 
-        public static void DisplayMessageOnLable(string[] message)
+        public static void DisplayMessageOnLabel(string[] message)
         {
-            lable.ActivateLable(message);
+            lable.ActivateLabel(message);
         }
 
-        public static void DeleteLable(Game game)
+        public static void DeleteLabel()
         {
-            lable.Cancel(game.ActiveCampaign.Levels[game.CurrentLevel]);
+            lable.Cancel();
         }
 
         public static bool IsTileUnderLable(Vector2 tile)
         {
-            return lable.LableTiles.ContainsKey(tile);
+            return lable.LabelTiles.ContainsKey(tile);
         }
 
         public static void DisplayAboutScreen(Game game)
@@ -455,8 +457,24 @@ namespace HeistGame
             WriteLine(loadingText);
         }
 
+        public static void DisplayMessageLog()
+        {
+            string[] log = messageLog.GetMessagesLog();
+
+            DisplayTextFullScreen(log, true, true);
+        }
+
+        public static void ClearMessageLog() => messageLog.ClearLog();
+
+        public static void DisplayTextFullScreen(Message message)
+        {
+            messageLog.LogMessage(message);
+            DisplayTextFullScreen(message.Text);
+            message.HasBeenRead = true;
+        }
+
         //TODO: refactor this so that text can be scrolled one line at a time
-        public static void DisplayTextFullScreen(string[] text, bool withFraming = true)
+        public static void DisplayTextFullScreen(string[] text, bool withFraming = true, bool logFraming = false)
         {
             if (text == null) { return; }
 
@@ -464,12 +482,17 @@ namespace HeistGame
 
             ResetColor();
 
+            int maxLines = WindowHeight - 5;
             int firstLineToDisplay = 0;
             int lastLineToDisplay;
-            if (text.Length > 48) { lastLineToDisplay = 48; }
+            if (text.Length > maxLines + 1) { lastLineToDisplay = maxLines; }
             else { lastLineToDisplay = text.Length; }
 
             List<string> textToDisplay = new List<string>();
+
+            ConsoleKeyInfo info;
+
+            Clear();
 
             do
             {
@@ -478,11 +501,9 @@ namespace HeistGame
                 {
                     textToDisplay.Add(text[i]);
                 }
+                DisplayScreenDecoration(logFraming);
 
-                Clear();
-                if (withFraming) { DisplayScreenDecoration(); }
-
-                SetCursorPosition(0, (WindowHeight / 2) - ((textToDisplay.Count / 2) + 2));
+                SetCursorPosition(0, (WindowHeight / 2) - ((textToDisplay.Count / 2) + 1));
 
                 foreach (string s in textToDisplay)
                 {
@@ -490,60 +511,104 @@ namespace HeistGame
                     WriteLine(s);
                 }
 
-                SetCursorPosition((WindowWidth / 2) - 2, CursorTop);
-                WriteLine("~··~");
+                info = ReadKey(true);
 
-                string t = "Press Enter to continue...";
-                SetCursorPosition((WindowWidth / 2) - (t.Length / 2), CursorTop);
-                ForegroundColor = ConsoleColor.Green;
-                WriteLine(t);
-                ResetColor();
-
-                ConsoleKeyInfo info;
-                do
+                switch (info.Key)
                 {
-                    info = ReadKey(true);
-                }
-                while (info.Key != ConsoleKey.Enter);
+                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.S:
+                    case ConsoleKey.NumPad2:
+                        if (text.Length < maxLines) { break; }
+                        if (lastLineToDisplay == text.Length) { break; }
+                        if (firstLineToDisplay == text.Length) 
+                        { 
+                            firstLineToDisplay = text.Length - 1;
+                            Clear();
+                            break; 
+                        }
+                        firstLineToDisplay += maxLines;
+                        lastLineToDisplay = firstLineToDisplay + maxLines;
+                        if (lastLineToDisplay >= text.Length)
+                        {
+                            lastLineToDisplay = text.Length;
+                        }
+                        Clear();
+                        break;
 
-                Clear();
+                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.W:
+                    case ConsoleKey.NumPad8:
+                        if (firstLineToDisplay == 0) { break; }
 
-                firstLineToDisplay += 48;
-                lastLineToDisplay += 48;
-                if (lastLineToDisplay > text.Length - 1)
-                {
-                    lastLineToDisplay = text.Length;
+                        firstLineToDisplay -= maxLines;
+                        if (firstLineToDisplay < 0)
+                        {
+                
+                            firstLineToDisplay = 0;
+                        }
+
+                        lastLineToDisplay = firstLineToDisplay + maxLines;
+                        if (lastLineToDisplay >= text.Length)
+                        {
+                            lastLineToDisplay = text.Length;
+                        }
+                        Clear();
+                        break;
                 }
             }
-            while (firstLineToDisplay < text.Length);
+            while (info.Key != ConsoleKey.Enter);
         }
 
-        private static void DisplayScreenDecoration()
+        private static void DisplayScreenDecoration(bool isMessageLog)
         {
+            int middle = WindowWidth / 2;
+
             SetCursorPosition(1, 0);
+            string insert = "══";
+            if (isMessageLog) { insert = "~· MESSAGES LOG ·~"; }
+            int insertHalf = insert.Length /2;
+            int insertStart = middle - insertHalf;
             Write("╬");
-            for (int i = 2; i < WindowWidth - 1; i++)
+            for (int i = 2; i < insertStart; i++)
+            {
+                SetCursorPosition(i, 0);
+                Write("═");
+            }
+            Write(insert);
+            for (int i = CursorLeft; i < WindowWidth - 1; i++)
             {
                 SetCursorPosition(i, 0);
                 Write("═");
             }
             SetCursorPosition(WindowWidth - 1, 0);
             Write("╬");
-            for (int i = 1; i < WindowHeight - 2; i++)
+
+            for (int i = 1; i < WindowHeight - 1; i++)
             {
                 SetCursorPosition(1, i);
                 Write("║");
                 SetCursorPosition(WindowWidth - 1, i);
                 Write("║");
             }
-            SetCursorPosition(1, WindowHeight - 2);
+
+            insert = "~· Use ARROW UP/DOWN to scroll. Press ENTER to close. ·~";
+            int endline = WindowHeight - 1;
+            SetCursorPosition(1, endline);
+            insertHalf = insert.Length / 2;
+            insertStart = middle - insertHalf;
             Write("╬");
-            for (int i = 2; i < WindowWidth - 1; i++)
+            for (int i = 2; i < insertStart; i++)
             {
-                SetCursorPosition(i, WindowHeight - 2);
+                SetCursorPosition(i, endline);
                 Write("═");
             }
-            SetCursorPosition(WindowWidth - 1, WindowHeight - 2);
+            Write(insert);
+            for (int i = CursorLeft; i < WindowWidth - 1; i++)
+            {
+                SetCursorPosition(i, endline);
+                Write("═");
+            }
+            SetCursorPosition(WindowWidth - 1, endline);
             Write("╬");
         }
     }

@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System;
 using System.Collections.Generic;
@@ -146,9 +146,12 @@ namespace HeistGame
 
                     LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
 
+                    Message briefing = new Message(MessageType.BRIEFING, levelFile, missionConfig.Briefing);
+                    Message outro = new Message(MessageType.DEBRIFIENG, levelFile, missionConfig.Outro);
+
                     levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                          levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                         levelInfo.MapsDictionary, levelInfo.Walls, missionConfig.Briefing, missionConfig.Outro, this));
+                                         levelInfo.MapsDictionary, levelInfo.Walls, briefing, outro, this));
 
                     totalGold += levelInfo.TotalGold;
                 }
@@ -207,10 +210,12 @@ namespace HeistGame
                 }
 
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+                Message briefing = new Message(MessageType.BRIEFING, levelFile, missionConfig.Briefing);
+                Message outro = new Message(MessageType.DEBRIFIENG, levelFile, missionConfig.Outro);
 
                 levels.Add(new Level(levelFile, levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap, levelInfo.LevLock,
                                      levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards, levelInfo.MessagesDictionary, levelInfo.UnlockablesDictionary,
-                                     levelInfo.MapsDictionary, levelInfo.Walls, missionConfig.Briefing, missionConfig.Outro, this));
+                                     levelInfo.MapsDictionary, levelInfo.Walls, briefing, outro, this));
 
                 totalGold += levelInfo.TotalGold;
 
@@ -240,10 +245,12 @@ namespace HeistGame
                 LevelInfo levelInfo = LevelParser.ParseConfigToLevelInfo(tutorial.TutorialMissions[i], DifficultyLevel);
 
                 LightMap lightMap = new LightMap(levelInfo.StrongLights, levelInfo.WeakLights);
+                Message briefing = new Message(MessageType.BRIEFING, "Tutorial " + (i + 1), tutorial.TutorialMissions[i].Briefing);
+                Message outro = new Message(MessageType.DEBRIFIENG, "Tutorial " + (i + 1), tutorial.TutorialMissions[i].Outro);
 
                 levels.Add(new Level("Tutorial " + (i + 1), levelInfo.Grid, levelInfo.PlayerStartX, levelInfo.PlayerStartY, levelInfo.FloorTiles, lightMap,
                                      levelInfo.LevLock, levelInfo.Exit, levelInfo.Treasures, levelInfo.LeversDictionary, levelInfo.Guards,levelInfo.MessagesDictionary, 
-                                     levelInfo.UnlockablesDictionary, levelInfo.MapsDictionary, levelInfo.Walls, null, null, this));
+                                     levelInfo.UnlockablesDictionary, levelInfo.MapsDictionary, levelInfo.Walls, briefing, outro, this));
             }
 
             ActiveCampaign = new Campaign("Tutorial", levels.ToArray());
@@ -259,6 +266,7 @@ namespace HeistGame
         private void PlayGampaign(string missionDirectory, int startRoom = 0, int startBooty = 0)
         {
             Clear();
+            ScreenDisplayer.ClearMessageLog();
             ScreenDisplayer.DisplayLoading();
             InstantiateCampaignEntities(missionDirectory, startBooty, startRoom);
             RunGameLoop(startRoom);
@@ -269,6 +277,7 @@ namespace HeistGame
         private void PlayMission(string mission)
         {
             Clear();
+            ScreenDisplayer.ClearMessageLog();
             ScreenDisplayer.DisplayLoading();
             InstantiateMissionEntities(mission);
             RunGameLoop(0);
@@ -281,6 +290,7 @@ namespace HeistGame
             Tutorial tutorial = new Tutorial();
 
             Clear();
+            ScreenDisplayer.ClearMessageLog();
             ScreenDisplayer.DisplayLoading();
             DifficultyLevel = Difficulty.VeryEasy;
             InstantiateTutorialEntities(tutorial);
@@ -308,14 +318,7 @@ namespace HeistGame
                 if (!hasDisplayedBriefing)
                 {
                     MyStopwatch.Stop();
-                    if (tutorial != null)
-                    {
-                        ScreenDisplayer.DisplayTextFullScreen(tutorial.TutorialMissions[CurrentLevel].Briefing);
-                    }
-                    else
-                    {
-                        ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
-                    }
+                    ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
                     hasDisplayedBriefing = true;
                 }
 
@@ -491,7 +494,7 @@ namespace HeistGame
                 ActiveUnlockable.CancelUnlocking();
                 ActiveUnlockable = null;
             }
-            ScreenDisplayer.DeleteLable(this);
+            ScreenDisplayer.DeleteLabel();
         }
 
 
@@ -499,7 +502,7 @@ namespace HeistGame
         private bool AttemptBribe(int amountBribedBefore)
         {
             ActiveUnlockable = null;
-            ScreenDisplayer.DeleteLable(this);
+            ScreenDisplayer.DeleteLabel();
             Clear();
             ResetColor();
             SetCursorPosition(0, 3);

@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace HeistGame
         private readonly Dictionary<Vector2, Lever> leversDictionary;
         private readonly Vector2[] treasures;
         private readonly Stopwatch stopwatch;
-        private readonly Dictionary<Vector2, string[]> messagesDictionary;
+        private readonly Dictionary<Vector2, Message> messagesDictionary;
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
 
@@ -39,12 +39,12 @@ namespace HeistGame
         /// <summary>
         /// The briefing tetx to be displayed before a level starts
         /// </summary>
-        public string[] Briefing { get; private set; }
+        public Message Briefing { get; private set; }
 
         /// <summary>
         /// The outro text to be displayed once the level has been completed
         /// </summary>
-        public string[] Outro { get; private set; }
+        public Message Outro { get; private set; }
 
         /// <summary>
         /// Whether the exit is open (either because there's no key in the level or because the player has collected the key) or not
@@ -116,8 +116,8 @@ namespace HeistGame
         /// <param name="outro">The text to be displayed once the level is complete; an array of strings, one per each line.</param>
         /// <param name="stopwatch">The game's Stopwatch field</param>
         public Level(string name, char[,] grid, int startX, int startY, HashSet<Vector2> floorTiles, LightMap lightmap, LevelLock levelLock, Vector2 exit,
-                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, string[]> messages, Dictionary<Vector2, 
-                     Unlockable> unlockables, Dictionary<Vector2, IMap> maps, Vector2[] walls, string[] briefing, string[] outro, Game game)
+                     Vector2[] treasures, Dictionary<Vector2, Lever> levers, Guard[] guards, Dictionary<Vector2, Message> messages, Dictionary<Vector2, 
+                     Unlockable> unlockables, Dictionary<Vector2, IMap> maps, Vector2[] walls, Message briefing, Message outro, Game game)
         {
             VisibleMap = new HashSet<Vector2>();
             ExploredMap = new Dictionary<Vector2, char>();
@@ -151,9 +151,9 @@ namespace HeistGame
                 leversDictionary[LeverCoordinates] = lever;
             }
 
-            messagesDictionary = new Dictionary<Vector2, string[]>();
+            messagesDictionary = new Dictionary<Vector2, Message>();
 
-            foreach (KeyValuePair<Vector2, string[]> messageInfo in messages)
+            foreach (KeyValuePair<Vector2, Message> messageInfo in messages)
             {
                 Vector2 SignpostCoordinates = new Vector2(messageInfo.Key.X , messageInfo.Key.Y);
 
@@ -382,6 +382,7 @@ namespace HeistGame
                     Vector2 tile = new Vector2(x, y);
                     if (Maps.ContainsKey(tile))
                     {
+                        ControlsManager.ResetControlState(game);
                         Maps[tile].RevealMap(this);
                     }
                     else 
@@ -427,7 +428,7 @@ namespace HeistGame
         {
             if (ExploredMap.ContainsKey(exit))
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "You can't get any other useful information."
@@ -436,7 +437,7 @@ namespace HeistGame
                 return false;
             }
 
-            ScreenDisplayer.DisplayMessageOnLable(
+            ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "You find directions that give you an idea",
@@ -462,7 +463,7 @@ namespace HeistGame
 
             if (revealedTiles > 0)
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "You find details about the layout of the sorrounding area."
@@ -471,7 +472,7 @@ namespace HeistGame
             }
             else
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "You can't get any other useful information."
@@ -498,7 +499,7 @@ namespace HeistGame
 
             if (revealedTiles > 0)
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "You find useful informations about your objectives."
@@ -507,7 +508,7 @@ namespace HeistGame
             }
             else
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "This document contains informations about your objectives,",
@@ -527,7 +528,7 @@ namespace HeistGame
 
             if (revealedElements == 0)
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                     new string[]
                     {
                         "You can't get any other useful information."
@@ -535,7 +536,7 @@ namespace HeistGame
             }
             else if (revealedElements == 3)
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "You find detailed directions about this location,",
@@ -544,7 +545,7 @@ namespace HeistGame
             }
             else
             {
-                ScreenDisplayer.DisplayMessageOnLable(
+                ScreenDisplayer.DisplayMessageOnLabel(
                 new string[]
                 {
                     "Even though you already knew some of this info,",
@@ -667,6 +668,10 @@ namespace HeistGame
                     Vector2 guardPosition = new Vector2(guard.X, guard.Y);
                     if (PlayerHearingArea.Contains(guardPosition))
                     {
+                        if (VisibleGuards.ContainsKey(guardPosition))
+                        {
+                            continue;
+                        }
                         VisibleGuards.Add(guardPosition, guard);
                     }
                 }

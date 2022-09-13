@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System;
 using System.Collections.Generic;
@@ -42,7 +42,22 @@ namespace HeistGame
             List<Light> weakLights = new List<Light>();
 
             LevelLock levLock = new LevelLock();
-            levLock.AddMessages(mission.ObjectivesMessages);
+            Message[] objectivesMessages;
+
+            if (mission.ObjectivesMessages == null)
+            {
+                objectivesMessages = null;
+
+            }
+            else 
+            {
+                objectivesMessages = new Message[mission.ObjectivesMessages.Length];
+                for (int i = 0; i < mission.ObjectivesMessages.Length; i++)
+                {
+                    objectivesMessages[i] = new Message(MessageType.OBJECTIVE, mission.Name, mission.ObjectivesMessages[i]);
+                } 
+            }
+            levLock.AddMessages(objectivesMessages);
 
             Dictionary<Vector2, Lever> leversDictionary = new Dictionary<Vector2, Lever>();
 
@@ -53,7 +68,7 @@ namespace HeistGame
             Lever leverU = new Lever();
             Lever leverY = new Lever();
 
-            Dictionary<Vector2, string[]> messagesDictionary = new Dictionary<Vector2, string[]>();
+            Dictionary<Vector2, Message> messagesDictionary = new Dictionary<Vector2, Message>();
 
             Dictionary<Vector2, Unlockable> unlockablesDictionary = new Dictionary<Vector2, Unlockable>();
 
@@ -486,7 +501,7 @@ namespace HeistGame
                                 messageIndex = 19;
                             }
                             messageText = mission.Messages[messageIndex];
-                            messagesDictionary.Add(coordinates, messageText);
+                            messagesDictionary.Add(coordinates, new Message(MessageType.SIGNPOST, mission.Name, messageText));
                             currentChar = SymbolsConfig.Signpost;
                             floorTiles.Add(coordinates); // Necessary for lighmaps
                             break;
@@ -682,14 +697,14 @@ namespace HeistGame
         public Light[] WeakLights { get; }
         public Dictionary<Vector2, Lever> LeversDictionary { get; }
         public Guard[] Guards { get; }
-        public Dictionary<Vector2, string[]> MessagesDictionary { get; }
+        public Dictionary<Vector2, Message> MessagesDictionary { get; }
         public Dictionary<Vector2, Unlockable> UnlockablesDictionary { get; }
         public Dictionary<Vector2, IMap> MapsDictionary { get; }
         public Vector2[] Walls { get; }
 
         public LevelInfo(char[,] grid, int playerStartX, int playerStartY, int totalGold, Vector2 exit, Vector2[] treasures, HashSet<Vector2> floorTiles, 
                          Light[] strongLights, Light[] weakLights, LevelLock levelLock, Dictionary<Vector2, Lever> leversDictionary, Guard[] guards,
-                         Dictionary<Vector2, string[]> messagesDictionary, Dictionary<Vector2, Unlockable> unlockablesDictionary,
+                         Dictionary<Vector2, Message> messagesDictionary, Dictionary<Vector2, Unlockable> unlockablesDictionary,
                          Dictionary<Vector2, IMap> mapsDictionary, Vector2[] walls)
         {
             Grid = grid;

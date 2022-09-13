@@ -1,6 +1,6 @@
-﻿////////////////////////////////
-//Hest!, © Cristian Baldi 2022//
-////////////////////////////////
+﻿/////////////////////////////////
+//Heist!, © Cristian Baldi 2022//
+/////////////////////////////////
 
 using System.Collections.Generic;
 using System.Text;
@@ -8,36 +8,36 @@ using static System.Console;
 
 namespace HeistGame
 {
-    internal class UI_Lable
+    internal class UI_Label
     {
-        public Dictionary<Vector2, char> LableTiles { get; private set; }
+        public Dictionary<Vector2, char> LabelTiles { get; private set; }
         public bool IsActive { get; private set; }
 
-        public UI_Lable()
+        public UI_Label()
         {
-            LableTiles = new Dictionary<Vector2, char>();
+            LabelTiles = new Dictionary<Vector2, char>();
         }
 
-        public void ActivateLable(string[] message)
+        public void ActivateLabel(string[] message)
         {
             int maxMessageLength = EvaluateMessageLength(message);
             int xOffset = (maxMessageLength + 2) / 2;
             int x = WindowWidth / 2;
-            int lableLeft = x - xOffset;
-            int lableRight = lableLeft + maxMessageLength + 1;
+            int labelLeft = x - xOffset;
+            int labelRight = labelLeft + maxMessageLength + 1;
 
             int lableHeight = message.Length + 2;
             int yOffset = lableHeight;
             int y = WindowHeight / 2 - 2;
-            int lableTop = y - yOffset;
-            int lableBottom = lableTop + lableHeight - 1;
+            int labelTop = y - yOffset;
+            int labelBottom = labelTop + lableHeight - 1;
 
-            ComposeLable(lableLeft, lableRight, lableTop, lableBottom, maxMessageLength, message);
+            ComposeLable(labelLeft, labelRight, labelTop, labelBottom, maxMessageLength, message);
 
             IsActive = true;
         }
 
-        private void ComposeLable(int lableLeft, int lableright, int lableTop, int lableBottom, int maxMessageLength, string[] message)
+        private void ComposeLable(int labelLeft, int labelright, int labelTop, int labelBottom, int maxMessageLength, string[] message)
         {
             string[] lableMessage = new string[message.Length];
             StringBuilder sb = new StringBuilder(maxMessageLength);
@@ -62,55 +62,55 @@ namespace HeistGame
                 lableMessage[i] = sb.ToString();
             }
 
-            LableTiles.Clear();
+            LabelTiles.Clear();
             int yIndex = -2;
-            for (int y = lableTop; y <= lableBottom; y++)
+            for (int y = labelTop; y <= labelBottom; y++)
             {
                 yIndex++;
                 int xIndex = -2;
-                for (int x = lableLeft; x <= lableright; x++)
+                for (int x = labelLeft; x <= labelright; x++)
                 {
                     xIndex++;
 
-                    if (y == lableTop)
+                    if (y == labelTop)
                     {
-                        if (x == lableLeft)
+                        if (x == labelLeft)
                         {
-                            LableTiles.Add(new Vector2(x, y), '┌');
+                            LabelTiles.Add(new Vector2(x, y), '┌');
                             continue;
                         }
 
-                        if (x == lableright)
+                        if (x == labelright)
                         {
-                            LableTiles.Add(new Vector2(x, y), '┐');
+                            LabelTiles.Add(new Vector2(x, y), '┐');
                             continue;
                         }
 
-                        LableTiles.Add(new Vector2(x, y), '─');
+                        LabelTiles.Add(new Vector2(x, y), '─');
                         continue;
                     }
 
-                    if (y == lableBottom)
+                    if (y == labelBottom)
                     {
-                        if (x == lableLeft)
+                        if (x == labelLeft)
                         {
-                            LableTiles.Add(new Vector2(x, y), '└');
+                            LabelTiles.Add(new Vector2(x, y), '└');
                             continue;
                         }
 
-                        if (x == lableright)
+                        if (x == labelright)
                         {
-                            LableTiles.Add(new Vector2(x, y), '┘');
+                            LabelTiles.Add(new Vector2(x, y), '┘');
                             continue;
                         }
 
-                        LableTiles.Add(new Vector2(x, y), '─');
+                        LabelTiles.Add(new Vector2(x, y), '─');
                         continue;
                     }
 
-                    if (x == lableLeft || x == lableright)
+                    if (x == labelLeft || x == labelright)
                     {
-                        LableTiles.Add(new Vector2(x, y), '|');
+                        LabelTiles.Add(new Vector2(x, y), '|');
                         continue;
                     }
 
@@ -118,18 +118,18 @@ namespace HeistGame
                     string line = lableMessage[yIndex];
                     char c = line[xIndex];
 
-                    LableTiles.Add(new Vector2(x, y), c);
+                    LabelTiles.Add(new Vector2(x, y), c);
 
                 }
             }
         }
 
 
-        public void Cancel (Level level)
+        public void Cancel ()
         {
             if (!IsActive) { return; }
             IsActive = false;
-            LableTiles.Clear();
+            LabelTiles.Clear();
         }
 
         private int EvaluateMessageLength(string[] message)

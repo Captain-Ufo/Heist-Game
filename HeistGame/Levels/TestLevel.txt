@@ -10,30 +10,30 @@
 		[
 		    "............╔═════╦═════════╦═════╦══════════════════════════════════╗............",
 			"............║  ¿  ║  Ɔ Ͼ Ͽ  ║  ?  ║                                  ╠═════╗......",
-			"............║     ▎         █     ║               ╔a╗                ║     ║......",
+			"............║     ▎         █     ║     ₇         ╔a╗         ₈      ║  9  ║......",
 			"............╠═════╣    *    ╠═════╣               a*a                i     ╠═════╗",
-			"......╔═════╣               ¦     ║               ╚a╝                ╠══·══╣     ║",
+			"......╔═════╣               ¦     ║               ╚a╝                ╠══·══╣   ₃ ║",
 			"......║  5  ║  ¡  ║         ║  !  ║                                  a  +  u     ║",
-			"╔═════╣     ╠═════╝    *    ╚═════╣                                  ╠══·══╣     ║",
-			"║     ╠══±══╣  0               1  ║                                  o     ╠═════╝",
-			"║ 3   ▎     ▌                                                        ║     ║......",
-			"║     ╠══·══╣        $ $                 A      a      à       C     ╠══·══╣......",
-			"╚═════╣  +  ¦                     ║      E      e      è       +     ║     ║......",
+			"╔═════╣     ╠═════╝    *    ╚═════╣                                  ╠══·══╣   ₄ ║",
+			"║ 3   ╠══±══╣  0               1  ║                                  o     ╠═════╝",
+			"║     ▎     ▌                                                        ║  ₀  ║......",
+			"║ 4   ╠══·══╣        $ $                 A      a      à       C     ╠══·══╣......",
+			"╚═════╣  +  ¦                     ║      E      e      è       +     ║  ₁  ║......",
 			"╔═════╣  6  ║                     :      I    * i      ì             o     ╠═════╗",
-			"║     ╠══·══╣        £ £          ║      O      o      ò       Ω     ╠══·══╣     ║",
-			"║ 4   █  +  e                     :      U      u      ù             a  +  u     ║",
-			"║     ╠══·══╣                     ║      Y      y      ÿ             ╠══·══╣     ║",
+			"║ 7   ╠══·══╣        £ £          ║      O      o      ò       Ω     ╠══·══╣   ₅ ║",
+			"║     █  +  e                     :      U      u      ù             a  +  u     ║",
+			"║ 8   ╠══·══╣                     ║      Y      y      ÿ             ╠══·══╣   ₆ ║",
 			"╚═════╣     ║        € €                                             i     ╠═════╝",
-			"......║  2  ¦                     ╔═~═╗                              ║     ║......",
-			"......╚═════╬════════  ══════~════╣ @ ╠═══════·═════════════·════════╬═════╝......",
-			"............║                   $ ╚═~═╝                              ║............",
+			"......║  2  ¦            ╔═╗      ╔═~═╗                              ║  ₂  ║......",
+			"......╚═════╬════════  ══╣@╠═~════╣   ╠═══════·═════════════·════════╬═════╝......",
+			"............║            ╚~╝    $ ╚═~═╝                              ║............",
 			"............║                                                        ╠═══════════╗",
 			"............║ ╔══·══╗                   d         d         d        ║  ¶  ¶  ¶  ║",
 			"............║ ║b  Bb║                                                ¦           ║",
 			"............║ ║                                                      ╠═══════════╣",
 			"............║ ║b $ b║                                                ¦           ║",
 			"............║ ╚══·══╝          e                                     ║  §  §  §  ║",
-			"............║                 e*e                 *         D        ╠═══════════╣",
+			"............║                 e*e                 *         D       ₉╠═══════════╣",
 			"............║                  e                                     ║  ç  ç  ç  ║",
 			"............║ ╔══·══╗                                       d        ¦           ║",
 			"............║ ║  £  ║                                                ╠═══════════╣",
@@ -106,6 +106,17 @@
 				"test",
 				"test",
 				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
+				"test",
 				"This should be on page 2"
 			],
 			[
@@ -119,14 +130,53 @@
 				"There's plenty of keys around here."
 			],
 			[
-				"Fourth test message."
+				"Fifth test message."
 			],
 			[
-				"It's only the fifth test message and I've already ran out of ideas."
+				"It's only the sixth test message and I've already ran out of ideas."
 			],
 			[
-				"Yep, it's the 6th test message. I need to reach 10 to see if it can parse, so expect more of this nonsense",
+				"Yep, it's the seventh test message. I need to reach 10 to see if it can parse, so expect more of this nonsense",
 				"around this test level. It IS the test level after all, you should not expect riveting gameplay."
+			],
+			[
+				"Eighth message. So far so good"
+			],
+			[
+				"Ninth"
+			],
+			[
+				"Tenth. This is the real test. If this works, all the subsequent ones should work too."
+			],
+			[
+				"We'll test the eleventh too anyway."
+			],
+			[
+				"And the twelveth."
+			],
+			[
+				"Well, we'll test all of them of course."
+			],
+			[
+				"Fourteenth time's the charm."
+			],
+			[
+				"By the fifteenth unnecessary message words start to lose their meaning."
+			],
+			[
+				"I may fall asleep on the keyboard at this point."
+			],
+			[
+				"gfddsghsgfdsjfsdgkj hxfdg gfdgfdghfd"
+			],
+			[
+				"I didn't know where to put this test message, so I put it here out in the wild."
+			],
+			[
+				"Same story as the other message just west of here."
+			],
+			[
+				"Objectives/keys are inside these rooms."
 			]
 		],
 
