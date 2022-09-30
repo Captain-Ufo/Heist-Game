@@ -42,6 +42,46 @@ namespace HeistGame
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetWindowRect(HandleRef hWnd, out Rect lpRect);
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Coord
+        {
+            public short X;
+            public short Y;
+
+            public Coord(short X, short Y)
+            {
+                this.X = X;
+                this.Y = Y;
+            }
+        };
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct CONSOLE_FONT_INFO_EX
+        {
+            public uint cbSize;
+            public uint nFont;
+            public Coord dwFontSize;
+            public int FontFamily;
+            public int FontWeight;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] // Edit sizeconst if the font name is too big
+            public string FaceName;
+        }
+
+        [DllImport("kernel32")]
+        private static extern IntPtr GetStdHandle(StdHandle index);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern Int32 SetCurrentConsoleFontEx(
+          IntPtr ConsoleOutput,
+          bool MaximumWindow,
+          ref CONSOLE_FONT_INFO_EX ConsoleCurrentFontEx);
+
+        private enum StdHandle
+        {
+            OutputHandle = -11
+        }
+
         /// <summary>
         /// Automatically sets the console reading the config.ini file
         /// </summary>
@@ -49,7 +89,7 @@ namespace HeistGame
         {
             SettingsData settings = GetSettingsFromConfig();
 
-            ConfigureConsole(settings.Name, settings.ConsoleWidth, settings.ConsoleHeight, true, false, false, true, true, true);
+            ConfigureConsole(settings.Name, settings.Font, settings.FontSize, settings.FontSize, settings.ConsoleWidth, settings.ConsoleHeight, true, false, false, true, true, true);
         }
 
         /// <summary>
@@ -66,7 +106,7 @@ namespace HeistGame
         /// <param name="blockResize">Set to true to prevent manual resizing of the window via dragging the edges.</param>
         /// <param name="blockScrolling">Set to true to prevent manual scrolling. Note that the window will automatically scroll anyway if the displayed text
         /// is larger than the window size.</param>
-        public static void ConfigureConsole(string title, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
+        public static void ConfigureConsole(string title, string fontName, short fontHeight, short fontWidth, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
         {
             IntPtr handle = GetConsoleWindow();
             IntPtr sysMenu = GetSystemMenu(handle, false);
@@ -85,15 +125,46 @@ namespace HeistGame
 
             try
             {
+                SetConsoleFont(fontName, fontWidth, fontHeight);
+            }
+            catch
+            {
+                ErrorWarnings.FontError();
+            }
+
+            try
+            {
                 SetWindowSize(width, height);
                 if (blockScrolling) { SetBufferSize(width, height); }
             }
             catch (ArgumentOutOfRangeException)
             {
-                DisplayConsoleSizeWarning();
+                ErrorWarnings.ConsoleSizeError();
             }
 
             if (center) { CenterWindow(); }
+        }
+
+        public static void SetConsoleFont(string fontName, short w = 20, short h = 20)
+        {
+            if ((fontName == string.Empty) || (fontName == " "))
+            {
+                return;
+            }
+
+            if (h < 6  || w < 6)
+            {
+                return;
+            }
+
+            CONSOLE_FONT_INFO_EX ConsoleFontInfo = new CONSOLE_FONT_INFO_EX()
+            {
+                FaceName = fontName,
+                dwFontSize = new Coord(w, h)
+            };
+
+            ConsoleFontInfo.cbSize = (uint)Marshal.SizeOf(ConsoleFontInfo);
+            _ = SetCurrentConsoleFontEx(GetStdHandle(StdHandle.OutputHandle), false, ref ConsoleFontInfo);
         }
 
         private static Size GetScreenSize() => new Size(GetSystemMetrics(0), GetSystemMetrics(1));
@@ -124,16 +195,6 @@ namespace HeistGame
             int xPos = (screenSize.Width - windowSize.Width) / 2;
             int yPos = (screenSize.Height - windowSize.Height) / 2;
             SetWindowPos(window, IntPtr.Zero, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-        }
-
-        private static void DisplayConsoleSizeWarning()
-        {
-            WriteLine("Error setting the preferred console size.");
-            WriteLine("You can continue using the program, but glitches may occour, and it will probably not be displayed correctly.");
-            WriteLine("To fix this error, please try changing the character size of the Console.");
-
-            WriteLine("\n\nPress any key to continue...");
-            ReadKey(true);
         }
 
         static SettingsData GetSettingsFromConfig()
@@ -208,7 +269,8 @@ namespace HeistGame
         private class SettingsData
         {
             public string Name { get; set; }
-
+            public string Font { get; set; }
+            public short FontSize { get; set; }
             public int ConsoleWidth { get; set; }
             public int ConsoleHeight { get; set; }
 

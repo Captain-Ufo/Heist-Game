@@ -16,6 +16,67 @@ namespace HeistGame
     /// </summary>
     class ErrorWarnings
     {
+        public static void InvalidFont()
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: invalid font name *!!";
+            DisplayWarning(warning, -2);
+            warning = "Unspecified name for the font.";
+            DisplayWarning(warning, -1);
+            warning = "Please define a valid font name in Config.ini and restart the program.";
+            DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to continue...");
+            ReadKey(true);
+        }
+        public static void InvalidFontSize()
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: invalid font size *!!";
+            DisplayWarning(warning, -2);
+            warning = "The console font cannot be size 6 or less.";
+            DisplayWarning(warning, -1);
+            warning = "Please define a valid font size in Config.ini and restart the program.";
+            DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to continue...");
+            ReadKey(true);
+        }
+
+        public static void FontError()
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: could not set the specified Font *!!";
+            DisplayWarning(warning, -2);
+            warning = "Please make sure that the font specified in Config.in is installed, or define a different TTF font";
+            DisplayWarning(warning, -1);
+            warning = "and restart the program.";
+            DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to continue...");
+            ReadKey(true);
+        }
+
+        public static void ConsoleSizeError()
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: could not set the specified Console size *!!";
+            DisplayWarning(warning, -3);
+            warning = "You can continue using the program, but glitches may occour, and it will likely not be displayed correctly.";
+            DisplayWarning(warning, -2);
+            warning = "To fix this error, please try changing the size of the Console or the character size in Config.ini,";
+            DisplayWarning(warning, -1);
+            warning = "and restart the program.";
+            DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to continue...");
+            ReadKey(true);
+        }
+
         public static void InvalidCampaignFile(string campaignPath)
         {
             Clear();
