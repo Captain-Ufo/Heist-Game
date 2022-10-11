@@ -16,48 +16,50 @@ namespace HeistGame
     /// </summary>
     class ErrorWarnings
     {
-        public static void InvalidFont()
+
+        public static void InvalidFontName()
         {
             Clear();
             ForegroundColor = ConsoleColor.Red;
             string warning = "!!* ERROR: invalid font name *!!";
+            DisplayWarning(warning, -3);
+            ResetColor();
+            warning = "Unspecified name for the font in Config.ini.";
             DisplayWarning(warning, -2);
-            warning = "Unspecified name for the font.";
+            ForegroundColor = ConsoleColor.Red;
+            warning = "This is a critical error. The program will be terminated.";
             DisplayWarning(warning, -1);
+            ResetColor();
             warning = "Please define a valid font name in Config.ini and restart the program.";
             DisplayWarning(warning);
             SetCursorPosition(0, WindowHeight - 1);
-            WriteLine("\n\nPress any key to continue...");
+            WriteLine("\n\nPress any key to quit...");
             ReadKey(true);
-        }
-        public static void InvalidFontSize()
-        {
-            Clear();
-            ForegroundColor = ConsoleColor.Red;
-            string warning = "!!* ERROR: invalid font size *!!";
-            DisplayWarning(warning, -2);
-            warning = "The console font cannot be size 6 or less.";
-            DisplayWarning(warning, -1);
-            warning = "Please define a valid font size in Config.ini and restart the program.";
-            DisplayWarning(warning);
-            SetCursorPosition(0, WindowHeight - 1);
-            WriteLine("\n\nPress any key to continue...");
-            ReadKey(true);
+
+            Environment.Exit(0);
         }
 
-        public static void FontError()
+        public static void FontSettingError(Exception e)
         {
             Clear();
             ForegroundColor = ConsoleColor.Red;
             string warning = "!!* ERROR: could not set the specified Font *!!";
-            DisplayWarning(warning, -2);
-            warning = "Please make sure that the font specified in Config.in is installed, or define a different TTF font";
+            DisplayWarning(warning, -4);
+            ResetColor();
+            ForegroundColor = ConsoleColor.Red;
+            warning = "This is a critical error. The program will be terminated. The error was:";
+            DisplayWarning(warning, -3);
+            DisplayWarning(e.Message, -2);
+            ResetColor();
+            warning = "Please make sure that the font specified in Config.in is installed, or define a different, valid, TTF font";
             DisplayWarning(warning, -1);
             warning = "and restart the program.";
             DisplayWarning(warning);
             SetCursorPosition(0, WindowHeight - 1);
-            WriteLine("\n\nPress any key to continue...");
+            WriteLine("\n\nPress any key to quit...");
             ReadKey(true);
+
+            Environment.Exit(0);
         }
 
         public static void ConsoleSizeError()
@@ -65,13 +67,52 @@ namespace HeistGame
             Clear();
             ForegroundColor = ConsoleColor.Red;
             string warning = "!!* ERROR: could not set the specified Console size *!!";
+            DisplayWarning(warning, -4);
+            ResetColor();
+            ForegroundColor = ConsoleColor.Red;
+            warning = "This is a critical error. The program will be terminated.";
             DisplayWarning(warning, -3);
-            warning = "You can continue using the program, but glitches may occour, and it will likely not be displayed correctly.";
-            DisplayWarning(warning, -2);
+            ResetColor();
             warning = "To fix this error, please try changing the size of the Console or the character size in Config.ini,";
             DisplayWarning(warning, -1);
             warning = "and restart the program.";
             DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to quit...");
+            ReadKey(true);
+
+            Environment.Exit(0);
+        }
+
+        public static void InvalidFontSize()
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: invalid font size *!!";
+            DisplayWarning(warning, -3);
+            ResetColor();
+            warning = "The console font cannot be size 6 or less.";
+            DisplayWarning(warning, -2);
+            ForegroundColor = ConsoleColor.Red;
+            warning = "The program will attempt to apply the default font size. If you prefer a different size,";
+            DisplayWarning(warning, -1);
+            ResetColor();
+            warning = "please define a valid font size in Config.ini and restart the program.";
+            DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to quit...");
+            ReadKey(true);
+        }
+
+        public static void MissingConfig(string path)
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: could not find Config.ini *!!";
+            DisplayWarning(warning, -1);
+            ResetColor();
+            warning = $"A new Config.ini with default values will be created in {path}.";
+            DisplayWarning(warning, 0);
             SetCursorPosition(0, WindowHeight - 1);
             WriteLine("\n\nPress any key to continue...");
             ReadKey(true);

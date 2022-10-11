@@ -89,7 +89,8 @@ namespace HeistGame
         {
             SettingsData settings = GetSettingsFromConfig();
 
-            ConfigureConsole(settings.Name, settings.Font, settings.FontSize, settings.FontSize, settings.ConsoleWidth, settings.ConsoleHeight, true, false, false, true, true, true);
+            ConfigureConsole(settings.Name, settings.Font, settings.FontHeight, settings.FontWidth, settings.ConsoleWidth,
+                             settings.ConsoleHeight, true, false, false, true, true, true);
         }
 
         /// <summary>
@@ -127,34 +128,40 @@ namespace HeistGame
             {
                 SetConsoleFont(fontName, fontWidth, fontHeight);
             }
-            catch
+            catch (Exception e)
             {
-                ErrorWarnings.FontError();
+                ErrorWarnings.FontSettingError(e);
             }
 
             try
             {
                 SetWindowSize(width, height);
-                if (blockScrolling) { SetBufferSize(width, height); }
             }
             catch (ArgumentOutOfRangeException)
             {
                 ErrorWarnings.ConsoleSizeError();
             }
 
+            if (blockScrolling) 
+            { 
+                SetBufferSize(width, height);
+            }
             if (center) { CenterWindow(); }
         }
 
-        public static void SetConsoleFont(string fontName, short w = 20, short h = 20)
+        public static void SetConsoleFont(string fontName, short w, short h)
         {
             if ((fontName == string.Empty) || (fontName == " "))
             {
+                ErrorWarnings.InvalidFontName();
                 return;
             }
 
             if (h < 6  || w < 6)
             {
-                return;
+                ErrorWarnings.InvalidFontSize();
+                h = 14;
+                w = 13;
             }
 
             CONSOLE_FONT_INFO_EX ConsoleFontInfo = new CONSOLE_FONT_INFO_EX()
@@ -220,18 +227,15 @@ namespace HeistGame
 
         static SettingsData CreateDefaultConfig(string path)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("ERROR! ");
-            Console.ResetColor();
-            Console.WriteLine($"Could not find Config.ini. Default config file will be created in {path}");
-            Console.WriteLine("");
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            ErrorWarnings.MissingConfig(path);
 
             SettingsData data = new SettingsData();
             data.Name = "Heist!";
-            data.ConsoleWidth = 200;
-            data.ConsoleHeight = 60;
+            data.ConsoleWidth = 146;
+            data.ConsoleHeight = 70;
+            data.Font = "Consolas";
+            data.FontHeight = 14;
+            data.FontWidth = 13;
 
             string configData = JsonSerializer.Serialize(data);
             string dataFileName = "/Config.ini";
@@ -270,7 +274,8 @@ namespace HeistGame
         {
             public string Name { get; set; }
             public string Font { get; set; }
-            public short FontSize { get; set; }
+            public short FontHeight { get; set; }
+            public short FontWidth { get; set; }
             public int ConsoleWidth { get; set; }
             public int ConsoleHeight { get; set; }
 

@@ -880,8 +880,9 @@ namespace HeistGame
             HasDrawnBackground = false;
             TimesCaught = 0;
             TimesSpotted = 0;
-            PlayerCharacter.SetLoot(0);
-            PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[0].PlayerStartX, ActiveCampaign.Levels[0].PlayerStartY);
+            PlayerCharacter.Reset(ActiveCampaign.Levels[0].PlayerStartX,
+                                  ActiveCampaign.Levels[0].PlayerStartY,
+                                  ActiveCampaign.Levels[0]);
             CurrentLevel = 0;
             totalGold = 0;
             foreach (Level level in ActiveCampaign.Levels)

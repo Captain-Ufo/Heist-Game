@@ -38,6 +38,10 @@ namespace HeistGame
         /// </summary>
         public int Loot { get; private set; }
         /// <summary>
+        /// The player's health
+        /// </summary>
+        public int Health { get; private set; }
+        /// <summary>
         /// Whether the player has moved in the current frame or not
         /// </summary>
         public bool IsStill { get; set; }
@@ -56,9 +60,10 @@ namespace HeistGame
         /// <param name="color">(Optional) The color of the player's symbol</param>
         public Player(Level level, char marker = SymbolsConfig.PlayerSymbol, ConsoleColor color = ConsoleColor.Cyan)
         { 
-
             X = level.PlayerStartX;
             Y = level.PlayerStartY;
+
+            Health = 10;
 
             SetVisibility(level.PlayerStartX, level.PlayerStartY, level);
 
@@ -307,6 +312,14 @@ namespace HeistGame
                     level.UpdateVisibleMap(tile);
                 }
             }  
+        }
+
+        public void Reset(int xPos, int yPos, Level level)
+        {
+            X = xPos;
+            Y = yPos;
+            Loot = 0;
+            SetVisibility(X, Y, level);
         }
 
         private void SetVisibility(int xPos, int yPos, Level level)

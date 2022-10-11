@@ -194,7 +194,7 @@ namespace HeistGame
 
                     if (game.Selector.IsActive && game.Selector.X == tile.X && game.Selector.Y == tile.Y)
                     {
-                        //if the tile is selected, set colors to balck symbol + white background
+                        //if the tile is selected, set colors to black symbol + white background
                         buffer[y * windowWidth + x].Attributes = (0 | (15 << 4));
                     }
                     else if (IsTileUnderLable(new Vector2(x, y)))
@@ -299,6 +299,17 @@ namespace HeistGame
                                 {
                                     //dark yellow (at this position, it can only be the visibility indicator)
                                     buffer[y * windowWidth + x].Attributes = 6;
+                                    break;
+                                }
+                                //dark grey
+                                buffer[y * windowWidth + x].Attributes = 8;
+                                break;
+
+                            case SymbolsConfig.Health:
+                                if (y >= ui.UITop)
+                                {
+                                    //dark yellow (at this position, it can only be the visibility indicator)
+                                    buffer[y * windowWidth + x].Attributes = 12;
                                     break;
                                 }
                                 //dark grey
@@ -480,6 +491,7 @@ namespace HeistGame
 
             if (string.IsNullOrEmpty(text[0])) { return; }
 
+            CursorVisible = false;
             ResetColor();
 
             int maxLines = WindowHeight - 5;
@@ -494,7 +506,7 @@ namespace HeistGame
 
             Clear();
 
-            do
+            while (true)
             {
                 textToDisplay.Clear();
                 for (int i = firstLineToDisplay; i < lastLineToDisplay; i++)
@@ -511,15 +523,17 @@ namespace HeistGame
                     WriteLine(s);
                 }
 
-                info = ReadKey(true);
+                SetCursorPosition(0, 0);
+
+                info = ReadKey();
 
                 switch (info.Key)
                 {
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
                     case ConsoleKey.NumPad2:
-                        if (text.Length < maxLines) { break; }
-                        if (lastLineToDisplay == text.Length) { break; }
+                        if (text.Length < maxLines) { continue; }
+                        if (lastLineToDisplay == text.Length) { continue; }
                         if (firstLineToDisplay == text.Length) 
                         { 
                             firstLineToDisplay = text.Length - 1;
@@ -538,7 +552,7 @@ namespace HeistGame
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
                     case ConsoleKey.NumPad8:
-                        if (firstLineToDisplay == 0) { break; }
+                        if (firstLineToDisplay == 0) { continue; }
 
                         firstLineToDisplay -= maxLines;
                         if (firstLineToDisplay < 0)
@@ -554,9 +568,12 @@ namespace HeistGame
                         }
                         Clear();
                         break;
+                    case ConsoleKey.Enter:
+                    case ConsoleKey.Escape:
+                    case ConsoleKey.M:
+                        return;
                 }
             }
-            while (info.Key != ConsoleKey.Enter);
         }
 
         private static void DisplayScreenDecoration(bool isMessageLog)
@@ -591,7 +608,7 @@ namespace HeistGame
                 Write("║");
             }
 
-            insert = "~· Use ARROW UP/DOWN to scroll. Press ENTER to close. ·~";
+            insert = "~· Use ARROW UP/DOWN to scroll. Press ENTER or ESCAPE to close. ·~";
             int endline = WindowHeight - 1;
             SetCursorPosition(1, endline);
             insertHalf = insert.Length / 2;
