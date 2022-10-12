@@ -11,7 +11,7 @@ namespace HeistGame
     /// <summary>
     /// The player's avatar in the game
     /// </summary>
-    class Player
+    class Player: IAttackable
     {
         private int timeBetweenMoves;
         private int timeSinceLastMove;
@@ -312,6 +312,16 @@ namespace HeistGame
                     level.UpdateVisibleMap(tile);
                 }
             }  
+        }
+
+        public void GetHit()
+        {
+            if (Health <= 0)
+            {
+                return;
+            }
+
+            Health--;
         }
 
         public void Reset(int xPos, int yPos, Level level)

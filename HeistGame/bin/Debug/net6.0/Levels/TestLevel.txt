@@ -125,7 +125,7 @@
 				"test",
 				"test",
 				"test",
-				"This should be on page 2"
+				"This should be on page 2 (at standard resolution.)"
 			],
 			[
 				"You can try distract the guard in the little cubicle south of here to get in and snatch the treasure."

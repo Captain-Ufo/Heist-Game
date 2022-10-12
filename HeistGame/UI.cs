@@ -159,7 +159,7 @@ namespace HeistGame
             {
                 default:
                 case 0:
-                    sb.Append("   ");
+                    sb.Append("    ");
                     break;
                 case 1:
                     ForegroundColor = ConsoleColor.DarkGray;

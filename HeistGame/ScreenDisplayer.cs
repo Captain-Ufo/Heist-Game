@@ -472,7 +472,7 @@ namespace HeistGame
         {
             string[] log = messageLog.GetMessagesLog();
 
-            DisplayTextFullScreen(log, true, true);
+            DisplayTextFullScreen(log, true);
         }
 
         public static void ClearMessageLog() => messageLog.ClearLog();
@@ -485,7 +485,7 @@ namespace HeistGame
         }
 
         //TODO: refactor this so that text can be scrolled one line at a time
-        public static void DisplayTextFullScreen(string[] text, bool withFraming = true, bool logFraming = false)
+        public static void DisplayTextFullScreen(string[] text, bool isMessageLog = false)
         {
             if (text == null) { return; }
 
@@ -513,7 +513,7 @@ namespace HeistGame
                 {
                     textToDisplay.Add(text[i]);
                 }
-                DisplayScreenDecoration(logFraming);
+                DisplayScreenDecoration(isMessageLog, text.Length > maxLines + 1);
 
                 SetCursorPosition(0, (WindowHeight / 2) - ((textToDisplay.Count / 2) + 1));
 
@@ -532,8 +532,8 @@ namespace HeistGame
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
                     case ConsoleKey.NumPad2:
-                        if (text.Length < maxLines) { continue; }
-                        if (lastLineToDisplay == text.Length) { continue; }
+                        if (text.Length < maxLines) { break; }
+                        if (lastLineToDisplay == text.Length) { break; }
                         if (firstLineToDisplay == text.Length) 
                         { 
                             firstLineToDisplay = text.Length - 1;
@@ -552,7 +552,7 @@ namespace HeistGame
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.W:
                     case ConsoleKey.NumPad8:
-                        if (firstLineToDisplay == 0) { continue; }
+                        if (firstLineToDisplay == 0) { break; }
 
                         firstLineToDisplay -= maxLines;
                         if (firstLineToDisplay < 0)
@@ -576,7 +576,7 @@ namespace HeistGame
             }
         }
 
-        private static void DisplayScreenDecoration(bool isMessageLog)
+        private static void DisplayScreenDecoration(bool isMessageLog, bool scrolling)
         {
             int middle = WindowWidth / 2;
 
@@ -608,7 +608,8 @@ namespace HeistGame
                 Write("║");
             }
 
-            insert = "~· Use ARROW UP/DOWN to scroll. Press ENTER or ESCAPE to close. ·~";
+            if (scrolling) { insert = "~· Use ARROW UP/DOWN to scroll. Press ENTER or ESCAPE to close. ·~"; }
+            else { insert = "~· Press ENTER or ESCAPE to close. ·~"; }
             int endline = WindowHeight - 1;
             SetCursorPosition(1, endline);
             insertHalf = insert.Length / 2;

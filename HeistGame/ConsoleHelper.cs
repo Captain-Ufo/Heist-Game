@@ -18,6 +18,7 @@ namespace HeistGame
         public const int SC_CLOSE = 0xF060;
         public const int SC_MINIMIZE = 0xF020;
         public const int SC_MAXIMIZE = 0xF030;
+        public const int SC_RESTORE = 0xF120;
         public const int SC_SIZE = 0xF000;
 
         [DllImport("user32.dll")]
@@ -28,6 +29,9 @@ namespace HeistGame
 
         [DllImport("kernel32.dll", ExactSpelling = true)]
         private static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         [DllImport("user32.dll", SetLastError = true)]
         static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
@@ -89,8 +93,9 @@ namespace HeistGame
         {
             SettingsData settings = GetSettingsFromConfig();
 
-            ConfigureConsole(settings.Name, settings.Font, settings.FontHeight, settings.FontWidth, settings.ConsoleWidth,
-                             settings.ConsoleHeight, true, false, false, true, true, true);
+            ConfigureConsole(settings.Name, settings.Font, settings.FontHeight, settings.FontWidth, settings.MaximizeOnStart,
+                             settings.ConsoleWidth, settings.ConsoleHeight, settings.CenterWindow, false, false, true, true,
+                             true);
         }
 
         /// <summary>
@@ -107,19 +112,16 @@ namespace HeistGame
         /// <param name="blockResize">Set to true to prevent manual resizing of the window via dragging the edges.</param>
         /// <param name="blockScrolling">Set to true to prevent manual scrolling. Note that the window will automatically scroll anyway if the displayed text
         /// is larger than the window size.</param>
-        public static void ConfigureConsole(string title, string fontName, short fontHeight, short fontWidth, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
+        public static void ConfigureConsole(string title, string fontName, short fontHeight, short fontWidth, bool maximize, int width, int height, bool center, bool blockClosing, bool blockMinimize, bool blockMaximize, bool blockResize, bool blockScrolling)
         {
             IntPtr handle = GetConsoleWindow();
             IntPtr sysMenu = GetSystemMenu(handle, false);
 
             OutputEncoding = System.Text.Encoding.Unicode;
 
-            if (handle != IntPtr.Zero)
+            if (handle == IntPtr.Zero)
             {
-                if (blockClosing) { DeleteMenu(sysMenu, SC_CLOSE, MF_BYCOMMAND); }
-                if (blockMinimize) { DeleteMenu(sysMenu, SC_MINIMIZE, MF_BYCOMMAND); }
-                if (blockMaximize) { DeleteMenu(sysMenu, SC_MAXIMIZE, MF_BYCOMMAND); }
-                if (blockResize) { DeleteMenu(sysMenu, SC_SIZE, MF_BYCOMMAND); }
+                return;
             }
 
             Title = title;
@@ -133,20 +135,44 @@ namespace HeistGame
                 ErrorWarnings.FontSettingError(e);
             }
 
-            try
+            if (maximize)
             {
-                SetWindowSize(width, height);
+                SetWindowSize(LargestWindowWidth, LargestWindowHeight);
+                ShowWindow(handle, 3);
             }
-            catch (ArgumentOutOfRangeException)
+            else
             {
-                ErrorWarnings.ConsoleSizeError();
+                try
+                {
+                    SetWindowSize(width, height);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    ErrorWarnings.ConsoleSizeError();
+                }
             }
 
             if (blockScrolling) 
-            { 
-                SetBufferSize(width, height);
+            {
+                if (maximize)
+                {
+                    SetBufferSize(LargestWindowWidth, LargestWindowHeight);
+                }
+                else
+                {
+                    SetBufferSize(width, height);
+                }
             }
             if (center) { CenterWindow(); }
+
+            if (blockClosing) { DeleteMenu(sysMenu, SC_CLOSE, MF_BYCOMMAND); }
+            if (blockMinimize) { DeleteMenu(sysMenu, SC_MINIMIZE, MF_BYCOMMAND); }
+            if (blockResize) { DeleteMenu(sysMenu, SC_SIZE, MF_BYCOMMAND); }
+            if (blockMaximize) 
+            { 
+                DeleteMenu(sysMenu, SC_MAXIMIZE, MF_BYCOMMAND);
+                DeleteMenu(sysMenu, SC_RESTORE, MF_BYCOMMAND);
+            }
         }
 
         public static void SetConsoleFont(string fontName, short w, short h)
@@ -231,11 +257,13 @@ namespace HeistGame
 
             SettingsData data = new SettingsData();
             data.Name = "Heist!";
-            data.ConsoleWidth = 146;
-            data.ConsoleHeight = 70;
             data.Font = "Consolas";
             data.FontHeight = 14;
             data.FontWidth = 13;
+            data.MaximizeOnStart = true;
+            data.ConsoleWidth = 146;
+            data.ConsoleHeight = 70;
+            data.CenterWindow = false;
 
             string configData = JsonSerializer.Serialize(data);
             string dataFileName = "/Config.ini";
@@ -276,8 +304,10 @@ namespace HeistGame
             public string Font { get; set; }
             public short FontHeight { get; set; }
             public short FontWidth { get; set; }
+            public bool MaximizeOnStart { get; set; }
             public int ConsoleWidth { get; set; }
             public int ConsoleHeight { get; set; }
+            public bool CenterWindow { get; set; }
 
             public SettingsData() { }
         }

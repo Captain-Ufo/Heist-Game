@@ -11,7 +11,7 @@ namespace HeistGame
     /// </summary>
     public static class SymbolsConfig
     {
-        public const char PlayerSymbol = '☺';
+        public const char PlayerSymbol = '☻';
         public const char Health = '♥';
         public const char NPCMarkerUp = '^';
         public const char NPCMarkerRight = '>';
