@@ -138,7 +138,8 @@ namespace HeistGame
             if (maximize)
             {
                 SetWindowSize(LargestWindowWidth, LargestWindowHeight);
-                ShowWindow(handle, 3);
+                AnchorWindow();
+                
             }
             else
             {
@@ -227,6 +228,23 @@ namespace HeistGame
 
             int xPos = (screenSize.Width - windowSize.Width) / 2;
             int yPos = (screenSize.Height - windowSize.Height) / 2;
+            SetWindowPos(window, IntPtr.Zero, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        }
+
+        private static void AnchorWindow()
+        {
+            IntPtr window = GetConsoleWindow();
+
+            if (window == IntPtr.Zero)
+            {
+                throw new Exception("Couldn't find a window to center!");
+            }
+
+            Size screenSize = GetScreenSize();
+            Size windowSize = GetWindowSize(window);
+
+            int xPos = (screenSize.Width - windowSize.Width) / 2;
+            int yPos = 0;
             SetWindowPos(window, IntPtr.Zero, xPos, yPos, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
         }
 
