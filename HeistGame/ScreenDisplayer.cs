@@ -347,7 +347,9 @@ namespace HeistGame
                 }
             }
 
-            WriteConsoleOutputW(safeFileHandle, buffer, new Coord() { X = windowWidth, Y = windowHeight }, new Coord() { X = 0, Y = 0 }, ref rect);
+            WriteConsoleOutputW(safeFileHandle, buffer,
+                                new Coord() { X = windowWidth, Y = windowHeight },
+                                new Coord() { X = 0, Y = 0 }, ref rect);
         }
 
         /// <summary>
@@ -373,7 +375,9 @@ namespace HeistGame
                 }
             }
 
-            WriteConsoleOutputW(safeFileHandle, buffer, new Coord() { X = windowWidth, Y = windowHeight }, new Coord() { X = 0, Y = 0 }, ref rect);
+            WriteConsoleOutputW(safeFileHandle, buffer,
+                                new Coord() { X = windowWidth, Y = windowHeight },
+                                new Coord() { X = 0, Y = 0 }, ref rect);
         }
 
         public static void UpdateUI(Game game)
@@ -470,9 +474,7 @@ namespace HeistGame
 
         public static void DisplayMessageLog()
         {
-            string[] log = messageLog.GetMessagesLog();
-
-            DisplayTextFullScreen(log, true);
+            DisplayTextFullScreen(messageLog.GetMessagesLog(), true);
         }
 
         public static void ClearMessageLog() => messageLog.ClearLog();
@@ -484,69 +486,133 @@ namespace HeistGame
             message.HasBeenRead = true;
         }
 
-        //TODO: refactor this so that text can be scrolled one line at a time
         public static void DisplayTextFullScreen(string[] text, bool isMessageLog = false)
         {
+            if (safeFileHandle.IsInvalid) { return; }
             if (text == null) { return; }
-
             if (string.IsNullOrEmpty(text[0])) { return; }
 
-            CursorVisible = false;
-            ResetColor();
+            StringBuilder sb = new StringBuilder();
 
-            int maxLines = WindowHeight - 5;
+            short windowWidth = (short)WindowWidth;
+            short windowHeight = (short)WindowHeight;
+            int frameSize = 4;
+
+            string[] textToDisplay = new string[windowHeight];
+
+            string[] resizedText = StringHelper.SplitStringAtLength(text, windowWidth - 4);
+
+            int maxLines = WindowHeight - frameSize;
             int firstLineToDisplay = 0;
             int lastLineToDisplay;
-            if (text.Length > maxLines + 1) { lastLineToDisplay = maxLines; }
-            else { lastLineToDisplay = text.Length; }
+            int textStartLine = frameSize / 2;
+            int textEndLine = WindowHeight - 1 - frameSize / 2;
+            bool scrolling = resizedText.Length > windowHeight - frameSize;
+            if (scrolling)
+            {
+                lastLineToDisplay = maxLines;
+            }
+            else
+            {
+                lastLineToDisplay = resizedText.Length - 1;
+                textStartLine = (windowHeight - resizedText.Length) / 2;
+                textEndLine = textStartLine + resizedText.Length - 1;
+            }
 
-            List<string> textToDisplay = new List<string>();
-
-            ConsoleKeyInfo info;
-
-            Clear();
+            CharInfo[] buffer = new CharInfo[windowWidth * windowHeight];
+            SmallRect rect = new SmallRect() { Left = 0, Top = 0, Right = windowWidth, Bottom = windowHeight };
 
             while (true)
             {
-                textToDisplay.Clear();
-                for (int i = firstLineToDisplay; i < lastLineToDisplay; i++)
+                for (int y = 0; y < windowHeight; y++)
                 {
-                    textToDisplay.Add(text[i]);
+                    //Creating the lines to be displayed
+
+                    if (y == 0)
+                    {
+                        //Creating first line (framing and title)
+                        sb.Append('┌');
+                        string insert = "──";
+                        if (isMessageLog) { insert = "~· MESSAGES LOG ·~"; }
+                        int leftFrameLength = (WindowWidth - frameSize - insert.Length) / 2;
+                        sb.Append('─', leftFrameLength);
+                        sb.Append(insert);
+                        int rightFrameLength = WindowWidth - (frameSize / 2) - insert.Length - leftFrameLength;
+                        sb.Append('─', rightFrameLength);
+                        sb.Append('┐');
+
+                        textToDisplay[y] = sb.ToString();
+                        sb.Clear();
+                    }
+                    else if (y == windowHeight - 1)
+                    {
+                        //Create last line (framing and instructions)
+                        sb.Append('└');
+                        string insert;
+                        if (scrolling) { insert = "~· UP/DOWN to scroll. Press ENTER, M or ESCAPE to close. ·~"; }
+                        else { insert = "~· Press ENTER, M or ESCAPE to close. ·~"; }
+                        int leftFrameLength = (WindowWidth - frameSize - insert.Length) / 2;
+                        sb.Append('─', leftFrameLength);
+                        sb.Append(insert);
+                        int rightFrameLength = WindowWidth - (frameSize / 2) - insert.Length - leftFrameLength;
+                        sb.Append('─', rightFrameLength);
+                        sb.Append('┘');
+                        textToDisplay[y] = sb.ToString();
+                        sb.Clear();
+                    }
+                    else if (y >= textStartLine && y <= textEndLine)
+                    {
+                        sb.Append("│ ");
+                        sb.Append(resizedText[firstLineToDisplay + y - textStartLine]);
+                        int spaces = WindowWidth - 1 - sb.Length;
+                        sb.Append(' ', spaces);
+                        sb.Append('│');
+                        textToDisplay[y] = sb.ToString();
+                        sb.Clear();
+                    }
+                    else
+                    {
+                        sb.Append('│');
+                        sb.Append(' ', WindowWidth - 2);
+                        sb.Append('│');
+                        textToDisplay[y] = sb.ToString();
+                        sb.Clear();
+                    }
+
+                    for (int x = 0; x < windowWidth; x++)
+                    {
+                        buffer[y * windowWidth + x].Char.UnicodeChar = textToDisplay[y][x];
+                        //grey
+                        buffer[y * windowWidth + x].Attributes = 7;
+                    }
+
                 }
-                DisplayScreenDecoration(isMessageLog, text.Length > maxLines + 1);
 
-                SetCursorPosition(0, (WindowHeight / 2) - ((textToDisplay.Count / 2) + 1));
+                WriteConsoleOutputW(safeFileHandle, buffer,
+                                    new Coord() { X = windowWidth, Y = windowHeight },
+                                    new Coord() { X = 0, Y = 0 }, ref rect);
 
-                foreach (string s in textToDisplay)
-                {
-                    SetCursorPosition((WindowWidth / 2) - (s.Length / 2), CursorTop);
-                    WriteLine(s);
-                }
 
-                SetCursorPosition(0, 0);
-
-                info = ReadKey();
+                ConsoleKeyInfo info = ReadKey(false);
 
                 switch (info.Key)
                 {
                     case ConsoleKey.DownArrow:
                     case ConsoleKey.S:
                     case ConsoleKey.NumPad2:
-                        if (text.Length < maxLines) { break; }
-                        if (lastLineToDisplay == text.Length) { break; }
-                        if (firstLineToDisplay == text.Length) 
-                        { 
-                            firstLineToDisplay = text.Length - 1;
-                            Clear();
-                            break; 
-                        }
-                        firstLineToDisplay += maxLines;
-                        lastLineToDisplay = firstLineToDisplay + maxLines;
-                        if (lastLineToDisplay >= text.Length)
+                        if (resizedText.Length < maxLines) { break; }
+                        if (lastLineToDisplay == resizedText.Length) { break; }
+                        if (firstLineToDisplay == resizedText.Length)
                         {
-                            lastLineToDisplay = text.Length;
+                            firstLineToDisplay = resizedText.Length - 1;
+                            break;
                         }
-                        Clear();
+                        firstLineToDisplay++;
+                        lastLineToDisplay++;
+                        if (lastLineToDisplay > resizedText.Length)
+                        {
+                            lastLineToDisplay = resizedText.Length;
+                        }
                         break;
 
                     case ConsoleKey.UpArrow:
@@ -554,19 +620,18 @@ namespace HeistGame
                     case ConsoleKey.NumPad8:
                         if (firstLineToDisplay == 0) { break; }
 
-                        firstLineToDisplay -= maxLines;
+                        firstLineToDisplay--;
                         if (firstLineToDisplay < 0)
                         {
-                
+
                             firstLineToDisplay = 0;
                         }
 
-                        lastLineToDisplay = firstLineToDisplay + maxLines;
+                        lastLineToDisplay--;
                         if (lastLineToDisplay >= text.Length)
                         {
                             lastLineToDisplay = text.Length;
                         }
-                        Clear();
                         break;
                     case ConsoleKey.Enter:
                     case ConsoleKey.Escape:
@@ -574,60 +639,6 @@ namespace HeistGame
                         return;
                 }
             }
-        }
-
-        private static void DisplayScreenDecoration(bool isMessageLog, bool scrolling)
-        {
-            int middle = WindowWidth / 2;
-
-            SetCursorPosition(1, 0);
-            string insert = "══";
-            if (isMessageLog) { insert = "~· MESSAGES LOG ·~"; }
-            int insertHalf = insert.Length /2;
-            int insertStart = middle - insertHalf;
-            Write("╬");
-            for (int i = 2; i < insertStart; i++)
-            {
-                SetCursorPosition(i, 0);
-                Write("═");
-            }
-            Write(insert);
-            for (int i = CursorLeft; i < WindowWidth - 1; i++)
-            {
-                SetCursorPosition(i, 0);
-                Write("═");
-            }
-            SetCursorPosition(WindowWidth - 1, 0);
-            Write("╬");
-
-            for (int i = 1; i < WindowHeight - 1; i++)
-            {
-                SetCursorPosition(1, i);
-                Write("║");
-                SetCursorPosition(WindowWidth - 1, i);
-                Write("║");
-            }
-
-            if (scrolling) { insert = "~· Use ARROW UP/DOWN to scroll. Press ENTER or ESCAPE to close. ·~"; }
-            else { insert = "~· Press ENTER or ESCAPE to close. ·~"; }
-            int endline = WindowHeight - 1;
-            SetCursorPosition(1, endline);
-            insertHalf = insert.Length / 2;
-            insertStart = middle - insertHalf;
-            Write("╬");
-            for (int i = 2; i < insertStart; i++)
-            {
-                SetCursorPosition(i, endline);
-                Write("═");
-            }
-            Write(insert);
-            for (int i = CursorLeft; i < WindowWidth - 1; i++)
-            {
-                SetCursorPosition(i, endline);
-                Write("═");
-            }
-            SetCursorPosition(WindowWidth - 1, endline);
-            Write("╬");
         }
     }
 }

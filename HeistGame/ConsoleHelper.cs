@@ -163,7 +163,7 @@ namespace HeistGame
                     SetBufferSize(width, height);
                 }
             }
-            if (center) { CenterWindow(); }
+            if (center && !maximize) { CenterWindow(); }
 
             if (blockClosing) { DeleteMenu(sysMenu, SC_CLOSE, MF_BYCOMMAND); }
             if (blockMinimize) { DeleteMenu(sysMenu, SC_MINIMIZE, MF_BYCOMMAND); }

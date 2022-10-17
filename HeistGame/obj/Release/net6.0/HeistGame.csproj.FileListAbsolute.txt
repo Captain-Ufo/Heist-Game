@@ -45,3 +45,5 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\refint\HeistG
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\HeistGame.pdb
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\HeistGame.genruntimeconfig.cache
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\ref\HeistGame.dll
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\Levels\Deep Cells.txt
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\Levels\High Security Confinement.txt

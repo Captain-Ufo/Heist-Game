@@ -477,7 +477,6 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\dbgsh
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\hostfxr.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\hostpolicy.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\mscordaccore.dll
-D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\mscordaccore_x86_x86_6.0.722.32202.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\mscordbi.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\mscorrc.dll
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\msquic.dll
@@ -493,3 +492,6 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\win-x86\refin
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\win-x86\HeistGame.pdb
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\win-x86\HeistGame.genruntimeconfig.cache
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Release\net6.0\win-x86\ref\HeistGame.dll
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\Levels\Deep Cells.txt
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\Levels\High Security Confinement.txt
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Release\net6.0\win-x86\mscordaccore_x86_x86_6.0.1022.47605.dll
