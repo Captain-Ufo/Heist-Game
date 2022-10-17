@@ -912,7 +912,7 @@ namespace HeistGame
 
         private void CreateMainMenu()
         {
-            string[] prompt = {
+            string[] largePrompt = {
                 "                                                              $$$$$                                  ",
                 "                                                              $:::$                                  ",
                 "HHHHHHHHH     HHHHHHHHHEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIII   $$$$$:::$$$$$$ TTTTTTTTTTTTTTTTTTTTTTT !!! ",
@@ -933,6 +933,36 @@ namespace HeistGame
                 "HHHHHHHHH     HHHHHHHHHEEEEEEEEEEEEEEEEEEEEEEIIIIIIIIII      $:::$             TTTTTTTTTTT       !!! ",
                 "                                                             $$$$$                                   "
             };
+
+            string[] smallPrompt =
+            {
+                "                                             $$$$                     ",
+                "                                             $::$                     ",
+                "HHHHHH    HHHHHHEEEEEEEEEEEEEEEIIIIIIII   $$$$::$$$ TTTTTTTTTTTTTT !! ",
+                "H::::H    H::::HE:::::::::::::EI::::::I $$:::::::::$T::::::::::::T!!!!",
+                "H::::H    H::::HE:::::::::::::EI::::::I$::::$$$$:::$T::::::::::::T!::!",
+                "HH:::H    H:::HHEE:::EEEEEE:::EII::::II$:::$    $$$ T::TT::::TT::T!::!",
+                "  H::H    H::H    E::E    EEEEE  I::I  $::::$       TTT  T::T  TTT!::!",
+                "  H::H    H::H    E::E           I::I  $::::$            T::T     !::!",
+                "  H:::HHHH:::H    E:::EEEEEE     I::I  $:::::$$$$$       T::T     !::!",
+                "  H::::::::::H    E::::::::E     I::I   $$::::::::$$     T::T     !::!",
+                "  H::::::::::H    E::::::::E     I::I     $$$$$$::::$    T::T     !::!",
+                "  H:::HHHH:::H    E:::EEEEEE     I::I           $:::$    T::T     !::!",
+                "  H::H    H::H    E::E           I::I            $::$    T::T     !!!!",
+                "  H::H    H::H    E::E    EEEEE  I::I   $$$$     $::$    T::T      !! ",
+                "HH:::H    H:::HHEE:::EEEEE::::EII::::II$::::$$$$$:::$  TT::::TT       ",
+                "H::::H    H::::HE:::::::::::::EI::::::I$:::::::::::$$  T::::::T    !! ",
+                "H::::H    H::::HE:::::::::::::EI::::::I $$$$::$$$$     T::::::T   !!!!",
+                "HHHHHH    HHHHHHEEEEEEEEEEEEEEEIIIIIIII    $::$        TTTTTTTT    !! ",
+                "                                           $$$$                       "
+            };
+
+            string[] prompt = largePrompt;
+
+            if (WindowWidth < largePrompt[0].Length + 2)
+            {
+                prompt = smallPrompt;
+            }
 
             string[] options = { "New Campaign", "Single Mission", "Tutorial", "Credits ", "Quit" };
 
@@ -1120,13 +1150,13 @@ namespace HeistGame
 
             string[] deletePrompt =
             {
-                "╔══════════════════════════════════════════════════════════════════════════════════════════╗",
-                "║                                                                                          ║",
-                "║                        Are you sure you want to delete this save?                        ║",
-                "║                                                                                          ║",
-                "║                                                                                          ║",
-                "║                                                                                          ║",
-                "╚══════════════════════════════════════════════════════════════════════════════════════════╝"
+                "╔════════════════════════════════════════════════════════════════════╗",
+                "║                                                                    ║",
+                "║             Are you sure you want to delete this save?             ║",
+                "║                                                                    ║",
+                "║                                                                    ║",
+                "║                                                                    ║",
+                "╚════════════════════════════════════════════════════════════════════╝"
             };
 
             string confirmMenuLine = deletePrompt[4];
@@ -1234,7 +1264,9 @@ namespace HeistGame
                     "If you start a a new game with the same campaign and same difficulty level as a previous, uncompleted playthrough, the savegame will be overwritten.",
                 };
 
-                campaignsMenu.UpdateMenuPrompt(newPrompt);
+                string[] resizedPrompt = StringHelper.SplitStringAtLength(newPrompt, WindowWidth);
+
+                campaignsMenu.UpdateMenuPrompt(resizedPrompt);
             }
             else
             {
@@ -1335,32 +1367,38 @@ namespace HeistGame
             vEasyPrompt[6] = "VERY EASY: you can bribe guards as many times as you want, if you have collected enough money to do it.";
             if (saveGameStatus == 0) { vEasyPrompt[7] = "Bribe cost increase by $50 each time."; }
             else { vEasyPrompt[7] = "Bribe cost increase by $50 each time. If you game over, you'll be able to reload the last save and retry."; }
+            vEasyPrompt = StringHelper.SplitStringAtLength(vEasyPrompt, WindowWidth);
 
             string[] easyPrompt = new string[prompt.Length];
             Array.Copy(prompt, easyPrompt, prompt.Length);
             easyPrompt[6] = "EASY: same conditions as very easy, but if you game over, you'll have to start from the first level.";
+            easyPrompt = StringHelper.SplitStringAtLength(easyPrompt, WindowWidth);
 
             string[] normalPrompt = new string[prompt.Length];
             Array.Copy(prompt, normalPrompt, prompt.Length);
             normalPrompt[6] = "NORMAL: you can bribe each guard only once, after which they'll arrest you if they catch you a second time.";
             if (saveGameStatus == 0) { normalPrompt[7] = "Bribe cost will increase by $100 each time."; }
             else { normalPrompt[7] = "Bribe cost will increase by $100 each time. If you game over, you can reload the last save and retry."; }
+            normalPrompt = StringHelper.SplitStringAtLength(normalPrompt, WindowWidth);
 
             string[] hardPrompt = new string[prompt.Length];
             Array.Copy(prompt, hardPrompt, prompt.Length);
             hardPrompt[6] = "HARD: same conditions as normal, but if you game over, you'll have to start from the first level.";
+            hardPrompt = StringHelper.SplitStringAtLength(hardPrompt, WindowWidth);
 
             string[] vHardPrompt = new string[prompt.Length];
             Array.Copy(prompt, vHardPrompt, prompt.Length);
             vHardPrompt[6] = "VERY HARD: you cannot bribe guards at all. They'll arrest you on sight straight from the first time you'll cross their path.";
             if (saveGameStatus != 0) { vHardPrompt[7] = "You will still be able to load the last save and retry the same level."; }
+            vHardPrompt = StringHelper.SplitStringAtLength(vHardPrompt, WindowWidth);
 
             string[] ironmanPrompt = new string[prompt.Length];
             Array.Copy(prompt, ironmanPrompt, prompt.Length);
             if (saveGameStatus == 0) { ironmanPrompt[6] = "IRONMAN: You cannot bribe guards at all, it's game over whenever you get caught."; }
             else { ironmanPrompt[6] = "IRONMAN: You cannot bribe guards at all, and if you get caught you'll have to start from the very beginning."; }
+            ironmanPrompt = StringHelper.SplitStringAtLength(ironmanPrompt, WindowWidth);
 
-            string[] defaultPrompt = prompt;
+            string[] defaultPrompt = StringHelper.SplitStringAtLength(prompt, WindowWidth);
 
             string[][] promptsUpdates = new string[][]
             {
@@ -1410,21 +1448,22 @@ namespace HeistGame
             Selector.Deactivate();
             Clear();
             ResetColor();
-            string[] quitMenuPrompt =
-             {
-                "Are you sure you want to quit?",
-                " ",
-                " "
-             };
+            List<string> quitMenuPrompt = new List<string>();
+            quitMenuPrompt.Add("Are you sure you want to quit?");
+            quitMenuPrompt.Add(" ");
 
             if (CurrentLevel > 0)
             {
-                quitMenuPrompt[1] = "The game automatically saved the last level you played, but all your progress in the current level will be lost.";
+                string[] addendum = StringHelper.SplitStringAtLength("The game automatically saved the last level you played, but all your progress in the current level will be lost.", WindowWidth);
+                foreach (string s in addendum)
+                {
+                    quitMenuPrompt.Add(s);
+                }
             }
 
             string[] options = { "Return to game", "Quit to Main Menu", "Quit to desktop" };
 
-            Menu quitMenu = new Menu(quitMenuPrompt, options);
+            Menu quitMenu = new Menu(quitMenuPrompt.ToArray(), options);
             int selection = quitMenu.Run(WindowWidth / 2, WindowHeight / 3, 2, 0, WindowWidth);
             switch (selection)
             {

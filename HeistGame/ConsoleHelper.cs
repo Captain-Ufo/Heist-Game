@@ -126,6 +126,14 @@ namespace HeistGame
 
             Title = title;
 
+            if (!maximize && (width < 70 || height < 60))
+            {
+                SetBufferSize(WindowWidth, WindowHeight);
+                ErrorWarnings.InvalidWindowSize();
+                width = 70;
+                height = 60;
+            }
+
             try
             {
                 SetConsoleFont(fontName, fontWidth, fontHeight);
@@ -276,11 +284,11 @@ namespace HeistGame
             SettingsData data = new SettingsData();
             data.Name = "Heist!";
             data.Font = "Consolas";
-            data.FontHeight = 14;
-            data.FontWidth = 13;
+            data.FontHeight = 16;
+            data.FontWidth = 15;
             data.MaximizeOnStart = true;
-            data.ConsoleWidth = 146;
-            data.ConsoleHeight = 70;
+            data.ConsoleWidth = 120;
+            data.ConsoleHeight = 60;
             data.CenterWindow = false;
 
             string configData = JsonSerializer.Serialize(data);

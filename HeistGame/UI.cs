@@ -71,43 +71,32 @@ namespace HeistGame
             string objectives = SetObjectivesIndicator(game.ActiveCampaign.Levels[game.CurrentLevel]);
             string visibility = SetVisibilityIndicator(game.PlayerCharacter);
             string health = SetHealthIndicator(game.PlayerCharacter);
-            string menuInfo = "Press ESC to pause";
-            int screenQuarters = (width - 4) / 4;
-
-            int total = 0;
+            string menuInfo = "Press ESC to pause  │";
+            int screenHalf = width / 2;
 
             sb.Clear();
-            sb.Append("│ ");
-            total += 2;
+            sb.Append("│  ");
 
-            int spacing = screenQuarters - health.Length - (objectives.Length / 2);
             sb.Append(health);
-            total += health.Length;
 
+            int spacing = (screenHalf - 3 - health.Length - objectives.Length - (visibility.Length / 2)) / 2;
             sb.Append(' ', spacing);
-            total += spacing;
 
             sb.Append(objectives);
-            total += objectives.Length;
 
-            spacing = ((width - 2) / 2) - total - (visibility.Length / 2);
             sb.Append(' ', spacing);
-            total += spacing;
 
             sb.Append(visibility);
-            total += visibility.Length;
 
-            spacing = (screenQuarters * 3) - total - (loot.Length / 2);
+            spacing = (width - (screenHalf - 3 + (visibility.Length / 2) + loot.Length + menuInfo.Length)) / 2;
             sb.Append(' ', spacing);
-            total += spacing;
 
             sb.Append(loot);
-            total += loot.Length;
 
-            spacing = (width - 2) - menuInfo.Length - total;
+            spacing = width - sb.Length - menuInfo.Length;
             sb.Append(' ', spacing);
+
             sb.Append(menuInfo);
-            sb.Append(" │");
 
             string line = sb.ToString();
             sb.Clear();
@@ -135,8 +124,8 @@ namespace HeistGame
             string loot = player.Loot.ToString();
             int emptySpace = 8 - loot.Length - 1;
             sb.Append('$');
+            if (emptySpace > 0) { sb.Append('0', emptySpace); }
             sb.Append(loot);
-            if (emptySpace > 0) { sb.Append(' ', emptySpace); }
             return sb.ToString();
         }
 

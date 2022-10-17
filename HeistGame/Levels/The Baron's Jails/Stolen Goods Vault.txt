@@ -5,7 +5,7 @@
 		[
 			"You overheard guards talking about a vault where they store evidence and precious goods sequestered from the inmates...",
 			"Might be worth keeping an eye out for that.",
-			"After all, the Watch owes you some time, and the room service in this prison is horrible.",
+			"After all, the Watch owes you some time and the room service in this prison is horrible.",
 			"You feel entitled to a refound."
 		],
 

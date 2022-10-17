@@ -67,9 +67,9 @@ namespace HeistGame
 
         public const char ChestClosed = '◙';
         public const char ChestOpened = '◘';
-        public const char ChestEmpty = 'Ɔ'; 
+        public const char ChestEmpty = 'Ɔ';
         public const char ChestWithTreasure = 'Ͼ';
-        public const char ChestWithRandomTresture = 'Ͽ';
+        public const char ChestWithRandomTresture = 'Ͽ';            
 
         public const string OutroArt = @"
 

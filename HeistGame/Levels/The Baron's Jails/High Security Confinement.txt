@@ -4,8 +4,8 @@
 	"Briefing":
 		[
 			"You emerge in a stone room that seems an almost perfect replica of the one you just left.",
-			"This should be where they keep less troublesome criminals. You seem to remember, on your way down, that the exit here has",
-			"Quite a lot of redundant security. You should keep an eye out for keys and levers..."
+			"This should be where they keep less troublesome criminals. You seem to remember, on your way down, that the exit here has quite a lot of redundant security.",
+			"You should keep an eye out for keys and levers..."
 		],
 
 	"LevelMap":

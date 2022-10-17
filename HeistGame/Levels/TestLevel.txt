@@ -144,8 +144,8 @@
 				"It's only the sixth test message and I've already ran out of ideas."
 			],
 			[
-				"Yep, it's the seventh test message. I need to reach 10 to see if it can parse, so expect more of this nonsense",
-				"around this test level. It IS the test level after all, you should not expect riveting gameplay."
+				"Yep, it's the seventh test message. I need to reach 10 to see if it can parse, so expect more of this nonsense around this test level.",
+				"It IS the test level after all, you should not expect riveting gameplay."
 			],
 			[
 				"Eighth message. So far so good"

@@ -104,6 +104,26 @@ namespace HeistGame
             ReadKey(true);
         }
 
+        public static void InvalidWindowSize()
+        {
+            Clear();
+            ForegroundColor = ConsoleColor.Red;
+            string warning = "!!* ERROR: invalid Window size *!!";
+            DisplayWarning(warning, -3);
+            ResetColor();
+            warning = "The window cannot be smaller than 70 columns and 60 rows.";
+            DisplayWarning(warning, -2);
+            ForegroundColor = ConsoleColor.Red;
+            warning = "The program will continue and attempt to apply the minimum window size. If you prefer a different size,";
+            DisplayWarning(warning, -1);
+            ResetColor();
+            warning = "please define a valid size in Config.ini and restart the program.";
+            DisplayWarning(warning);
+            SetCursorPosition(0, WindowHeight - 1);
+            WriteLine("\n\nPress any key to quit...");
+            ReadKey(true);
+        }
+
         public static void MissingConfig(string path)
         {
             Clear();
