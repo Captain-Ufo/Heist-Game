@@ -519,6 +519,9 @@ namespace HeistGame
 
             int bribeCost = 100 + (bribeCostIncrease * TimesCaught);
 
+            int menuPos = WindowWidth / 2;
+            int menuPromptSize = WindowWidth - 2;
+
             string[] guardArt =
             {
                 @"                           __.--|~|--.__                                 ,,;/;",
@@ -570,13 +573,18 @@ namespace HeistGame
                 @"         |                   |         |            |/ '  |  RN TX            ",
             };
 
-            foreach (string s in guardArt)
+            if (WindowWidth >= guardArt[0].Length + 36) // 36 is the size of the menu prompt
             {
-                SetCursorPosition((WindowWidth / 3) - (s.Length / 2), CursorTop);
-                WriteLine(s);
-            }
+                foreach (string s in guardArt)
+                {
+                    SetCursorPosition((WindowWidth / 3) - (s.Length / 2), CursorTop);
+                    WriteLine(s);
+                }
 
-            int xPos = (WindowWidth / 4) * 3;
+                int freeSpace = WindowWidth - guardArt[0].Length;
+                menuPos = guardArt[0].Length + (freeSpace / 2);
+                menuPromptSize = freeSpace - 2;
+            }
 
             string guardCry;
 
@@ -603,43 +611,56 @@ namespace HeistGame
                 "Surrender"
             };
 
+            prompt = StringHelper.SplitStringAtLength(prompt, menuPromptSize);
+
             bribeMenu.UpdateMenuItems(prompt, options);
 
-            int selectedIndex = bribeMenu.Run(xPos, 5, 2, (WindowWidth / 3) * 2, WindowWidth);
+            int selectedIndex = bribeMenu.Run(menuPos, 5, 2, WindowWidth - menuPromptSize, WindowWidth);
 
             switch (selectedIndex)
             {
                 case 0:
-
-                    string message;
-
                     if (PlayerCharacter.Loot >= bribeCost)
                     {
-                        message = "The guard pockets your money and grumbles";
-                        SetCursorPosition(xPos - message.Length / 2, CursorTop + 4);
-                        WriteLine(message);
-                        message = "'I don't want to see your face around here again.'";
-                        SetCursorPosition(xPos - message.Length / 2, CursorTop);
-                        WriteLine(message);
-                        message = "'I won't be so kind next time.'";
-                        SetCursorPosition(xPos - message.Length / 2, CursorTop);
-                        WriteLine(message);
+                        string[] result =
+                        {
+                            "The guard pockets your money and grumbles",
+                            "'I don't want to see your face around here again.'",
+                            "'I won't be so kind next time.'"
+                        };
+
+                        result = StringHelper.SplitStringAtLength(result, menuPromptSize);
+
+                        SetCursorPosition(CursorLeft, CursorTop + 4);
+
+                        foreach (string s in result)
+                        {
+                            SetCursorPosition(menuPos - s.Length / 2, CursorTop);
+                            WriteLine(s);
+                        }
                         PlayerCharacter.ChangeLoot(-bribeCost);
                         ReadKey(true);
                         return true;
                     }
 
+                    SetCursorPosition(CursorLeft, CursorTop + 4);
+
+                    string[] message;
+
                     if (PlayerCharacter.Loot > 0)
                     {
-                        message = "The guard won't be swayed by the paltry sum you can offer.";
+                        message = StringHelper.SplitStringAtLength("The guard won't be swayed by the paltry sum you can offer.", menuPromptSize);
                     }
                     else
                     {
-                        message = "You pockets are empty. The guard won't be swayed by words alone.";
+                        message = StringHelper.SplitStringAtLength( "You pockets are empty. The guard won't be swayed by words alone.", menuPromptSize);
                     }
 
-                    SetCursorPosition(xPos - message.Length / 2, CursorTop + 4);
-                    WriteLine(message);
+                    foreach (string s in message)
+                    {
+                        SetCursorPosition(menuPos - s.Length / 2, CursorTop);
+                        WriteLine(s);
+                    }
                     ReadKey(true);
                     return false;
 
@@ -699,64 +720,74 @@ namespace HeistGame
             Clear();
             ResetColor();
 
-            string[] gameOverArt =
-            {
-                @"                                                                            ",
-                @"                                                                            ",
-                @"       ____ __|__   ____    _ ________|__ _________ ______ _____            ",
-                @"       |           |o  o|      |           |  \__      |                    ",
-                @"                   | c)%,      |                 \     |                    ",
-                @"                   |o__o'%                 |                       |        ",
-                @"    ___|______________ _  %  ,mM  _________|__ ________|__ ____ ___|__      ",
-                @"             |            %  |  n    |           |           |              ",
-                @"             |      -__/   %  Y /    |           |   ____    |              ",
-                @"             |      /       %J_]     |           |  |o  o|   |              ",
-                @"   _ _____ __|__ ________|  / /  ____|__ _______    ,%(C | __|__  __ __     ",
-                @"       |           |       / /             |        %o__o|         |        ",
-                @"                          / /     ,-~~,      Mm,   %               |        ",
-                @"       |          ____   / /    ,r/^V\,\    n  |  %    |           |        ",
-                @"   ____|_______  |o  o|  \ \    ('_ ~ ( )   \ Y  %  ___|_______ ___|__ _    ",
-                @"             |   | c)%|   \/\   |=  =  ))    [_t%            |              ",
-                @"             |   |o__%|   /  \   \ _(x)88     \ \            |              ",
-                @"             |        %   \  |`-. \ _/|8       \ \           |   _/         ",
-                @"   _ _____ __|__ ____  %   \ !  ,%J___]>---.____\ \  ________|___\_____     ",
-                @"       |  \_       |    %,  \ `,% \  /   /'    (__/    |           |        ",
-                @"       |    \      |     `%-%-%/|  \/   /  / =\|88                 |        ",
-                @"                   |          | \      /   /888        |                    ",
-                @"    ___|________ __|_______   |  '----'   |8  _________|_______ ___|__      ",
-                @"             |           |     \          /8     |           |              ",
-                @"             |           |     |         |8      |           |              ",
-                @"             |           |     |         |8                  |              ",
-                @"   _ _____ __|___ _______|____ /          \_ _    ________ __|__  ___ _     ",
-                @"       |           |           J\:______/ \            |\__        |        ",
-                @"                   |           |           |           | | \       |        ",
-                @"       |           |          /            \           |           |        ",
-                @"    ___|__ ________|_______  /     \_       \ _____ ___|__ ____ ___|__ _    ",
-                @"             |           |  /      /88\      \   |           |              ",
-                @"                         | /      /8   \      \  |           |              ",
-                @"             |            /      /8  |  \      \                            ",
-                @"   _ _____ __|__ ______  /      /8___|__ \      \  _ ________|__ _____ _    ",
-                @"       |           |    /     .'8         '.     \     |           |        ",
-                @"       | _         |   /     /8|            \     \    |                    ",
-                @"       |  \_       |  /__ __/8 |           | \_____\   |           |        ",
-                @"   ____|__/________  /   |888__|__ ____  __|__ 8|   \ _|_______ ___|__ _    ",
-                @"             |      /   /8           |           \   \       |              ",
-                @"                   /  .'8            |            '.  \      |              ",
-                @"             |    /__/8  |           |             8\__\     |              ",
-                @"     ____ __ |_  |  /8___|__ _____ __|__ ________|_ 8\  l __|__ _____ _     ",
-                @"      |         /> /8          |           |         8\ <\         |        ",
-                @" ____          />_/8           |   y       |          8\_<\          ____   ",
-                @"|o  o|       ,%J__]            |   \       |           [__t %,      |o  o|  ",
-                @"| c)%,      ,%> )(8__ ___ ___  |___/___ ___| ______ ___8)(  <%,    _,% (c|  ",
-                @"|o__o`%-%-%' __ ]8                                      [ __  '%-%-%`o__o|  ",
-            };
-
             SetCursorPosition(0, 2);
 
-            foreach (string s in gameOverArt)
+            int menuPos = WindowWidth / 2;
+            int MenuPromptSize = WindowWidth - 2;
+
+            string[] gameOverArt =
+                {
+                    @"                                                                          ",
+                    @"                                                                          ",
+                    @"       ____ __|__   ____    _ ________|__ _________ ______ _____          ",
+                    @"       |           |o  o|      |           |  \__      |                  ",
+                    @"                   | c)%,      |                 \     |                  ",
+                    @"                   |o__o'%                 |                       |      ",
+                    @"    ___|______________ _  %  ,mM  _________|__ ________|__ ____ ___|__    ",
+                    @"             |            %  |  n    |           |           |            ",
+                    @"             |      -__/   %  Y /    |           |   ____    |            ",
+                    @"             |      /       %J_]     |           |  |o  o|   |            ",
+                    @"   _ _____ __|__ ________|  / /  ____|__ _______    ,%(C | __|__  __ __   ",
+                    @"       |           |       / /             |        %o__o|         |      ",
+                    @"                          / /     ,-~~,      Mm,   %               |      ",
+                    @"       |          ____   / /    ,r/^V\,\    n  |  %    |           |      ",
+                    @"   ____|_______  |o  o|  \ \    ('_ ~ ( )   \ Y  %  ___|_______ ___|__ _  ",
+                    @"             |   | c)%|   \/\   |=  =  ))    [_t%            |            ",
+                    @"             |   |o__%|   /  \   \ _(x)88     \ \            |            ",
+                    @"             |        %   \  |`-. \ _/|8       \ \           |   _/       ",
+                    @"   _ _____ __|__ ____  %   \ !  ,%J___]>---.____\ \  ________|___\_____   ",
+                    @"       |  \_       |    %,  \ `,% \  /   /'    (__/    |           |      ",
+                    @"       |    \      |     `%-%-%/|  \/   /  / =\|88                 |      ",
+                    @"                   |          | \      /   /888        |                  ",
+                    @"    ___|________ __|_______   |  '----'   |8  _________|_______ ___|__    ",
+                    @"             |           |     \          /8     |           |            ",
+                    @"             |           |     |         |8      |           |            ",
+                    @"             |           |     |         |8                  |            ",
+                    @"   _ _____ __|___ _______|____ /          \_ _    ________ __|__  ___ _   ",
+                    @"       |           |           J\:______/ \            |\__        |      ",
+                    @"                   |           |           |           | | \       |      ",
+                    @"       |           |          /            \           |           |      ",
+                    @"    ___|__ ________|_______  /     \_       \ _____ ___|__ ____ ___|__ _  ",
+                    @"             |           |  /      /88\      \   |           |            ",
+                    @"                         | /      /8   \      \  |           |            ",
+                    @"             |            /      /8  |  \      \                          ",
+                    @"   _ _____ __|__ ______  /      /8___|__ \      \  _ ________|__ _____ _  ",
+                    @"       |           |    /     .'8         '.     \     |           |      ",
+                    @"       | _         |   /     /8|            \     \    |                  ",
+                    @"       |  \_       |  /__ __/8 |           | \_____\   |           |      ",
+                    @"   ____|__/________  /   |888__|__ ____  __|__ 8|   \ _|_______ ___|__ _  ",
+                    @"             |      /   /8           |           \   \       |            ",
+                    @"                   /  .'8            |            '.  \      |            ",
+                    @"             |    /__/8  |           |             8\__\     |            ",
+                    @"     ____ __ |_  |  /8___|__ _____ __|__ ________|_ 8\  l __|__ _____ _   ",
+                    @"      |         /> /8          |           |         8\ <\         |      ",
+                    @" ____          />_/8           |   y       |          8\_<\          ____ ",
+                    @"|o  o|       ,%J__]            |   \       |           [__t %,      |o  o|",
+                    @"| c)%,      ,%> )(8__ ___ ___  |___/___ ___| ______ ___8)(  <%,    _,% (c|",
+                    @"|o__o`%-%-%' __ ]8                                      [ __  '%-%-%`o__o|",
+                };
+
+            if (WindowWidth >= gameOverArt[0].Length + 42) //42 is the length of the restart prompt
             {
-                SetCursorPosition(WindowWidth - s.Length - 6, CursorTop);
-                WriteLine(s);
+                foreach (string s in gameOverArt)
+                {
+                    SetCursorPosition(WindowWidth - s.Length - 6, CursorTop);
+                    WriteLine(s);
+                }
+
+                int freeSpace = WindowWidth - gameOverArt[0].Length;
+                menuPos = freeSpace / 2;
+                MenuPromptSize = freeSpace - 2;
             }
 
             string[] gameOverOutro =
@@ -764,7 +795,7 @@ namespace HeistGame
                 "Oh, no!",
                 "You have been caught and shackled! The guards drag you to a dingy cell.",
                 "  ",
-                $"You've been searched and the guards sequestered $ {PlayerCharacter.Loot} in treasures.",
+                $"You've been searched and the guards sequestered ${PlayerCharacter.Loot} in treasures.",
                 "  ",
                 "Better luck next time.",
                 "Try Again!",
@@ -776,11 +807,13 @@ namespace HeistGame
                 "÷ GAME OVER ÷",
             };
 
-            SetCursorPosition(0, (WindowHeight / 3) - (gameOverOutro.Length / 2));
+            gameOverOutro = StringHelper.SplitStringAtLength(gameOverOutro, MenuPromptSize);
+
+            SetCursorPosition(menuPos, (WindowHeight / 3) - (gameOverOutro.Length / 2));
 
             for (int i = 0; i < gameOverOutro.Length; i++)
             {
-                SetCursorPosition((WindowWidth / 4) - (gameOverOutro[i].Length / 2), CursorTop);
+                SetCursorPosition((menuPos) - (gameOverOutro[i].Length / 2), CursorTop);
                 if (i == gameOverOutro.Length - 1) { ForegroundColor = ConsoleColor.Red; }
                 WriteLine(gameOverOutro[i]);
                 ResetColor();
@@ -790,16 +823,16 @@ namespace HeistGame
 
             if (CurrentLevel == 0 || DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.Hard || DifficultyLevel == Difficulty.Ironman)
             {
-                RestartMenu();
+                RestartMenu(menuPos);
                 ResetGame(true);
             }
             else if (DifficultyLevel == Difficulty.VeryEasy || DifficultyLevel == Difficulty.Normal || DifficultyLevel == Difficulty.VeryHard)
             {
-                RetryMenu();
+                RetryMenu(menuPos);
                 ResetGame(false);
             }
 
-            SetCursorPosition(0, WindowHeight - 2);
+            SetCursorPosition(menuPos, WindowHeight - 2);
             Write("Press any key to continue...");
             ReadKey(true);
             TunePlayer.StopTune();
@@ -936,25 +969,25 @@ namespace HeistGame
 
             string[] smallPrompt =
             {
-                "                                             $$$$                     ",
-                "                                             $::$                     ",
-                "HHHHHH    HHHHHHEEEEEEEEEEEEEEEIIIIIIII   $$$$::$$$ TTTTTTTTTTTTTT !! ",
-                "H::::H    H::::HE:::::::::::::EI::::::I $$:::::::::$T::::::::::::T!!!!",
-                "H::::H    H::::HE:::::::::::::EI::::::I$::::$$$$:::$T::::::::::::T!::!",
-                "HH:::H    H:::HHEE:::EEEEEE:::EII::::II$:::$    $$$ T::TT::::TT::T!::!",
-                "  H::H    H::H    E::E    EEEEE  I::I  $::::$       TTT  T::T  TTT!::!",
-                "  H::H    H::H    E::E           I::I  $::::$            T::T     !::!",
-                "  H:::HHHH:::H    E:::EEEEEE     I::I  $:::::$$$$$       T::T     !::!",
-                "  H::::::::::H    E::::::::E     I::I   $$::::::::$$     T::T     !::!",
-                "  H::::::::::H    E::::::::E     I::I     $$$$$$::::$    T::T     !::!",
-                "  H:::HHHH:::H    E:::EEEEEE     I::I           $:::$    T::T     !::!",
-                "  H::H    H::H    E::E           I::I            $::$    T::T     !!!!",
-                "  H::H    H::H    E::E    EEEEE  I::I   $$$$     $::$    T::T      !! ",
-                "HH:::H    H:::HHEE:::EEEEE::::EII::::II$::::$$$$$:::$  TT::::TT       ",
-                "H::::H    H::::HE:::::::::::::EI::::::I$:::::::::::$$  T::::::T    !! ",
-                "H::::H    H::::HE:::::::::::::EI::::::I $$$$::$$$$     T::::::T   !!!!",
-                "HHHHHH    HHHHHHEEEEEEEEEEEEEEEIIIIIIII    $::$        TTTTTTTT    !! ",
-                "                                           $$$$                       "
+                "                                          $$$$                      ",
+                "                                          $::$                      ",
+                "HHHHHH   HHHHHHEEEEEEEEEEEEEEIIIIIIII   $$$::$$$  TTTTTTTTTTTTTT !! ",
+                "H::::H   H::::HE::::::::::::EI::::::I  $::::::::$$T::::::::::::T!!!!",
+                "H::::H   H::::HE::::::::::::EI::::::I $:::$$$$:::$T::::::::::::T!::!",
+                "HH:::H   H:::HHEE:::EEEEE:::EII::::II$:::$    $$$ T::TT::::TT::T!::!",
+                "  H::H   H::H    E::E   EEEEE  I::I  $::$         TTT  T::T  TTT!::!",
+                "  H::H   H::H    E::E          I::I  $:::$$            T::T     !::!",
+                "  H:::HHH:::H    E:::EEEEE     I::I   $::::$$$$        T::T     !::!",
+                "  H:::::::::H    E:::::::E     I::I    $$::::::$$      T::T     !::!",
+                "  H:::::::::H    E:::::::E     I::I      $$$$::::$     T::T     !::!",
+                "  H:::HHH:::H    E:::EEEEE     I::I          $$:::$    T::T     !::!",
+                "  H::H   H::H    E::E          I::I            $::$    T::T     !!!!",
+                "  H::H   H::H    E::E   EEEEE  I::I   $$$    $$:::$    T::T      !! ",
+                "HH:::H   H:::HHEE:::EEEE::::EII::::II$:::$$$$::::$   TT::::TT       ",
+                "H::::H   H::::HE::::::::::::EI::::::I$$::::::::$$    T::::::T    !! ",
+                "H::::H   H::::HE::::::::::::EI::::::I  $$$::$$$      T::::::T   !!!!",
+                "HHHHHH   HHHHHHEEEEEEEEEEEEEEIIIIIIII    $::$        TTTTTTTT    !! ",
+                "                                         $$$$                       "
             };
 
             string[] prompt = largePrompt;
@@ -1367,38 +1400,38 @@ namespace HeistGame
             vEasyPrompt[6] = "VERY EASY: you can bribe guards as many times as you want, if you have collected enough money to do it.";
             if (saveGameStatus == 0) { vEasyPrompt[7] = "Bribe cost increase by $50 each time."; }
             else { vEasyPrompt[7] = "Bribe cost increase by $50 each time. If you game over, you'll be able to reload the last save and retry."; }
-            vEasyPrompt = StringHelper.SplitStringAtLength(vEasyPrompt, WindowWidth);
+            vEasyPrompt = StringHelper.SplitStringAtLength(vEasyPrompt, WindowWidth - 2);
 
             string[] easyPrompt = new string[prompt.Length];
             Array.Copy(prompt, easyPrompt, prompt.Length);
             easyPrompt[6] = "EASY: same conditions as very easy, but if you game over, you'll have to start from the first level.";
-            easyPrompt = StringHelper.SplitStringAtLength(easyPrompt, WindowWidth);
+            easyPrompt = StringHelper.SplitStringAtLength(easyPrompt, WindowWidth - 2);
 
             string[] normalPrompt = new string[prompt.Length];
             Array.Copy(prompt, normalPrompt, prompt.Length);
             normalPrompt[6] = "NORMAL: you can bribe each guard only once, after which they'll arrest you if they catch you a second time.";
             if (saveGameStatus == 0) { normalPrompt[7] = "Bribe cost will increase by $100 each time."; }
             else { normalPrompt[7] = "Bribe cost will increase by $100 each time. If you game over, you can reload the last save and retry."; }
-            normalPrompt = StringHelper.SplitStringAtLength(normalPrompt, WindowWidth);
+            normalPrompt = StringHelper.SplitStringAtLength(normalPrompt, WindowWidth - 2);
 
             string[] hardPrompt = new string[prompt.Length];
             Array.Copy(prompt, hardPrompt, prompt.Length);
             hardPrompt[6] = "HARD: same conditions as normal, but if you game over, you'll have to start from the first level.";
-            hardPrompt = StringHelper.SplitStringAtLength(hardPrompt, WindowWidth);
+            hardPrompt = StringHelper.SplitStringAtLength(hardPrompt, WindowWidth - 2);
 
             string[] vHardPrompt = new string[prompt.Length];
             Array.Copy(prompt, vHardPrompt, prompt.Length);
             vHardPrompt[6] = "VERY HARD: you cannot bribe guards at all. They'll arrest you on sight straight from the first time you'll cross their path.";
             if (saveGameStatus != 0) { vHardPrompt[7] = "You will still be able to load the last save and retry the same level."; }
-            vHardPrompt = StringHelper.SplitStringAtLength(vHardPrompt, WindowWidth);
+            vHardPrompt = StringHelper.SplitStringAtLength(vHardPrompt, WindowWidth - 2);
 
             string[] ironmanPrompt = new string[prompt.Length];
             Array.Copy(prompt, ironmanPrompt, prompt.Length);
             if (saveGameStatus == 0) { ironmanPrompt[6] = "IRONMAN: You cannot bribe guards at all, it's game over whenever you get caught."; }
             else { ironmanPrompt[6] = "IRONMAN: You cannot bribe guards at all, and if you get caught you'll have to start from the very beginning."; }
-            ironmanPrompt = StringHelper.SplitStringAtLength(ironmanPrompt, WindowWidth);
+            ironmanPrompt = StringHelper.SplitStringAtLength(ironmanPrompt, WindowWidth - 2 );
 
-            string[] defaultPrompt = StringHelper.SplitStringAtLength(prompt, WindowWidth);
+            string[] defaultPrompt = StringHelper.SplitStringAtLength(prompt, WindowWidth - 2);
 
             string[][] promptsUpdates = new string[][]
             {
@@ -1509,7 +1542,7 @@ namespace HeistGame
 
 
 
-        private void RestartMenu()
+        private void RestartMenu(int menuPos)
         {
             string prompt = "Would you like to restart the game?";
 
@@ -1521,7 +1554,7 @@ namespace HeistGame
 
             Menu retryMenu = new Menu(prompt, options);
 
-            int selectedIndex = retryMenu.Run(WindowWidth / 4, CursorTop + 2, 1, 0, WindowWidth / 2);
+            int selectedIndex = retryMenu.Run(menuPos, CursorTop + 2, 1, 0, WindowWidth / 2);
 
             if (selectedIndex == 0)
             {
@@ -1533,7 +1566,7 @@ namespace HeistGame
 
 
 
-        private void RetryMenu()
+        private void RetryMenu(int menuPos)
         {
             string prompt = "Would you like to retry the last level?";
 
@@ -1545,7 +1578,7 @@ namespace HeistGame
 
             Menu retryMenu = new Menu(prompt, options);
 
-            int selectedIndex = retryMenu.Run(WindowWidth / 4, CursorTop + 2, 1, 0, WindowWidth / 2);
+            int selectedIndex = retryMenu.Run(menuPos, CursorTop + 2, 1, 0, WindowWidth / 2);
 
             if (selectedIndex == 0)
             {

@@ -443,6 +443,8 @@ namespace HeistGame
                 "Thank you for playing!"
             };
 
+            credits = StringHelper.SplitStringAtLength(credits, WindowWidth - 2);
+
             foreach (string credit in credits)
             {
                 for (int i = 0; i < credits.Length; i++)

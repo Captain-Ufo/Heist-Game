@@ -287,7 +287,7 @@ namespace HeistGame
             data.FontHeight = 16;
             data.FontWidth = 15;
             data.MaximizeOnStart = true;
-            data.ConsoleWidth = 120;
+            data.ConsoleWidth = 126;
             data.ConsoleHeight = 60;
             data.CenterWindow = false;
 
