@@ -4,7 +4,6 @@
 
 using System;
 using System.Text;
-using System.Collections.Generic;
 using static System.Console;
 
 namespace HeistGame

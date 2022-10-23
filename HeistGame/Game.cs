@@ -334,6 +334,8 @@ namespace HeistGame
                 int deltaTimeMS = (int)(MyStopwatch.ElapsedMilliseconds - timeAtPreviousFrame);
                 timeAtPreviousFrame = MyStopwatch.ElapsedMilliseconds;
 
+                PlayerCharacter.UpdateTick(deltaTimeMS);
+
                 if (!HandleInputs(CurrentLevel, deltaTimeMS))
                 {
                     return;
@@ -402,7 +404,7 @@ namespace HeistGame
                     ActiveCampaign.Levels[CurrentLevel].AlertGuards(new Vector2(PlayerCharacter.X, PlayerCharacter.Y), 3);
                 }
 
-                //Thread.Sleep(20);
+                Thread.Sleep(20);
             }
 
             if (playerHasBeenCaught)
@@ -433,7 +435,7 @@ namespace HeistGame
 
         private bool HandleInputs(int currentLevel, int deltaTimeMS)
         {
-            ControlState state = ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this, deltaTimeMS);
+            ControlState state = ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this);
             if ( state == ControlState.Escape)
             {
                 MyStopwatch.Stop();

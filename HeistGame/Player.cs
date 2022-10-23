@@ -92,6 +92,11 @@ namespace HeistGame
             Y = y;
         }
 
+        public void UpdateTick(int deltaTimeMS)
+        {
+            timeSinceLastMove += deltaTimeMS;
+        }
+
         /// <summary>
         /// Updates the player's coordinates, moving them by one tile at a time
         /// </summary>
@@ -99,33 +104,37 @@ namespace HeistGame
         /// <param name="level">The level the player is moving in</param>
         /// <param name="game">The current game</param>
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
-        public void Move(Directions direction, Level level, Game game, int deltaTimeMS)
+        public void Move(Directions direction, Level level, Game game)
         {
-            timeSinceLastMove += deltaTimeMS;
             CurrentColor = playerBaseColor;
+
+            if (timeSinceLastMove < timeBetweenMoves)
+            {
+                return;
+            }
 
             switch (direction)
             {
                 case Directions.up:
-                    if (level.IsTileWalkable(X, Y - 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X, Y - 1))
                     {
                         Y--;
                     }
                     break;
                 case Directions.down:
-                    if (level.IsTileWalkable(X, Y + 1) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X, Y + 1))
                     {
                         Y++;
                     }
                     break;
                 case Directions.left:
-                    if (level.IsTileWalkable(X - 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X - 1, Y))
                     {
                         X--;
                     }
                     break;
                 case Directions.right:
-                    if (level.IsTileWalkable(X + 1, Y) && (!HasMoved | timeSinceLastMove >= timeBetweenMoves))
+                    if (level.IsTileWalkable(X + 1, Y))
                     {
                         X++;
                     }
@@ -135,7 +144,7 @@ namespace HeistGame
             CalculateVisibleArea(level);
             HasMoved = true;
             SetVisibility(X, Y, level);
-            timeSinceLastMove -= timeBetweenMoves;
+            timeSinceLastMove = 0;
         }
 
         public void StartPeek()

@@ -35,9 +35,8 @@ namespace HeistGame
     // 10 - Awake guards can spot unconscious and dead guards (same visibility as player), and revive if unconscious.
     //      This would make the guard alerted (temporarily if unconscious, permanently if dead).
     // 11 - Redesign the tutorial to better explain concepts and be more interesting (series of backalleys maps)
-    // 12 - Adapt UI elements to different screen sizes (whithin reason)
-    // 13 - hearing range sparated from visual range (smaller).
-    // 14 - Gates update visuals if inside hearing range.
+    // 12 - Hearing range sparated from visual range (smaller).
+    // 13ok - Gates update visuals if inside hearing range.
 
     //NOTES:
     // 6 - With the new control system in place, hold attack and then push a direction key. The sword will slash in the three tiles
