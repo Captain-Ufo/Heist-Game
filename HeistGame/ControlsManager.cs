@@ -83,7 +83,7 @@ namespace HeistGame
                 ProcessArrowPress(level, game, Directions.left);
             }
 
-            if (KeyAvailable)
+            else if (KeyAvailable)
             {
                 ConsoleKey key;
                 do
@@ -136,23 +136,6 @@ namespace HeistGame
                         }
                         break;
 
-                    case ConsoleKey.R:
-                    case ConsoleKey.NumPad0:
-                    case ConsoleKey.Insert:
-                        if (State == ControlState.Peek)
-                        {
-                            game.PlayerCharacter.ResetPeek(level);
-                            State = ControlState.Idle;
-                        }
-                        else
-                        {
-                            game.Selector.Deactivate();
-                            game.CancelUnlocking();
-                            State = ControlState.Peek;
-                            game.PlayerCharacter.StartPeek();
-                        }
-                        break;
-
                     case ConsoleKey.M:
                         game.Selector.Deactivate();
                         game.CancelUnlocking();
@@ -183,21 +166,28 @@ namespace HeistGame
 
         private static void ProcessArrowPress(Level level, Game game, Directions direction)
         {
-            switch (State)
-            {
-                case ControlState.Interact:
-                    game.Selector.Move(direction);
-                    break;
-                case ControlState.Peek:
-                    game.PlayerCharacter.Peek(direction, level);
-                    break;
-                default:
-                    State = ControlState.Move;
-                    game.PlayerCharacter.ResetPeek(level);
-                    game.PlayerCharacter.Move(direction, level, game);
-                    break;
-            }
             game.CancelUnlocking();
+
+            if (State == ControlState.Interact)
+            {
+                game.Selector.Move(direction);
+            }
+            else if(GetAsyncKeyState((short)InputMap.VK_NUMPAD0) != 0 ||
+                    GetAsyncKeyState((short)InputMap.VK_R) != 0 ||
+                    GetAsyncKeyState((short)InputMap.VK_INSERT) != 0)
+            {
+                State = ControlState.Peek;
+                game.PlayerCharacter.Peek(direction, level);
+            }
+            else
+            {
+                State = ControlState.Move;
+                MovementMode mode = MovementMode.walking;
+                if (GetAsyncKeyState((short)InputMap.VK_CONTROL) != 0) { mode = MovementMode.sneaking; }
+                else if (GetAsyncKeyState((short)InputMap.VK_MENU) != 0) { mode = MovementMode.running; }
+                game.PlayerCharacter.ResetPeek(level);
+                game.PlayerCharacter.Move(direction, mode, level, game);
+            }
         }
 
        

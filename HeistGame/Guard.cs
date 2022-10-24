@@ -28,7 +28,7 @@ namespace HeistGame
         private int searchPivotDuration = 30;
         private int walkingSpeed = 200;
         private int searchingSpeed = 230;
-        private int runningSpeed = 120;
+        private int runningSpeed = 100;
         private int hearingRange = 9;
         private int timeBetweenMoves;
         private int timeSinceLastMove = 0;

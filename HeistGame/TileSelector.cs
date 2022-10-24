@@ -10,6 +10,9 @@ namespace HeistGame
         private int anchorY;
         private Game game;
 
+        private int timeBetweenMoves;
+        private int timeSinceLastMove;
+
         public int X { get; private set; }
         public int Y { get; private set; }
         public bool IsActive { get; private set; }
@@ -22,6 +25,9 @@ namespace HeistGame
             Y = 0;
             this.game = game;
             IsActive = false;
+
+            timeBetweenMoves = 100;
+            timeSinceLastMove = 0;
         }
 
         public void Activate()
@@ -35,9 +41,16 @@ namespace HeistGame
             IsActive = false;
         }
 
+        public void UpdateTick(int deltaTimeMS)
+        {
+            timeSinceLastMove += deltaTimeMS;
+        }
+
 
         public void Move(Directions direction)
         {
+            if (timeSinceLastMove < timeBetweenMoves) { return; }
+
             switch (direction)
             {
                 case Directions.up:
@@ -101,6 +114,7 @@ namespace HeistGame
                     }
                     break;
             }
+            timeSinceLastMove = 0;
         }
 
         private void SetPosition(int x, int y)

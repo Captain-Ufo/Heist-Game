@@ -243,5 +243,25 @@ namespace HeistGame
 
             return ellipse.ToArray();
         }
+
+        public static HashSet<Vector2> RasterizedFilledCircle(int originX, int originY, int radius)
+        {
+            List<Vector2> fullCircle = new List<Vector2>();
+
+            for(int y = -radius; y <= radius; y++)
+            {
+                for(int x = -radius; x<= radius; x++)
+                {
+                    if (x*x+y*y < radius*radius + radius)
+                    {
+                        Vector2 tile = new Vector2(originX + x, originY + y);
+                        if (fullCircle.Contains(tile)) { continue; }
+                        fullCircle.Add(tile);
+                    }
+                }
+            }
+
+            return new HashSet<Vector2>(fullCircle);
+        }
     }
 }

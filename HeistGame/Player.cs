@@ -14,9 +14,16 @@ namespace HeistGame
     class Player: IAttackable
     {
         private int timeBetweenMoves;
+        private int walkSpeed;
+        private int runSpeed;
+        private int sneakSpeed;
         private int timeSinceLastMove;
         private int sightDistance;
-        private ConsoleColor playerBaseColor;
+        private int hearingDistance;
+        private int colorTick;
+        private ConsoleColor moveColor;
+        private ConsoleColor sneakColor;
+        private ConsoleColor runColor;
         private Directions peekDirection;
         private Vector2 peekOffset;
 
@@ -57,8 +64,11 @@ namespace HeistGame
         /// <param name="startingX">The initial X position</param>
         /// <param name="startingY">The initial Y position</param>
         /// <param name="marker">(Optional) The symbol that represents the player on the map</param>
-        /// <param name="color">(Optional) The color of the player's symbol</param>
-        public Player(Level level, char marker = SymbolsConfig.PlayerSymbol, ConsoleColor color = ConsoleColor.Cyan)
+        /// <param name="moveCol">(Optional) The color of the player's symbol</param>
+        public Player(Level level, char marker = SymbolsConfig.PlayerSymbol,
+                      ConsoleColor moveCol = ConsoleColor.Cyan,
+                      ConsoleColor sneakCol = ConsoleColor.DarkCyan,
+                      ConsoleColor runCol = ConsoleColor.White)
         { 
             X = level.PlayerStartX;
             Y = level.PlayerStartY;
@@ -70,12 +80,20 @@ namespace HeistGame
             IsStill = true;
 
             PlayerMarker = marker;
-            playerBaseColor = color;
-            CurrentColor = color;
+            moveColor = moveCol;
+            sneakColor = sneakCol;
+            runColor = runCol;
+            CurrentColor = sneakCol;
+            colorTick = -1;
 
-            timeBetweenMoves = 115;
+            walkSpeed = 130;
+            sneakSpeed = 220;
+            runSpeed = 50;
+
+            timeBetweenMoves = walkSpeed;
             timeSinceLastMove = 0;
             sightDistance = 20;
+            hearingDistance = 12;
 
             peekDirection = Directions.idle;
             peekOffset = new Vector2(0, 0);
@@ -95,6 +113,14 @@ namespace HeistGame
         public void UpdateTick(int deltaTimeMS)
         {
             timeSinceLastMove += deltaTimeMS;
+            if (colorTick >= 0)
+            {
+                colorTick--;
+                if (colorTick == 0)
+                {
+                    CurrentColor = sneakColor;
+                }
+            }
         }
 
         /// <summary>
@@ -104,9 +130,26 @@ namespace HeistGame
         /// <param name="level">The level the player is moving in</param>
         /// <param name="game">The current game</param>
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
-        public void Move(Directions direction, Level level, Game game)
+        public void Move(Directions direction, MovementMode mode, Level level, Game game)
         {
-            CurrentColor = playerBaseColor;
+            if (mode == MovementMode.sneaking) 
+            { 
+                CurrentColor = sneakColor;
+                colorTick = 2;
+                timeBetweenMoves = sneakSpeed;
+            }
+            else if (mode == MovementMode.walking)
+            { 
+                CurrentColor = moveColor;
+                colorTick = 2;
+                timeBetweenMoves = walkSpeed;
+            }
+            else
+            { 
+                CurrentColor = runColor;
+                colorTick = 2;
+                timeBetweenMoves = runSpeed;
+            }
 
             if (timeSinceLastMove < timeBetweenMoves)
             {
@@ -142,6 +185,7 @@ namespace HeistGame
             }
 
             CalculateVisibleArea(level);
+            CalculateHearingArea(level);
             HasMoved = true;
             SetVisibility(X, Y, level);
             timeSinceLastMove = 0;
@@ -182,7 +226,6 @@ namespace HeistGame
                     break;
             }
 
-            CurrentColor = ConsoleColor.DarkCyan;
             CalculateVisibleArea(level);
 
             peekOffset.X = 0;
@@ -191,7 +234,7 @@ namespace HeistGame
 
         public void ResetPeek(Level level)
         {
-            CurrentColor = playerBaseColor;
+            CurrentColor = moveColor;
 
             if (peekDirection == Directions.idle) { return; }
 
@@ -204,7 +247,8 @@ namespace HeistGame
 
         public void MakeNoise(Level level, Game game)
         {
-            CurrentColor = ConsoleColor.White;
+            CurrentColor = runColor;
+            colorTick = 20;
             game.TunePlayer.PlaySFX(1000, 600);
             level.AlertGuards(new Vector2(X, Y));
         }
@@ -227,6 +271,11 @@ namespace HeistGame
             Loot += amount;
         }
 
+        public void CalculateHearingArea(Level level)
+        {
+            level.SetPlayerHearingArea(Rasterizer.RasterizedFilledCircle(X, Y, hearingDistance));
+        }
+
         public void CalculateVisibleArea(Level level)
         {
             HashSet<char> wallCorners = new HashSet<char>()
@@ -246,7 +295,7 @@ namespace HeistGame
 
                 foreach (Vector2 tile in tiles)
                 {
-                    level.UpdatePlayerHearingArea(tile);
+                    //level.UpdatePlayerHearingArea(tile);
 
                     if (hasFoundObstacle) { continue; }
 
@@ -357,4 +406,6 @@ namespace HeistGame
     }
 
     public enum Directions { up, right, down, left, idle }
+
+    public enum MovementMode { sneaking, walking, running }
 }

@@ -179,6 +179,11 @@ namespace HeistGame
             Lights.CalculateLightMap(this);
         }
 
+        public void SetPlayerHearingArea(HashSet<Vector2> area)
+        {
+            PlayerHearingArea = area;
+        }
+
         public void UpdatePlayerHearingArea(Vector2 tile)
         {
             PlayerHearingArea.Add(tile);
@@ -666,7 +671,7 @@ namespace HeistGame
                     guard.UpdateBehavior(this, game, deltaDimeMS);
 
                     Vector2 guardPosition = new Vector2(guard.X, guard.Y);
-                    if (PlayerHearingArea.Contains(guardPosition))
+                    if (PlayerHearingArea.Contains(guardPosition) || CanPlayerSeeTile(guardPosition))
                     {
                         if (VisibleGuards.ContainsKey(guardPosition))
                         {

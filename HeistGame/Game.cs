@@ -335,6 +335,7 @@ namespace HeistGame
                 timeAtPreviousFrame = MyStopwatch.ElapsedMilliseconds;
 
                 PlayerCharacter.UpdateTick(deltaTimeMS);
+                Selector.UpdateTick(deltaTimeMS);
 
                 if (!HandleInputs(CurrentLevel, deltaTimeMS))
                 {
@@ -343,6 +344,7 @@ namespace HeistGame
 
                 if (ActiveCampaign.Levels[CurrentLevel].ExploredMap.Count <= 0)
                 {
+                    PlayerCharacter.CalculateHearingArea(ActiveCampaign.Levels[CurrentLevel]);
                     PlayerCharacter.CalculateVisibleArea(ActiveCampaign.Levels[CurrentLevel]);
                 }
 
@@ -404,7 +406,7 @@ namespace HeistGame
                     ActiveCampaign.Levels[CurrentLevel].AlertGuards(new Vector2(PlayerCharacter.X, PlayerCharacter.Y), 3);
                 }
 
-                Thread.Sleep(20);
+                //Thread.Sleep(20);
             }
 
             if (playerHasBeenCaught)

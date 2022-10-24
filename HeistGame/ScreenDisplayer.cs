@@ -22,7 +22,6 @@ namespace HeistGame
         private static int leftOffset;
         private static int topOffset;
 
-
         //All these elements come from stackoverflow.com/questions/2754518/how-can-i-write-fast-colored-output-to-console.
         //Yeah, I'm code monkeying this and I have no regrets for now :P
         [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -404,7 +403,7 @@ namespace HeistGame
         {
             Clear();
             ResetColor();
-            string authorName = "Cristian";
+            string authorName = "Cristian Baldi";
             string[] credits = new string[]
             {
                 " ",
