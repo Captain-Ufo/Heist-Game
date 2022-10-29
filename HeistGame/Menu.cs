@@ -63,14 +63,20 @@ namespace HeistGame
             selectedIndex = 0;
             ResetColor();
 
-            do
+            while (true)
             {
+                ControlsManager.UpdateTick();
+
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplayOptions(xPos, optionsOffset);
 
-                ConsoleKeyInfo info = ReadKey(true);
-                keyPressed = info.Key;
+                do
+                {
+                    ConsoleKeyInfo info = ReadKey(true);
+                    keyPressed = info.Key;
+                }
+                while (KeyAvailable);
 
                 switch (keyPressed)
                 {
@@ -84,7 +90,7 @@ namespace HeistGame
                             selectedIndex = options.Length - 1;
                         }
                         ctp.PlaySFX(1000, 100); ;
-                        while (KeyAvailable) { ReadKey(true); }
+
                         break;
 
                     case ConsoleKey.DownArrow:
@@ -97,13 +103,13 @@ namespace HeistGame
                             selectedIndex = 0;
                         }
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
+                        
                         break;
+                    case ConsoleKey.Enter:
+                        while (KeyAvailable) { ReadKey(true); }
+                        return selectedIndex;
                 }
             }
-            while (keyPressed != ConsoleKey.Enter);
-
-            return selectedIndex;
         }
 
         /// <summary>
@@ -126,14 +132,20 @@ namespace HeistGame
 
             ConsoleKey keyPressed;
 
-            do
+            while (true)
             {
+                ControlsManager.UpdateTick();
+
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplayOptions(xPos, optionsOffset);
 
-                ConsoleKeyInfo info = ReadKey(true);
-                keyPressed = info.Key;
+                do
+                {
+                    ConsoleKeyInfo info = ReadKey(true);
+                    keyPressed = info.Key;
+                }
+                while (KeyAvailable);
 
                 switch (keyPressed)
                 {
@@ -148,7 +160,6 @@ namespace HeistGame
                         }
                         prompt = updatedPrompts[selectedIndex];
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
                         break;
 
                     case ConsoleKey.DownArrow:
@@ -162,13 +173,11 @@ namespace HeistGame
                         }
                         prompt = updatedPrompts[selectedIndex];
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
                         break;
+                    case ConsoleKey.Enter:
+                        return selectedIndex;
                 }
             }
-            while (keyPressed != ConsoleKey.Enter);
-
-            return selectedIndex;
         }
 
         /// <summary>
@@ -204,14 +213,20 @@ namespace HeistGame
                 lastShownOption = numberOfDisplayedOptions - 1;
             }
 
-            do
+            while (true)
             {
+                ControlsManager.UpdateTick();
+
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
 
-                ConsoleKeyInfo info = ReadKey(true);
-                keyPressed = info.Key;
+                do
+                {
+                    ConsoleKeyInfo info = ReadKey(true);
+                    keyPressed = info.Key;
+                }
+                while (KeyAvailable);
 
                 switch (keyPressed)
                 {
@@ -245,7 +260,6 @@ namespace HeistGame
                         }
 
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
                         break;
 
                     case ConsoleKey.DownArrow:
@@ -271,13 +285,12 @@ namespace HeistGame
                             }
                         }
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
                         break;
+                    case ConsoleKey.Enter:
+                        while (KeyAvailable) { ReadKey(true); }
+                        return selectedIndex;
                 }
             }
-            while (keyPressed != ConsoleKey.Enter);
-
-            return selectedIndex;
         }
 
         /// <summary>
@@ -315,14 +328,20 @@ namespace HeistGame
                 lastShownOption = numberOfDisplayedOptions - 1;
             }
 
-            do
+            while (true)
             {
+                ControlsManager.UpdateTick();
+
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
 
-                ConsoleKeyInfo info = ReadKey(true);
-                keyPressed = info.Key;
+                do
+                {
+                    ConsoleKeyInfo info = ReadKey(true);
+                    keyPressed = info.Key;
+                }
+                while (KeyAvailable);
 
                 switch (keyPressed)
                 {
@@ -332,7 +351,7 @@ namespace HeistGame
                         delete = true;
                         ctp.PlaySFX(1000, 200);
                         while (KeyAvailable) { ReadKey(true); }
-                        break;
+                        return selectedIndex;
 
                     case ConsoleKey.UpArrow:
                     case ConsoleKey.NumPad8:
@@ -363,7 +382,6 @@ namespace HeistGame
                         }
 
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
                         break;
 
                     case ConsoleKey.DownArrow:
@@ -389,13 +407,12 @@ namespace HeistGame
                             }
                         }
                         ctp.PlaySFX(1000, 100);
-                        while (KeyAvailable) { ReadKey(true); }
                         break;
+                    case ConsoleKey.Enter:
+                        while (KeyAvailable) { ReadKey(true); }
+                        return selectedIndex;
                 }
             }
-            while (keyPressed != ConsoleKey.Enter && keyPressed != ConsoleKey.Backspace && keyPressed != ConsoleKey.Delete);
-
-            return selectedIndex;
         }
 
         /// <summary>

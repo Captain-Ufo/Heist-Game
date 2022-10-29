@@ -401,6 +401,8 @@ namespace HeistGame
 
         public static void DisplayAboutScreen(Game game)
         {
+            do { ReadKey(true); } while (KeyAvailable);
+
             Clear();
             ResetColor();
             string authorName = "Cristian Baldi";
@@ -487,11 +489,15 @@ namespace HeistGame
             message.HasBeenRead = true;
         }
 
+        //TODO: found bug - If you scroll all the way down, then all the way up, then back down again, line 574 throws an out of
+        //range exception because the index provided is somehow one larger than the whole array
         public static void DisplayTextFullScreen(string[] text, bool isMessageLog = false)
         {
             if (safeFileHandle.IsInvalid) { return; }
             if (text == null) { return; }
             if (string.IsNullOrEmpty(text[0])) { return; }
+
+            do { ReadKey(true); } while (KeyAvailable);
 
             StringBuilder sb = new StringBuilder();
 
@@ -525,6 +531,8 @@ namespace HeistGame
 
             while (true)
             {
+                ControlsManager.UpdateTick();
+
                 for (int y = 0; y < windowHeight; y++)
                 {
                     //Creating the lines to be displayed
@@ -594,50 +602,49 @@ namespace HeistGame
                                     new Coord() { X = 0, Y = 0 }, ref rect);
 
 
-                ConsoleKeyInfo info = ReadKey(false);
-
-                switch (info.Key)
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN)||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S)||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2))
                 {
-                    case ConsoleKey.DownArrow:
-                    case ConsoleKey.S:
-                    case ConsoleKey.NumPad2:
-                        if (resizedText.Length < maxLines) { break; }
-                        if (lastLineToDisplay == resizedText.Length) { break; }
-                        if (firstLineToDisplay == resizedText.Length)
-                        {
-                            firstLineToDisplay = resizedText.Length - 1;
-                            break;
-                        }
-                        firstLineToDisplay++;
-                        lastLineToDisplay++;
-                        if (lastLineToDisplay > resizedText.Length)
-                        {
-                            lastLineToDisplay = resizedText.Length;
-                        }
-                        break;
+                    if (resizedText.Length < maxLines) { continue; }
+                    if (lastLineToDisplay == resizedText.Length) { continue; }
+                    if (firstLineToDisplay == resizedText.Length)
+                    {
+                        firstLineToDisplay = resizedText.Length - 1;
+                        continue;
+                    }
+                    firstLineToDisplay++;
+                    lastLineToDisplay++;
+                    if (lastLineToDisplay > resizedText.Length)
+                    {
+                        lastLineToDisplay = resizedText.Length;
+                    }
+                }
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8))
+                {
+                    if (firstLineToDisplay == 0) { continue; }
 
-                    case ConsoleKey.UpArrow:
-                    case ConsoleKey.W:
-                    case ConsoleKey.NumPad8:
-                        if (firstLineToDisplay == 0) { break; }
+                    firstLineToDisplay--;
+                    if (firstLineToDisplay < 0)
+                    {
 
-                        firstLineToDisplay--;
-                        if (firstLineToDisplay < 0)
-                        {
+                        firstLineToDisplay = 0;
+                    }
 
-                            firstLineToDisplay = 0;
-                        }
-
-                        lastLineToDisplay--;
-                        if (lastLineToDisplay >= text.Length)
-                        {
-                            lastLineToDisplay = text.Length;
-                        }
-                        break;
-                    case ConsoleKey.Enter:
-                    case ConsoleKey.Escape:
-                    case ConsoleKey.M:
-                        return;
+                    lastLineToDisplay--;
+                    if (lastLineToDisplay >= text.Length)
+                    {
+                        lastLineToDisplay = text.Length;
+                    }
+                }
+                
+                if (ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_RETURN) ||
+                    ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_ESCAPE) ||
+                    ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_M))
+                {
+                    return;
                 }
             }
         }

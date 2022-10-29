@@ -15,18 +15,18 @@
 			"......╔═════╣               ¦     ║               ╚a╝                ╠══·══╣   ₃ ║",
 			"......║  5  ║  ¡  ║         ║  !  ║                                  a  +  u     ║",
 			"╔═════╣     ╠═════╝    *    ╚═════╣                                  ╠══·══╣   ₄ ║",
-			"║ 3   ╠══±══╣  0               1  ║                                  o     ╠═════╝",
+			"║ 3   ╠══±══╣  0               4  ║                                  o     ╠═════╝",
 			"║     ▎     ▌                                                        ║  ₀  ║......",
-			"║ 4   ╠══·══╣        $ $                 A      a      à       C     ╠══·══╣......",
+			"║ 1   ╠══·══╣        $ $                 A      a      à       C     ╠══·══╣......",
 			"╚═════╣  +  ¦                     ║      E      e      è       +     ║  ₁  ║......",
 			"╔═════╣  6  ║                     :      I    * i      ì             o     ╠═════╗",
 			"║ 7   ╠══·══╣        £ £          ║      O      o      ò       Ω     ╠══·══╣   ₅ ║",
 			"║     █  +  e                     :      U      u      ù             a  +  u     ║",
-			"║ 8   ╠══·══╣                     ║      Y      y      ÿ             ╠══·══╣   ₆ ║",
+			"║ 8   ╠══·══╣                     ║             y      ÿ             ╠══·══╣   ₆ ║",
 			"╚═════╣     ║        € €                                             i     ╠═════╝",
-			"......║  2  ¦            ╔═╗      ╔═~═╗                              ║  ₂  ║......",
-			"......╚═════╬════════  ══╣@╠═~════╣   ╠═══════·═════════════·════════╬═════╝......",
-			"............║            ╚~╝    $ ╚═~═╝                              ║............",
+			"......║  2  ¦            ╔═╗                     ╔═~═╗               ║  ₂  ║......",
+			"......╚═════╬════════  ══╣@╠═~═══════════·═══════╣  Y╠══════·════════╬═════╝......",
+			"............║            ╚~╝    $                ╚═~═╝               ║............",
 			"............║                                                        ╠═══════════╗",
 			"............║ ╔══·══╗                   d         d         d        ║  ¶  ¶  ¶  ║",
 			"............║ ║b  Bb║                                                ¦           ║",
@@ -138,7 +138,7 @@
 				"There's plenty of keys around here."
 			],
 			[
-				"Fifth test message."
+				"Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 			],
 			[
 				"It's only the sixth test message and I've already ran out of ideas."

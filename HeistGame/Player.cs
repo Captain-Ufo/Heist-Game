@@ -57,6 +57,7 @@ namespace HeistGame
         /// Describes how far the player can be seen (depends on the local tile's light level)
         /// </summary>
         public int Visibility { get; private set; }
+        public int Noise { get; private set; }
 
         /// <summary>
         /// Instantiates a Player object
@@ -248,7 +249,7 @@ namespace HeistGame
         public void MakeNoise(Level level, Game game)
         {
             CurrentColor = runColor;
-            colorTick = 20;
+            colorTick = 100;
             game.TunePlayer.PlaySFX(1000, 600);
             level.AlertGuards(new Vector2(X, Y));
         }

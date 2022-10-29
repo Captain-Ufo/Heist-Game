@@ -75,6 +75,12 @@ namespace HeistGame
         [DllImport("kernel32")]
         private static extern IntPtr GetStdHandle(StdHandle index);
 
+        [DllImport("kernel32.dll")]
+        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll")]
+        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern Int32 SetCurrentConsoleFontEx(
           IntPtr ConsoleOutput,
@@ -83,7 +89,7 @@ namespace HeistGame
 
         private enum StdHandle
         {
-            OutputHandle = -11
+            OutputHandle = -11,
         }
 
         /// <summary>

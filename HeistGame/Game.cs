@@ -39,7 +39,7 @@ namespace HeistGame
         public int CurrentLevel { get; private set; }
         public int TimesSpotted { get; set; }
         public int TimesCaught { get; private set; }
-        public Stopwatch MyStopwatch { get; private set; }
+        public Stopwatch Clock { get; private set; }
         public ChiptunePlayer TunePlayer { get; private set; }
         public Unlockable ActiveUnlockable { get; set; }
 
@@ -55,7 +55,7 @@ namespace HeistGame
         {
             saveSystem = new SaveSystem();
             TunePlayer = new ChiptunePlayer();
-            MyStopwatch = new Stopwatch();
+            Clock = new Stopwatch();
             rng = new Random();
             Selector = new TileSelector(this);
 
@@ -266,8 +266,10 @@ namespace HeistGame
         private void PlayGampaign(string missionDirectory, int startRoom = 0, int startBooty = 0)
         {
             Clear();
-            ScreenDisplayer.ClearMessageLog();
             ScreenDisplayer.DisplayLoading();
+            Thread.Sleep(100); //Hacky way to avoid menu inputs to spill into the gameplay 
+            ControlsManager.FlushInputBuffer();
+            ScreenDisplayer.ClearMessageLog();
             InstantiateCampaignEntities(missionDirectory, startBooty, startRoom);
             RunGameLoop(startRoom);
         }
@@ -277,8 +279,10 @@ namespace HeistGame
         private void PlayMission(string mission)
         {
             Clear();
-            ScreenDisplayer.ClearMessageLog();
             ScreenDisplayer.DisplayLoading();
+            Thread.Sleep(100); //Hacky way to avoid menu inputs to spill into the gameplay 
+            ControlsManager.FlushInputBuffer();
+            ScreenDisplayer.ClearMessageLog();
             InstantiateMissionEntities(mission);
             RunGameLoop(0);
         }
@@ -290,8 +294,10 @@ namespace HeistGame
             Tutorial tutorial = new Tutorial();
 
             Clear();
-            ScreenDisplayer.ClearMessageLog();
             ScreenDisplayer.DisplayLoading();
+            Thread.Sleep(100); //Hacky way to avoid menu inputs to spill into the gameplay 
+            ControlsManager.FlushInputBuffer();
+            ScreenDisplayer.ClearMessageLog();
             DifficultyLevel = Difficulty.VeryEasy;
             InstantiateTutorialEntities(tutorial);
             RunGameLoop(0, tutorial);
@@ -304,8 +310,8 @@ namespace HeistGame
 
         private void RunGameLoop(int startRoom, Tutorial tutorial = null)
         {
-            MyStopwatch.Start();
-            long timeAtPreviousFrame = MyStopwatch.ElapsedMilliseconds;
+            Clock.Start();
+            long timeAtPreviousFrame = Clock.ElapsedMilliseconds;
 
             Clear();
 
@@ -317,12 +323,12 @@ namespace HeistGame
             {
                 if (!hasDisplayedBriefing)
                 {
-                    MyStopwatch.Stop();
+                    Clock.Stop();
                     ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
                     hasDisplayedBriefing = true;
                 }
 
-                MyStopwatch.Start();
+                Clock.Start();
 
                 PlayerCharacter.HasMoved = false;
 
@@ -331,11 +337,9 @@ namespace HeistGame
                     break;
                 }
 
-                int deltaTimeMS = (int)(MyStopwatch.ElapsedMilliseconds - timeAtPreviousFrame);
-                timeAtPreviousFrame = MyStopwatch.ElapsedMilliseconds;
-
-                PlayerCharacter.UpdateTick(deltaTimeMS);
-                Selector.UpdateTick(deltaTimeMS);
+                int deltaTimeMS = (int)(Clock.ElapsedMilliseconds - timeAtPreviousFrame);
+                timeAtPreviousFrame = Clock.ElapsedMilliseconds;
+                UpdateTicks(deltaTimeMS);
 
                 if (!HandleInputs(CurrentLevel, deltaTimeMS))
                 {
@@ -374,7 +378,7 @@ namespace HeistGame
                 }
                 else if (elementAtPlayerPosition == SymbolsConfig.Exit && !ActiveCampaign.Levels[CurrentLevel].IsLocked)
                 {
-                    MyStopwatch.Stop();
+                    Clock.Stop();
                     ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Outro);
 
                     if (ActiveCampaign.Levels.Length > CurrentLevel + 1)
@@ -433,22 +437,27 @@ namespace HeistGame
             }
         }
 
-
+        private void UpdateTicks(int deltaTimeMS)
+        {
+            PlayerCharacter.UpdateTick(deltaTimeMS);
+            Selector.UpdateTick(deltaTimeMS);
+            ControlsManager.UpdateTick();
+        }
 
         private bool HandleInputs(int currentLevel, int deltaTimeMS)
         {
             ControlState state = ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this);
             if ( state == ControlState.Escape)
             {
-                MyStopwatch.Stop();
-                if (QuitGame())
+                Clock.Stop();
+                if (PauseGame())
                 {
                     return false;
                 }
                 else
                 {
                     Clear();
-                    MyStopwatch.Start();
+                    Clock.Start();
                     HasDrawnBackground = false;
                     return true;
                 }
@@ -469,7 +478,7 @@ namespace HeistGame
 
         public void CapturePlayer(Guard guard)
         {
-            MyStopwatch.Stop();
+            Clock.Stop();
             if (Selector.IsActive) { Selector.Deactivate(); }
 
             bool canBeBribed = DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.VeryEasy || guard.TimesBribed < 1;
@@ -486,7 +495,7 @@ namespace HeistGame
             Clear();
             HasDrawnBackground = false;
 
-            MyStopwatch.Start();
+            Clock.Start();
         }
 
 
@@ -509,6 +518,9 @@ namespace HeistGame
             ScreenDisplayer.DeleteLabel();
             Clear();
             ResetColor();
+
+            ControlsManager.FlushInputBuffer();
+
             SetCursorPosition(0, 3);
 
             int bribeCostIncrease = 50;
@@ -723,6 +735,7 @@ namespace HeistGame
         {
             Clear();
             ResetColor();
+            ControlsManager.FlushInputBuffer();
 
             SetCursorPosition(0, 2);
 
@@ -1072,6 +1085,8 @@ namespace HeistGame
         {
             Clear();
             ResetColor();
+            ControlsManager.FlushInputBuffer();
+
             string[] saveFiles = saveSystem.CheckForSavedGames();
 
             string gameVersionText = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -1480,18 +1495,20 @@ namespace HeistGame
 
 
 
-        private bool QuitGame()
+        private bool PauseGame()
         {
             Selector.Deactivate();
             Clear();
             ResetColor();
+            ControlsManager.FlushInputBuffer();
+
             List<string> quitMenuPrompt = new List<string>();
-            quitMenuPrompt.Add("Are you sure you want to quit?");
+            quitMenuPrompt.Add("~· PAUSE ·~");
             quitMenuPrompt.Add(" ");
 
             if (CurrentLevel > 0)
             {
-                string[] addendum = StringHelper.SplitStringAtLength("The game automatically saved the last level you played, but all your progress in the current level will be lost.", WindowWidth);
+                string[] addendum = StringHelper.SplitStringAtLength("The game automatically saved the last level you played, but if you quit all your progress in the current level will be lost.", WindowWidth);
                 foreach (string s in addendum)
                 {
                     quitMenuPrompt.Add(s);
@@ -1564,6 +1581,9 @@ namespace HeistGame
             {
                 TunePlayer.StopTune();
                 ResetGame(true);
+                ControlsManager.FlushInputBuffer();
+                ScreenDisplayer.DisplayLoading();
+                Thread.Sleep(100);
                 RunGameLoop(0);
             }
         }
@@ -1604,6 +1624,8 @@ namespace HeistGame
             PlayerCharacter.SetLoot(saveGame.Booty);
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartX, ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartY);
             ActiveCampaign.Levels[saveGame.CurrentLevel].Reset();
+            ScreenDisplayer.DisplayLoading();
+            Thread.Sleep(100);
             RunGameLoop(saveGame.CurrentLevel);
         }
         #endregion;

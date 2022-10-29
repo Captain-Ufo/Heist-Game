@@ -135,7 +135,7 @@ namespace HeistGame
             columns = Grid.GetLength(1);
 
             this.game = game;
-            this.stopwatch = game.MyStopwatch;
+            this.stopwatch = game.Clock;
 
             this.treasures = treasures;
 
@@ -701,11 +701,11 @@ namespace HeistGame
         private void ReadMessage(int x, int y, Game game)
         {
             Vector2 messageCoords = new Vector2(x, y);
-            game.MyStopwatch.Stop();
+            game.Clock.Stop();
             ScreenDisplayer.DisplayTextFullScreen(messagesDictionary[messageCoords]);
             ControlsManager.ResetControlState(game);
             game.HasDrawnBackground = false;
-            game.MyStopwatch.Start();
+            game.Clock.Start();
         }
 
         private void Lockpick(int x, int y, Game game)

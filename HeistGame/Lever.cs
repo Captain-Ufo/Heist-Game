@@ -30,6 +30,7 @@ namespace HeistGame
             IsOn = !IsOn;
 
             char leverSymbol = SymbolsConfig.LeverOn;
+            char gateSymbol = SymbolsConfig.Empty;
 
             if (!IsOn)
             {
@@ -40,11 +41,18 @@ namespace HeistGame
             {
                 if (level.GetElementAt(coordinates.X, coordinates.Y) == SymbolsConfig.Gate)
                 {
-                    level.ChangeElementAt(coordinates.X, coordinates.Y, SymbolsConfig.Empty);
+                    gateSymbol = SymbolsConfig.Empty;
                 }
                 else
                 {
-                    level.ChangeElementAt(coordinates.X, coordinates.Y, SymbolsConfig.Gate);
+                    gateSymbol = SymbolsConfig.Gate;
+                }
+
+                level.ChangeElementAt(coordinates.X, coordinates.Y, gateSymbol);
+
+                if (level.ExploredMap.ContainsKey(coordinates) && level.PlayerHearingArea.Contains(coordinates))
+                {
+                    level.ExploredMap[coordinates] = gateSymbol;
                 }
             }
 

@@ -19,6 +19,8 @@ namespace HeistGame
         protected int pivotDirection;
         protected int minTimeBetweenPivots;
         protected int durationTimer;
+        protected int timeBetweenMoves;
+        protected int timeSinceLastMove = 0;
 
         protected Random rng;
 
@@ -115,6 +117,11 @@ namespace HeistGame
 
         protected void Move(Game game, Vector2 tileToMoveTo)
         {
+            if (timeSinceLastMove < timeBetweenMoves)
+            {
+                return;
+            }
+
             if (X != tileToMoveTo.X)
             {
                 if (X - tileToMoveTo.X > 0)
@@ -160,13 +167,20 @@ namespace HeistGame
             {
                 game.ActiveCampaign.Levels[game.CurrentLevel].ToggleLever(X, Y);
             }
+
+            timeSinceLastMove -= timeBetweenMoves;
         }
 
         protected bool Pivot(int timer, int frequency, int minTime, int pivotDuration = 0, bool limitedDuration = false)
         {
+            if (timeSinceLastMove < timeBetweenMoves)
+            {
+                return true;
+            }
 
             if (minTimeBetweenPivots > 0)
             {
+                timeSinceLastMove -= timeBetweenMoves;
                 minTimeBetweenPivots--;
                 return true;
             }
@@ -197,10 +211,12 @@ namespace HeistGame
                 if (durationTimer == 0)
                 {
                     durationTimer = pivotDuration;
+                    timeSinceLastMove -= timeBetweenMoves;
                     return false;
                 }
             }
 
+            timeSinceLastMove -= timeBetweenMoves;
             return true;
         }
 
@@ -210,6 +226,107 @@ namespace HeistGame
 
             if (choice % 2 == 0) { pivotDirection = 1; }
             else { pivotDirection = -1; }
+        }
+
+        protected bool SpotPlayer(Player player, Level level)
+        {
+            int verticalAggroDistance = player.Visibility;
+            if (verticalAggroDistance <= 0) { verticalAggroDistance = 1; }
+            int horizontalAggroDistance = verticalAggroDistance;
+
+            switch (Direction)
+            {
+                case Directions.up:
+                    if (player.X >= X - horizontalAggroDistance && player.X <= X + horizontalAggroDistance
+                        && player.Y >= Y - verticalAggroDistance && player.Y <= Y + 1)
+                    {
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
+
+                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
+                        {
+                            if (!level.IsTileTransparent(tile.X, tile.Y))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case Directions.right:
+                    if (player.X >= X - 1 && player.X <= X + horizontalAggroDistance
+                        && player.Y >= Y - verticalAggroDistance && player.Y <= Y + verticalAggroDistance)
+                    {
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
+
+                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
+                        {
+                            if (!level.IsTileTransparent(tile.X, tile.Y))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case Directions.down:
+                    if (player.X >= X - horizontalAggroDistance && player.X <= X + horizontalAggroDistance
+                        && player.Y >= Y - 1 && player.Y <= Y + verticalAggroDistance)
+                    {
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
+
+                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
+                        {
+                            if (!level.IsTileTransparent(tile.X, tile.Y))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case Directions.left:
+                    if (player.X >= X - horizontalAggroDistance && player.X <= X + 1
+                        && player.Y >= Y - verticalAggroDistance && player.Y <= Y + verticalAggroDistance)
+                    {
+                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
+
+                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
+                        {
+                            if (!level.IsTileTransparent(tile.X, tile.Y))
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+            }
+            return false;
+        }
+
+        protected bool HearPlayer(Player player, Level level)
+        {
+            Vector2 position = new Vector2(X, Y);
+            if (level.PlayerHearingArea.Contains(position))
+            {
+                return true;
+            }
+            return true;
         }
     }
 }

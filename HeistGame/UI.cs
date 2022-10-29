@@ -18,7 +18,6 @@ namespace HeistGame
 
         public UI()
         {
-            //TODO: maybe update this to account for different screen sizes/ratios?
             UITop = WindowHeight - 5;
             width = WindowWidth;
             sb = new StringBuilder();

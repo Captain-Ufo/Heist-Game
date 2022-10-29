@@ -30,8 +30,6 @@ namespace HeistGame
         private int searchingSpeed = 230;
         private int runningSpeed = 100;
         private int hearingRange = 9;
-        private int timeBetweenMoves;
-        private int timeSinceLastMove = 0;
         private Vector2 originPoint;
         private Vector2 lastPatrolPoint;
         private Vector2 searchTarget;
@@ -102,14 +100,10 @@ namespace HeistGame
 
             CatchPlayer(game);
 
-            if (timeSinceLastMove < timeBetweenMoves)
-            {
-                return;
-            }
 
             UpdateBribe();
 
-            if (SpotPlayer(game, level))
+            if (CanSeePlayer(game.PlayerCharacter, level))
             {
                 if (firstSighted)
                 {
@@ -154,8 +148,6 @@ namespace HeistGame
                 lastPatrolPoint.X = X;
                 lastPatrolPoint.Y = Y;
             }
-
-            timeSinceLastMove -= timeBetweenMoves;
         }
 
         /// <summary>
@@ -190,6 +182,7 @@ namespace HeistGame
             {
                 searchTarget = expectedTarget;
                 isAlerted = true;
+                timeBetweenMoves = runningSpeed;
             }
         }
 
@@ -225,105 +218,29 @@ namespace HeistGame
                 bribeTimer = 0;
             }
         }
-
-        private bool SpotPlayer(Game game, Level level)
+        /// <summary>
+        /// Wraps the base class method and adds a check f
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        private bool CanSeePlayer(Player player, Level level)
         {
             if (isBribed)
             {
                 return false;
             }
 
-            int verticalAggroDistance = game.PlayerCharacter.Visibility;
-            if (verticalAggroDistance <= 0) { verticalAggroDistance = 1; }
-            int horizontalAggroDistance = verticalAggroDistance;
-
-            switch (Direction)
-            {
-                case Directions.up:
-                    if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
-                        && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + 1)
-                    {
-                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
-
-                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-                        {
-                            if (!level.IsTileTransparent(tile.X, tile.Y))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                case Directions.right:
-                    if (game.PlayerCharacter.X >= X - 1 && game.PlayerCharacter.X <= X + horizontalAggroDistance
-                        && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
-                    {
-                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
-
-                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-                        {
-                            if (!level.IsTileTransparent(tile.X, tile.Y))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                case Directions.down:
-                    if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + horizontalAggroDistance
-                        && game.PlayerCharacter.Y >= Y - 1 && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
-                    {
-                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
-
-                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-                        {
-                            if (!level.IsTileTransparent(tile.X, tile.Y))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-
-                case Directions.left:
-                    if (game.PlayerCharacter.X >= X - horizontalAggroDistance && game.PlayerCharacter.X <= X + 1
-                        && game.PlayerCharacter.Y >= Y - verticalAggroDistance && game.PlayerCharacter.Y <= Y + verticalAggroDistance)
-                    {
-                        Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, game.PlayerCharacter.X, game.PlayerCharacter.Y);
-
-                        foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-                        {
-                            if (!level.IsTileTransparent(tile.X, tile.Y))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-            }
-            return false;
+            return SpotPlayer(player, level);
         }
 
         private void AlertedBehavior(Game game)
         {
+            if (timeSinceLastMove < timeBetweenMoves)
+            {
+                return;
+            }
+
             if (X != searchTarget.X | Y != searchTarget.Y)
             {
                 if (MoveTowards(searchTarget, game))
@@ -331,6 +248,7 @@ namespace HeistGame
                     if (!isSearching)
                     {
                         alertTimer = 0;
+                        timeSinceLastMove -= timeBetweenMoves;
                         return;
                     }
                 }
@@ -378,6 +296,7 @@ namespace HeistGame
                 searchTarget.Y = y;
 
                 isSearching = true;
+                timeSinceLastMove -= timeBetweenMoves;
                 return;
             }
             else { SearchPlayer(game.ActiveCampaign.Levels[game.CurrentLevel]); }
@@ -393,6 +312,7 @@ namespace HeistGame
                 timeBetweenMoves = walkingSpeed;
                 isReturning = true;
             }
+            timeSinceLastMove -= timeBetweenMoves;
         }
 
         private void SearchPlayer(Level level)

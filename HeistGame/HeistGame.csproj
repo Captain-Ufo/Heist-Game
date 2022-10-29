@@ -10,6 +10,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <SignAssembly>true</SignAssembly>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <PackageIcon>HeistGame Icon.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -59,6 +60,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Levels\The Baron's Jails D\Stolen Goods Vault.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\HeistGame Icon.png" Link="Resources\HeistGame Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

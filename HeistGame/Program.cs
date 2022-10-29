@@ -14,6 +14,8 @@ namespace HeistGame
             ConsoleHelper.SetConsole();
 
             ScreenDisplayer.Initialise();
+            
+            ControlsManager.InitializeControlsTicks();
 
             Game game = new Game();
             game.Start();
@@ -21,30 +23,35 @@ namespace HeistGame
     }
 
     //TODO / Nice to have?: 
-    // 1 - Sneaking, walking and running speed for the player that affect visibility (sneaking reduces it slightly even in light,
-    //     walking is normal in light but raises it slightly if in full darkness - to simulate noise -, running raises it significantly
-    //     in all conditions).
-    // 2 - Custom difficulty settings? Being able to set parameters individually
+    // 1 - Sneaking, walking and running speed for the player that affect visibility.
+    // 2 - New alert level system for the guards and NPCs, with three thresholds.
+    // 3 - Custom difficulty settings? Being able to set parameters individually
     //      The above requires not only a refactoring of everything impacted by difficulty, but also a change in the savegame system.
-    // 3 - Civilians. Basically similar to guards, except they don't patrol (they only move close to their spawn point) and don't chase
+    // 4 - Civilians. Basically similar to guards, except they don't patrol (they only move close to their spawn point) and don't chase
     //      the player. If they spot the player, thy just run away and alert the guards in the process.
-    // 4 - Add patrol points where the guard pivots before proceeding on theor path
-    // 5 - Combat with guards(extend 7 and 8 to deal with corpses as well)
-    // 6 - Manually knock out guards and civilians
-    // 7 - Crossbow for lethal and tranquillizer darts. Shots a dart that goes as far as the visible distance. Tranquillizer darts would
+    // 5 - Add patrol points where the guard pivots before proceeding on theor path
+    // 6 - Combat with guards(extend 7 and 8 to deal with corpses as well)
+    // 7 - Manually knock out guards and civilians
+    // 8 - Crossbow for lethal and tranquillizer darts. Shots a dart that goes as far as the visible distance. Tranquillizer darts would
     //      knock out guards and civilians, lethal darts would hurt them (one hit kill seems too easy)
-    // 8 - Player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
-    // 9 - Awake guards can spot unconscious and dead guards (same visibility as player), and revive if unconscious.
+    // 9 - Player can pick up and drop unconscious guards (cannot leave floor if is carrying a guard)
+    // 10 - Awake guards can spot unconscious and dead guards (same visibility as player), and revive if unconscious.
     //      This would make the guard alerted (temporarily if unconscious, permanently if dead).
-    // 10 - Redesign the tutorial to better explain concepts and be more interesting (series of backalleys maps)
-    // 11 - Hearing range sparated from visual range (smaller).
-    // 12 - Gates update visuals if inside hearing range.
+    // 11 - Redesign the tutorial to better explain concepts and be more interesting (series of backalleys maps)
 
     //NOTES:
+    // 1 - Sneaking reduces visibility slightly even in light,while walking is normal in light but raises it slightly if in full darkness;
+    //      running raises it significantly in all conditions.
+    // 2 - Connected topoint 1. Player has visibility level and noise level. When a guard is within seeing range and/or hearing range,
+    //      the visibility level and/or the noise level add their values to the guard's alert level. At the first threshold, the guard
+    //      stops their patrol and turns in the direction of the player. At the second threshold, the guer goes to investigate the last
+    //      recorded position of the disturbance. At the final threshold, the guard is aware of the player and chasing them. Alert levels
+    //      naturally diminish over time (deltaTimeMS) unles propped up by further disturbance. Consider natural resting alert levels after
+    //      alarms are triggered (or based on difficulty level).
     // 5 - With the new control system in place, hold attack and then push a direction key. The sword will slash in the three tiles
-    //     in front of the character in rapid succession in the direction that was indicated. The hit lands when/if the sword tuches
-    //     one of the tiles directly orthogonally adjacent to the enemy (so enemyX +/-1 and enemyY +/-1). If the player attacks while
-    //     an enemy is attacking, the enemy hit is blocked. Same in reverse. Guards hit are very lethal for balance.
+    //      in front of the character in rapid succession in the direction that was indicated. The hit lands when/if the sword tuches
+    //      one of the tiles directly orthogonally adjacent to the enemy (so enemyX +/-1 and enemyY +/-1). If the player attacks while
+    //      an enemy is attacking, the enemy hit is blocked. Same in reverse. Guards hit are very lethal for balance.
 
 
     //OBJECTIONS:

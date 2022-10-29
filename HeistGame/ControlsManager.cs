@@ -6,158 +6,222 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using static System.Console;
+using System.Diagnostics;
 
 namespace HeistGame
 {
     internal static class ControlsManager
     {
+        public static ControlState State { get; set; }
+
+        // Keys that are currently pressed
+        private static List<InputMap> keysPressed = new List<InputMap>(16);
+
+        private static int timeSinceLastPress = 0;
+        private static int timeBetweenTicks = 20;
+        private static int timeSinceLastKeystroke = 0;
+        private static int keystrokeDelay = 300;
+        private static Stopwatch timer;
+
         [DllImport("user32.dll")]
         static extern short GetKeyState(InputMap nVirtKey);
 
-        public static bool IsKeyPressed(InputMap testKey)
+        [DllImport("user32.dll")]
+        private static extern int GetAsyncKeyState(int vKeys);
+
+        public static void InitializeControlsTicks()
         {
-            bool keyPressed;
-            short result = GetKeyState(testKey);
+            timer = new Stopwatch();
+            timer.Start();
+        }
+
+        public static void StopControlsTicks()
+        {
+            timer.Stop();
+        }
+
+        public static void UpdateTick()
+        {
+            int deltaTimeMS = (int)timer.ElapsedMilliseconds;
+            timeSinceLastPress += deltaTimeMS;
+            timeSinceLastKeystroke += deltaTimeMS;
+        }
+
+        public static bool IsKeyPressedContinuous(InputMap key)
+        {
+            short result = GetKeyState(key);
 
             switch (result)
             {
                 case 0:
                     // Not pressed and not toggled on.
-                    keyPressed = false;
-                    break;
+                    return false;
 
                 case 1:
                     // Not pressed, but toggled on
-                    keyPressed = false;
-                    break;
+                    return false;
 
                 default:
                     // Pressed (and may be toggled on)
-                    keyPressed = true;
-                    break;
+                    return true;
             }
-
-            return keyPressed;
         }
 
-        [DllImport("user32.dll")]
-        private static extern int GetAsyncKeyState(int vKeys);
-
-        // Keys that are currently pressed
-        //private static List<short> keysPressed = new List<short>(16);
-
-        public static ControlState State { get; set; }
-
-        public static void TestState()
+        public static bool IsKeyPressedWithDelay(InputMap key)
         {
-            while (true)
+            short result = GetKeyState(key);
+
+            switch (result)
             {
-                WriteLine(GetAsyncKeyState((short)InputMap.VK_UP));
+                case 0:
+                    // Not pressed and not toggled on.
+                    return false;
+
+                case 1:
+                    // Not pressed, but toggled on
+                    return false;
+
+                default:
+                    // Pressed (and may be toggled on)
+                    if (timeSinceLastKeystroke >= keystrokeDelay) 
+                    {
+                        timeSinceLastKeystroke = 0;
+                        return true; 
+                    }
+                    return false;
             }
+        }
+
+        public static bool IsKeyPressedAndNotHold(InputMap key)
+        {
+            short result = GetKeyState(key);
+
+            switch (result)
+            {
+                case 0:
+                    // Not pressed and not toggled on.
+                    if (timeSinceLastPress >= timeBetweenTicks && keysPressed.Contains(key))
+                    {
+                        keysPressed.Remove(key);
+                    }
+                    return false;
+
+                case 1:
+                    // Not pressed, but toggled on
+                    if (timeSinceLastPress >= timeBetweenTicks && keysPressed.Contains(key))
+                    {
+                        keysPressed.Remove(key);
+                    }
+                    return false;
+
+                default:
+                    // Pressed (and may be toggled on)
+                    if (keysPressed.Contains(key) || timeSinceLastPress < timeBetweenTicks)
+                    {
+                        return false;
+                    }
+                    keysPressed.Add(key);
+                    timeSinceLastPress = 0;
+                    return true;
+            }
+        }
+
+        public static void FlushInputBuffer()
+        {
+            while (KeyAvailable) { ReadKey(true); }
+            keysPressed.Clear();
         }
 
         public static ControlState HandleInputs(Level level, Game game)
         {
-            if (IsKeyPressed(InputMap.VK_UP) ||
-                IsKeyPressed(InputMap.VK_NUMPAD8) ||
-                IsKeyPressed(InputMap.VK_W))
+            if (IsKeyPressedContinuous(InputMap.VK_UP) ||
+                IsKeyPressedContinuous(InputMap.VK_NUMPAD8) ||
+                IsKeyPressedContinuous(InputMap.VK_W))
             {
                 ProcessArrowPress(level, game, Directions.up);
             }
-            else if (IsKeyPressed(InputMap.VK_RIGHT) ||
-                IsKeyPressed(InputMap.VK_NUMPAD6) ||
-                IsKeyPressed(InputMap.VK_D))
+            if (IsKeyPressedContinuous(InputMap.VK_RIGHT) ||
+                IsKeyPressedContinuous(InputMap.VK_NUMPAD6) ||
+                IsKeyPressedContinuous(InputMap.VK_D))
             {
                 ProcessArrowPress(level, game, Directions.right);
             }
-            else if (IsKeyPressed(InputMap.VK_DOWN) ||
-                IsKeyPressed(InputMap.VK_NUMPAD2) ||
-                IsKeyPressed(InputMap.VK_S))
+            if (IsKeyPressedContinuous(InputMap.VK_DOWN) ||
+                IsKeyPressedContinuous(InputMap.VK_NUMPAD2) ||
+                IsKeyPressedContinuous(InputMap.VK_S))
             {
                 ProcessArrowPress(level, game, Directions.down);
             }
-            else if (IsKeyPressed(InputMap.VK_LEFT) ||
-                IsKeyPressed(InputMap.VK_NUMPAD4) ||
-                IsKeyPressed(InputMap.VK_A))
+            if (IsKeyPressedContinuous(InputMap.VK_LEFT) ||
+                IsKeyPressedContinuous(InputMap.VK_NUMPAD4) ||
+                IsKeyPressedContinuous(InputMap.VK_A))
             {
                 ProcessArrowPress(level, game, Directions.left);
             }
 
-            else if (KeyAvailable)
+            if (IsKeyPressedAndNotHold(InputMap.VK_E) || IsKeyPressedAndNotHold(InputMap.VK_RETURN))
             {
-                ConsoleKey key;
-                do
+                if (State != ControlState.Interact)
                 {
-                    ConsoleKeyInfo keyInfo = ReadKey(true);
-                    key = keyInfo.Key;
+                    game.PlayerCharacter.ResetPeek(level);
+                    game.CancelUnlocking();
+                    State = ControlState.Interact;
+                    game.Selector.Activate();
                 }
-                while (KeyAvailable);
-
-                switch (key)
+                else
                 {
-                    case ConsoleKey.Spacebar:
-                    case ConsoleKey.Add:
-                        if (State != ControlState.Interact)
-                        {
-                            game.PlayerCharacter.ResetPeek(level);
-                            game.CancelUnlocking();
-
-                            game.PlayerCharacter.MakeNoise(level, game);
-                            State = ControlState.Yell;
-                        }
-                        else
-                        {
-                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
-                            {
-                                State = ControlState.Idle;
-                                game.Selector.Deactivate();
-                            }
-
-                            State = ControlState.Idle;
-                        }
-                        break;
-
-                    case ConsoleKey.E:
-                    case ConsoleKey.Enter:
-                        if (State != ControlState.Interact)
-                        {
-                            game.PlayerCharacter.ResetPeek(level);
-                            game.CancelUnlocking();
-                            State = ControlState.Interact;
-                            game.Selector.Activate();
-                        }
-                        else
-                        {
-                            if (!game.ActiveCampaign.Levels[game.CurrentLevel].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
-                            {
-                                State = ControlState.Idle;
-                                game.Selector.Deactivate();
-                            }
-                        }
-                        break;
-
-                    case ConsoleKey.M:
-                        game.Selector.Deactivate();
-                        game.CancelUnlocking();
+                    if (!game.ActiveCampaign.Levels[game.CurrentLevel].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
+                    {
                         State = ControlState.Idle;
-                        game.MyStopwatch.Stop();
-                        ScreenDisplayer.DisplayMessageLog();
-                        game.MyStopwatch.Start();
-                        break;
+                        game.Selector.Deactivate();
+                    }
+                }
+            }
 
-                    case ConsoleKey.Escape:
-                        if (State != ControlState.Interact)
-                        {
-                            State = ControlState.Escape;
-                        }
-                        else
-                        {
-                            State = ControlState.Idle;
-                            game.Selector.Deactivate();
-                            //NO INTERACTION! This just cancels it
-                            game.CancelUnlocking();
-                        }
-                        break;
+            if (IsKeyPressedAndNotHold(InputMap.VK_SPACE) || IsKeyPressedAndNotHold(InputMap.VK_ADD))
+            {
+                if (State != ControlState.Interact)
+                {
+                    game.PlayerCharacter.ResetPeek(level);
+                    game.CancelUnlocking();
+
+                    game.PlayerCharacter.MakeNoise(level, game);
+                    State = ControlState.Yell;
+                }
+                else
+                {
+                    if (!game.ActiveCampaign.Levels[game.CurrentLevel].InteractWithElementAt(game.Selector.X, game.Selector.Y, game))
+                    {
+                        State = ControlState.Idle;
+                        game.Selector.Deactivate();
+                    }
+
+                    State = ControlState.Idle;
+                }
+            }
+
+            if (IsKeyPressedAndNotHold(InputMap.VK_M))
+            {
+                game.Selector.Deactivate();
+                game.CancelUnlocking();
+                State = ControlState.Idle;
+                game.Clock.Stop();
+                ScreenDisplayer.DisplayMessageLog();
+                game.Clock.Start();
+            }
+
+            if (IsKeyPressedAndNotHold(InputMap.VK_ESCAPE))
+            {
+                if (State != ControlState.Interact)
+                {
+                    State = ControlState.Escape;
+                }
+                else
+                {
+                    State = ControlState.Idle;
+                    game.Selector.Deactivate();
+                    //NO INTERACTION! This just cancels it
+                    game.CancelUnlocking();
                 }
             }
 
