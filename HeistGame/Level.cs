@@ -20,7 +20,6 @@ namespace HeistGame
         private readonly LevelLock levelLock;
         private readonly Dictionary<Vector2, Lever> leversDictionary;
         private readonly Vector2[] treasures;
-        private readonly Stopwatch stopwatch;
         private readonly Dictionary<Vector2, Message> messagesDictionary;
         private readonly Dictionary<Vector2, Unlockable> unlockables;
         private readonly Game game;
@@ -135,7 +134,6 @@ namespace HeistGame
             columns = Grid.GetLength(1);
 
             this.game = game;
-            this.stopwatch = game.Clock;
 
             this.treasures = treasures;
 
@@ -210,10 +208,8 @@ namespace HeistGame
             }
         }
 
-        public void ClearPlayerPercetionMaps()
+        public void ClearPlayerVisibleMap()
         {
-            PlayerHearingArea.Clear();
-
             if (VisibleMap.Count > 0)
             {
                 VisibleMap = new HashSet<Vector2>();
@@ -624,7 +620,7 @@ namespace HeistGame
         /// <param name="y">The Y coordinate on the grid of the level to toggle</param>
         public void ToggleLever(int x, int y)
         {
-            stopwatch.Stop();
+            Clock.Stop();
 
             Vector2 leverCoord = new Vector2(x, y);
 
@@ -635,7 +631,8 @@ namespace HeistGame
             }
 
             Lights.CalculateLightMap(this);
-            stopwatch.Start();
+            
+            Clock.Start();
         }
 
         /// <summary>
@@ -701,11 +698,9 @@ namespace HeistGame
         private void ReadMessage(int x, int y, Game game)
         {
             Vector2 messageCoords = new Vector2(x, y);
-            game.Clock.Stop();
             ScreenDisplayer.DisplayTextFullScreen(messagesDictionary[messageCoords]);
             ControlsManager.ResetControlState(game);
             game.HasDrawnBackground = false;
-            game.Clock.Start();
         }
 
         private void Lockpick(int x, int y, Game game)

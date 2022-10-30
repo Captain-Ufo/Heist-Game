@@ -17,11 +17,11 @@ namespace HeistGame
         // Keys that are currently pressed
         private static List<InputMap> keysPressed = new List<InputMap>(16);
 
-        private static int timeSinceLastPress = 0;
-        private static int timeBetweenTicks = 20;
-        private static int timeSinceLastKeystroke = 0;
-        private static int keystrokeDelay = 300;
-        private static Stopwatch timer;
+        private static int timeSinceLastPress;
+        private static int timeBetweenTicks;
+        private static int timeSinceLastKeystroke;
+        private static int keystrokeDelay;
+        private static int timeAtPreviousFrame;
 
         [DllImport("user32.dll")]
         static extern short GetKeyState(InputMap nVirtKey);
@@ -31,18 +31,14 @@ namespace HeistGame
 
         public static void InitializeControlsTicks()
         {
-            timer = new Stopwatch();
-            timer.Start();
+            keystrokeDelay = 20;
+            timeSinceLastPress = 0;
+            timeBetweenTicks = 20;
+            timeSinceLastKeystroke = keystrokeDelay;
         }
 
-        public static void StopControlsTicks()
+        public static void UpdateTick(int deltaTimeMS)
         {
-            timer.Stop();
-        }
-
-        public static void UpdateTick()
-        {
-            int deltaTimeMS = (int)timer.ElapsedMilliseconds;
             timeSinceLastPress += deltaTimeMS;
             timeSinceLastKeystroke += deltaTimeMS;
         }
@@ -205,9 +201,7 @@ namespace HeistGame
                 game.Selector.Deactivate();
                 game.CancelUnlocking();
                 State = ControlState.Idle;
-                game.Clock.Stop();
                 ScreenDisplayer.DisplayMessageLog();
-                game.Clock.Start();
             }
 
             if (IsKeyPressedAndNotHold(InputMap.VK_ESCAPE))

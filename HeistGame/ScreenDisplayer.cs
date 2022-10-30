@@ -531,7 +531,7 @@ namespace HeistGame
 
             while (true)
             {
-                ControlsManager.UpdateTick();
+                ControlsManager.UpdateTick(Clock.Tick());
 
                 for (int y = 0; y < windowHeight; y++)
                 {
@@ -636,7 +636,7 @@ namespace HeistGame
                     lastLineToDisplay--;
                     if (lastLineToDisplay >= text.Length)
                     {
-                        lastLineToDisplay = text.Length;
+                        lastLineToDisplay = text.Length - 1;
                     }
                 }
                 

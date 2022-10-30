@@ -160,11 +160,9 @@ namespace HeistGame
             {
                 if (objectiveMessages[hiddenKeyGroup - 2].Text.Length > 0)
                 {
-                    game.Clock.Stop();
                     ControlsManager.ResetControlState(game);
                     ScreenDisplayer.DisplayTextFullScreen(objectiveMessages[hiddenKeyGroup - 2]);
                     game.HasDrawnBackground = false;
-                    game.Clock.Start();
                 }
             }
         }

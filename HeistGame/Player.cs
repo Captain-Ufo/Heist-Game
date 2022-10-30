@@ -284,7 +284,7 @@ namespace HeistGame
                 '╔', '╗', '╝', '╚', '╠', '╣', '╦', '╩', '╬'
             };
 
-            level.ClearPlayerPercetionMaps();
+            level.ClearPlayerVisibleMap();
 
             Vector2[] SightCircumference = Rasterizer.GetCellsAlongEllipse(X + peekOffset.X, Y + peekOffset.Y, sightDistance, sightDistance);
 

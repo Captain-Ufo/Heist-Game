@@ -65,7 +65,7 @@ namespace HeistGame
 
             while (true)
             {
-                ControlsManager.UpdateTick();
+                ControlsManager.UpdateTick(Clock.Tick());
 
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
@@ -134,7 +134,7 @@ namespace HeistGame
 
             while (true)
             {
-                ControlsManager.UpdateTick();
+                ControlsManager.UpdateTick(Clock.Tick());
 
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
@@ -215,7 +215,7 @@ namespace HeistGame
 
             while (true)
             {
-                ControlsManager.UpdateTick();
+                ControlsManager.UpdateTick(Clock.Tick());
 
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
@@ -330,7 +330,7 @@ namespace HeistGame
 
             while (true)
             {
-                ControlsManager.UpdateTick();
+                ControlsManager.UpdateTick(Clock.Tick());
 
                 SetCursorPosition(0, 0);
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);

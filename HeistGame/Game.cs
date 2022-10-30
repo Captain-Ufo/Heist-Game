@@ -39,7 +39,6 @@ namespace HeistGame
         public int CurrentLevel { get; private set; }
         public int TimesSpotted { get; set; }
         public int TimesCaught { get; private set; }
-        public Stopwatch Clock { get; private set; }
         public ChiptunePlayer TunePlayer { get; private set; }
         public Unlockable ActiveUnlockable { get; set; }
 
@@ -55,7 +54,6 @@ namespace HeistGame
         {
             saveSystem = new SaveSystem();
             TunePlayer = new ChiptunePlayer();
-            Clock = new Stopwatch();
             rng = new Random();
             Selector = new TileSelector(this);
 
@@ -311,7 +309,6 @@ namespace HeistGame
         private void RunGameLoop(int startRoom, Tutorial tutorial = null)
         {
             Clock.Start();
-            long timeAtPreviousFrame = Clock.ElapsedMilliseconds;
 
             Clear();
 
@@ -323,12 +320,9 @@ namespace HeistGame
             {
                 if (!hasDisplayedBriefing)
                 {
-                    Clock.Stop();
                     ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Briefing);
                     hasDisplayedBriefing = true;
                 }
-
-                Clock.Start();
 
                 PlayerCharacter.HasMoved = false;
 
@@ -337,11 +331,11 @@ namespace HeistGame
                     break;
                 }
 
-                int deltaTimeMS = (int)(Clock.ElapsedMilliseconds - timeAtPreviousFrame);
-                timeAtPreviousFrame = Clock.ElapsedMilliseconds;
+                int deltaTimeMS = Clock.Tick();
+
                 UpdateTicks(deltaTimeMS);
 
-                if (!HandleInputs(CurrentLevel, deltaTimeMS))
+                if (!HandleInputs(CurrentLevel))
                 {
                     return;
                 }
@@ -378,7 +372,6 @@ namespace HeistGame
                 }
                 else if (elementAtPlayerPosition == SymbolsConfig.Exit && !ActiveCampaign.Levels[CurrentLevel].IsLocked)
                 {
-                    Clock.Stop();
                     ScreenDisplayer.DisplayTextFullScreen(ActiveCampaign.Levels[CurrentLevel].Outro);
 
                     if (ActiveCampaign.Levels.Length > CurrentLevel + 1)
@@ -441,15 +434,14 @@ namespace HeistGame
         {
             PlayerCharacter.UpdateTick(deltaTimeMS);
             Selector.UpdateTick(deltaTimeMS);
-            ControlsManager.UpdateTick();
+            ControlsManager.UpdateTick(deltaTimeMS);
         }
 
-        private bool HandleInputs(int currentLevel, int deltaTimeMS)
+        private bool HandleInputs(int currentLevel)
         {
             ControlState state = ControlsManager.HandleInputs(ActiveCampaign.Levels[currentLevel], this);
             if ( state == ControlState.Escape)
             {
-                Clock.Stop();
                 if (PauseGame())
                 {
                     return false;
@@ -457,7 +449,6 @@ namespace HeistGame
                 else
                 {
                     Clear();
-                    Clock.Start();
                     HasDrawnBackground = false;
                     return true;
                 }
@@ -478,7 +469,6 @@ namespace HeistGame
 
         public void CapturePlayer(Guard guard)
         {
-            Clock.Stop();
             if (Selector.IsActive) { Selector.Deactivate(); }
 
             bool canBeBribed = DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.VeryEasy || guard.TimesBribed < 1;
@@ -494,8 +484,6 @@ namespace HeistGame
             TimesCaught++;
             Clear();
             HasDrawnBackground = false;
-
-            Clock.Start();
         }
 
 
