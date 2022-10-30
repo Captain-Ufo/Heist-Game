@@ -21,7 +21,6 @@ namespace HeistGame
         private static int timeBetweenTicks;
         private static int timeSinceLastKeystroke;
         private static int keystrokeDelay;
-        private static int timeAtPreviousFrame;
 
         [DllImport("user32.dll")]
         static extern short GetKeyState(InputMap nVirtKey);

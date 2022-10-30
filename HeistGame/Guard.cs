@@ -16,23 +16,27 @@ namespace HeistGame
     {
         private Vector2[] patrolPath;
         private int nextPatrolPoint;
-        private int bribeTimer;
-        private int bribeTimerDuration;
+        private Vector2 lastPatrolPoint;
+        private Vector2 originPoint;
+        private Vector2 searchTarget;
+
         private bool isBribed;
+        private int bribeTick;
+        private int bribeTimer;
+
         private int alertTimer;
         private bool isAlerted;
         private bool isSearching;
         private bool firstSighted;
         private bool isReturning;
         private int searchPivotTimer;
-        private int searchPivotDuration = 30;
-        private int walkingSpeed = 200;
-        private int searchingSpeed = 230;
-        private int runningSpeed = 100;
-        private int hearingRange = 9;
-        private Vector2 originPoint;
-        private Vector2 lastPatrolPoint;
-        private Vector2 searchTarget;
+        private int searchPivotDuration;
+
+        private int walkingSpeed;
+        private int searchingSpeed;
+        private int runningSpeed;
+
+        private int hearingRange;
 
         /// <summary>
         /// To be set depending on difficulty level. If true, it will prevent being bribed a second time
@@ -44,6 +48,14 @@ namespace HeistGame
         /// </summary>
         public Guard()
         {
+            searchPivotDuration = 30;
+            walkingSpeed = 200;
+            searchingSpeed = 230;
+            runningSpeed = 100;
+            hearingRange = 9;
+            bribeTick = 60000; // 1 minute
+            bribeTimer = 0;
+
             rng = new Random();
             nextPatrolPoint = 0;
             isBribed = false;
@@ -52,8 +64,7 @@ namespace HeistGame
             firstSighted = true;
             isReturning = false;
             TimesBribed = 0;
-            bribeTimer = 0;
-            bribeTimerDuration = 50;
+
             alertTimer = 0;
             pivotTimer = rng.Next(201);
             durationTimer = searchPivotDuration;
@@ -101,7 +112,7 @@ namespace HeistGame
             CatchPlayer(game);
 
 
-            UpdateBribe();
+            UpdateBribe(deltaTimeMS);
 
             if (CanSeePlayer(game.PlayerCharacter, level))
             {
@@ -189,8 +200,8 @@ namespace HeistGame
         public override void Reset()
         {
             nextPatrolPoint = 0;
-            bribeTimer = 0;
             isBribed = false;
+            bribeTimer = 0;
             alertTimer = 0;
             isAlerted = false;
             isSearching = false;
@@ -204,20 +215,15 @@ namespace HeistGame
             ChoosePivotDirection();
         }
 
-        private void UpdateBribe()
+        private void UpdateBribe(int deltaTimeMS)
         {
-            if (isBribed)
-            {
-                bribeTimer++;
-            }
+            bribeTimer += deltaTimeMS;
+            if (bribeTimer < bribeTick) { return; }
 
-            if (bribeTimer > bribeTimerDuration)
-            {
-                isBribed = false;
-                TimesBribed++;
-                bribeTimer = 0;
-            }
+            isBribed = false;
+            TimesBribed++;
         }
+
         /// <summary>
         /// Wraps the base class method and adds a check f
         /// </summary>
