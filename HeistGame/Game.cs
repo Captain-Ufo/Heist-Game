@@ -639,6 +639,7 @@ namespace HeistGame
                         }
                         PlayerCharacter.ChangeLoot(-bribeCost);
                         ReadKey(true);
+                        ControlsManager.FlushInputBuffer();
                         return true;
                     }
 
@@ -840,7 +841,7 @@ namespace HeistGame
         }
 
 
-
+        //TODO: correggere per dimensione schermo
         private void WinGame()
         {
             TunePlayer.PlayGameWinTune();
@@ -892,13 +893,15 @@ namespace HeistGame
                 ResetColor();
             }
 
+            ControlsManager.FlushInputBuffer();
+
             while (true)
             {
-                ConsoleKeyInfo info = ReadKey(true);
-                if (info.Key == ConsoleKey.Enter)
+                if (ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_RETURN))
                 {
                     break;
                 }
+
             }
             ResetGame(true);
             TunePlayer.StopTune();
