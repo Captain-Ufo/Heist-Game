@@ -84,7 +84,7 @@ namespace HeistGame
             }
         }
 
-        public static bool IsKeyPressedAndNotHold(InputMap key)
+        public static bool IsKeyPressedAndNotHeld(InputMap key)
         {
             short result = GetKeyState(key);
 
@@ -161,7 +161,7 @@ namespace HeistGame
                 ProcessArrowPress(level, game, Directions.left);
             }
 
-            if (IsKeyPressedAndNotHold(InputMap.VK_E) || IsKeyPressedAndNotHold(InputMap.VK_RETURN))
+            if (IsKeyPressedAndNotHeld(InputMap.VK_E) || IsKeyPressedAndNotHeld(InputMap.VK_RETURN))
             {
                 if (State != ControlState.Interact)
                 {
@@ -180,7 +180,7 @@ namespace HeistGame
                 }
             }
 
-            if (IsKeyPressedAndNotHold(InputMap.VK_SPACE) || IsKeyPressedAndNotHold(InputMap.VK_ADD))
+            if (IsKeyPressedAndNotHeld(InputMap.VK_SPACE) || IsKeyPressedAndNotHeld(InputMap.VK_ADD))
             {
                 if (State != ControlState.Interact)
                 {
@@ -202,7 +202,7 @@ namespace HeistGame
                 }
             }
 
-            if (IsKeyPressedAndNotHold(InputMap.VK_M))
+            if (IsKeyPressedAndNotHeld(InputMap.VK_M))
             {
                 game.Selector.Deactivate();
                 game.CancelUnlocking();
@@ -210,7 +210,7 @@ namespace HeistGame
                 ScreenDisplayer.DisplayMessageLog();
             }
 
-            if (IsKeyPressedAndNotHold(InputMap.VK_ESCAPE))
+            if (IsKeyPressedAndNotHeld(InputMap.VK_ESCAPE))
             {
                 if (State != ControlState.Interact)
                 {

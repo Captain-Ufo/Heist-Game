@@ -17,6 +17,7 @@ namespace HeistGame
         private string[] options;
         private string[] prompt;
         private ChiptunePlayer ctp;
+        private int keyDelay = 160;
 
         /// <summary>
         /// Instantiates a Menu object
@@ -71,9 +72,9 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplayOptions(xPos, optionsOffset);
 
-                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, keyDelay))
                 {
                     selectedIndex--;
                     if (selectedIndex < 0)
@@ -82,9 +83,9 @@ namespace HeistGame
                     }
                     ctp.PlaySFX(1000, 100);
                 }
-                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, keyDelay))
                 {
                     selectedIndex++;
                     if (selectedIndex == options.Length)
@@ -94,7 +95,7 @@ namespace HeistGame
                     ctp.PlaySFX(1000, 100);
                 }
 
-                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_RETURN, 150))
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_RETURN, keyDelay))
                 {
                     return selectedIndex;
                 }
@@ -128,9 +129,9 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplayOptions(xPos, optionsOffset);
 
-                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, keyDelay))
                 {
                     selectedIndex--;
                     if (selectedIndex < 0)
@@ -140,9 +141,9 @@ namespace HeistGame
                     prompt = updatedPrompts[selectedIndex];
                     ctp.PlaySFX(1000, 100);
                 }
-                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, keyDelay))
                 {
                     selectedIndex++;
                     if (selectedIndex == options.Length)
@@ -200,9 +201,9 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
 
-                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, keyDelay))
                 {
                     selectedIndex--;
                     if (selectedIndex < 0)
@@ -230,9 +231,9 @@ namespace HeistGame
 
                     ctp.PlaySFX(1000, 100);
                 }
-                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, keyDelay))
                 {
                     selectedIndex++;
                     if (selectedIndex > lastShownOption)
@@ -305,8 +306,8 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
 
-                if (ControlsManager.IsKeyPressedContinuous(InputMap.VK_DELETE)||
-                    ControlsManager.IsKeyPressedContinuous(InputMap.VK_BACK))
+                if (ControlsManager.IsKeyPressedAndNotHeld(InputMap.VK_DELETE)||
+                    ControlsManager.IsKeyPressedAndNotHeld(InputMap.VK_BACK))
                 {
                     delete = true;
                     ctp.PlaySFX(1000, 200);
@@ -314,9 +315,9 @@ namespace HeistGame
                     return selectedIndex;
                 }
 
-                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
-                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, keyDelay) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, keyDelay))
                 {
                     selectedIndex--;
                     if (selectedIndex < 0)
@@ -344,9 +345,9 @@ namespace HeistGame
 
                     ctp.PlaySFX(1000, 100);
                 }
-                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
-                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, keyDelay) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, keyDelay))
                 {
                     selectedIndex++;
                     if (selectedIndex > lastShownOption)

@@ -897,7 +897,7 @@ namespace HeistGame
 
             while (true)
             {
-                if (ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_RETURN))
+                if (ControlsManager.IsKeyPressedAndNotHeld(InputMap.VK_RETURN))
                 {
                     break;
                 }
@@ -1509,6 +1509,7 @@ namespace HeistGame
             {
                 case 0:
                     ControlsManager.State = ControlState.Idle;
+                    ControlsManager.FlushInputs();
                     return false;
                 case 1:
                     ControlsManager.State = ControlState.Idle;
@@ -1519,6 +1520,7 @@ namespace HeistGame
                     return true;
                 default:
                     ControlsManager.State = ControlState.Idle;
+                    ControlsManager.FlushInputs();
                     return false;
             }
         }

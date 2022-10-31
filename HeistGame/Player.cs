@@ -235,8 +235,6 @@ namespace HeistGame
 
         public void ResetPeek(Level level)
         {
-            CurrentColor = moveColor;
-
             if (peekDirection == Directions.idle) { return; }
 
             peekDirection = Directions.idle;

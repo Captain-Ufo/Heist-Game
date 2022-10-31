@@ -26,7 +26,7 @@ namespace HeistGame
             this.game = game;
             IsActive = false;
 
-            timeBetweenMoves = 100;
+            timeBetweenMoves = 110;
             timeSinceLastMove = 0;
         }
 

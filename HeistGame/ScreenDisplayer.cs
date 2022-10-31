@@ -517,7 +517,7 @@ namespace HeistGame
             {
                 if (isMessageLog)
                 {
-                    lastLineToDisplay = resizedText.Length - 1;
+                    lastLineToDisplay = resizedText.Length;
                     firstLineToDisplay = lastLineToDisplay - maxLines;
                 }
                 else 
@@ -620,7 +620,7 @@ namespace HeistGame
                     if (lastLineToDisplay == resizedText.Length) { continue; }
                     if (firstLineToDisplay == resizedText.Length)
                     {
-                        firstLineToDisplay = resizedText.Length - 1;
+                        //firstLineToDisplay = resizedText.Length - 1;
                         continue;
                     }
                     firstLineToDisplay++;
@@ -639,20 +639,19 @@ namespace HeistGame
                     firstLineToDisplay--;
                     if (firstLineToDisplay < 0)
                     {
-
                         firstLineToDisplay = 0;
                     }
 
                     lastLineToDisplay--;
                     if (lastLineToDisplay >= text.Length)
                     {
-                        lastLineToDisplay = text.Length - 1;
+                        lastLineToDisplay = text.Length;
                     }
                 }
                 
-                if (ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_RETURN) ||
-                    ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_ESCAPE) ||
-                    ControlsManager.IsKeyPressedAndNotHold(InputMap.VK_M))
+                if (ControlsManager.IsKeyPressedAndNotHeld(InputMap.VK_RETURN) ||
+                    ControlsManager.IsKeyPressedAndNotHeld(InputMap.VK_ESCAPE) ||
+                    ControlsManager.IsKeyPressedAndNotHeld(InputMap.VK_M))
                 {
                     return;
                 }
