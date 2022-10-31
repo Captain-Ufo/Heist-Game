@@ -61,7 +61,7 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             while (true)
             {
@@ -118,7 +118,7 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             while (true)
             {
@@ -178,7 +178,7 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             int firstShownOption = 0;
             int lastShownOption;
@@ -281,7 +281,7 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             delete = false;
 

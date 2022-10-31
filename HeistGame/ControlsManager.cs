@@ -17,8 +17,6 @@ namespace HeistGame
         // Keys that are currently pressed
         private static List<InputMap> keysPressed = new List<InputMap>(16);
 
-        private static int timeSinceLastPress;
-        private static int timeBetweenTicks;
         private static int timeSinceLastKeystroke;
         private static int keystrokeDelay;
 
@@ -31,14 +29,11 @@ namespace HeistGame
         public static void InitializeControlsTicks()
         {
             keystrokeDelay = 20;
-            timeSinceLastPress = 0;
-            timeBetweenTicks = 20;
             timeSinceLastKeystroke = keystrokeDelay;
         }
 
         public static void UpdateTick(int deltaTimeMS)
         {
-            timeSinceLastPress += deltaTimeMS;
             timeSinceLastKeystroke += deltaTimeMS;
         }
 
@@ -97,7 +92,7 @@ namespace HeistGame
             {
                 case 0:
                     // Not pressed and not toggled on.
-                    if (timeSinceLastPress >= timeBetweenTicks && keysPressed.Contains(key))
+                    if (keysPressed.Contains(key))
                     {
                         keysPressed.Remove(key);
                     }
@@ -105,21 +100,24 @@ namespace HeistGame
 
                 case 1:
                     // Not pressed, but toggled on
+                    if (keysPressed.Contains(key))
+                    {
+                        keysPressed.Remove(key);
+                    }
                     return false;
 
                 default:
                     // Pressed (and may be toggled on)
-                    if (keysPressed.Contains(key) || timeSinceLastPress < timeBetweenTicks)
+                    if (keysPressed.Contains(key))
                     {
                         return false;
                     }
                     keysPressed.Add(key);
-                    timeSinceLastPress = 0;
                     return true;
             }
         }
 
-        public static void FlushInputBuffer()
+        public static void FlushInputs()
         {
             bool anyKeyPressed = true;
 

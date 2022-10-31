@@ -265,7 +265,7 @@ namespace HeistGame
         {
             Clear();
             ScreenDisplayer.DisplayLoading();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
             ScreenDisplayer.ClearMessageLog();
             InstantiateCampaignEntities(missionDirectory, startBooty, startRoom);
             RunGameLoop(startRoom);
@@ -277,7 +277,7 @@ namespace HeistGame
         {
             Clear();
             ScreenDisplayer.DisplayLoading();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
             ScreenDisplayer.ClearMessageLog();
             InstantiateMissionEntities(mission);
             RunGameLoop(0);
@@ -291,7 +291,7 @@ namespace HeistGame
 
             Clear();
             ScreenDisplayer.DisplayLoading();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
             ScreenDisplayer.ClearMessageLog();
             DifficultyLevel = Difficulty.VeryEasy;
             InstantiateTutorialEntities(tutorial);
@@ -502,7 +502,7 @@ namespace HeistGame
             Clear();
             ResetColor();
 
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             SetCursorPosition(0, 3);
 
@@ -639,7 +639,7 @@ namespace HeistGame
                         }
                         PlayerCharacter.ChangeLoot(-bribeCost);
                         ReadKey(true);
-                        ControlsManager.FlushInputBuffer();
+                        ControlsManager.FlushInputs();
                         return true;
                     }
 
@@ -719,7 +719,7 @@ namespace HeistGame
         {
             Clear();
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             SetCursorPosition(0, 2);
 
@@ -841,7 +841,7 @@ namespace HeistGame
         }
 
 
-        //TODO: correggere per dimensione schermo
+        //TODO: update for variable screen size
         private void WinGame()
         {
             TunePlayer.PlayGameWinTune();
@@ -893,7 +893,7 @@ namespace HeistGame
                 ResetColor();
             }
 
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             while (true)
             {
@@ -901,8 +901,8 @@ namespace HeistGame
                 {
                     break;
                 }
-
             }
+
             ResetGame(true);
             TunePlayer.StopTune();
             ScreenDisplayer.DisplayAboutScreen(this);
@@ -1071,7 +1071,7 @@ namespace HeistGame
         {
             Clear();
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             string[] saveFiles = saveSystem.CheckForSavedGames();
 
@@ -1486,7 +1486,7 @@ namespace HeistGame
             Selector.Deactivate();
             Clear();
             ResetColor();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
 
             List<string> quitMenuPrompt = new List<string>();
             quitMenuPrompt.Add("~· PAUSE ·~");
@@ -1567,9 +1567,9 @@ namespace HeistGame
             {
                 TunePlayer.StopTune();
                 ResetGame(true);
-                ControlsManager.FlushInputBuffer();
+                ControlsManager.FlushInputs();
                 ScreenDisplayer.DisplayLoading();
-                ControlsManager.FlushInputBuffer();
+                ControlsManager.FlushInputs();
                 RunGameLoop(0);
             }
         }
@@ -1611,7 +1611,7 @@ namespace HeistGame
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartX, ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartY);
             ActiveCampaign.Levels[saveGame.CurrentLevel].Reset();
             ScreenDisplayer.DisplayLoading();
-            ControlsManager.FlushInputBuffer();
+            ControlsManager.FlushInputs();
             RunGameLoop(saveGame.CurrentLevel);
         }
         #endregion;
