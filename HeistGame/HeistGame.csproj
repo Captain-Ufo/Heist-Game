@@ -11,7 +11,14 @@
     <SignAssembly>true</SignAssembly>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <PackageIcon>HeistGame Icon.png</PackageIcon>
+    <ApplicationIcon>Resources\HeistGame Icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\HeistGame Icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="Config\Config.ini">

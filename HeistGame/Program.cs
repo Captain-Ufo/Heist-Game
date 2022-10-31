@@ -16,6 +16,7 @@ namespace HeistGame
             ScreenDisplayer.Initialise();
             
             Clock.Initialize();
+            Clock.Start();
 
             ControlsManager.InitializeControlsTicks();
 

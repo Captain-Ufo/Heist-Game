@@ -265,7 +265,6 @@ namespace HeistGame
         {
             Clear();
             ScreenDisplayer.DisplayLoading();
-            Thread.Sleep(100); //Hacky way to avoid menu inputs to spill into the gameplay 
             ControlsManager.FlushInputBuffer();
             ScreenDisplayer.ClearMessageLog();
             InstantiateCampaignEntities(missionDirectory, startBooty, startRoom);
@@ -278,7 +277,6 @@ namespace HeistGame
         {
             Clear();
             ScreenDisplayer.DisplayLoading();
-            Thread.Sleep(100); //Hacky way to avoid menu inputs to spill into the gameplay 
             ControlsManager.FlushInputBuffer();
             ScreenDisplayer.ClearMessageLog();
             InstantiateMissionEntities(mission);
@@ -293,7 +291,6 @@ namespace HeistGame
 
             Clear();
             ScreenDisplayer.DisplayLoading();
-            Thread.Sleep(100); //Hacky way to avoid menu inputs to spill into the gameplay 
             ControlsManager.FlushInputBuffer();
             ScreenDisplayer.ClearMessageLog();
             DifficultyLevel = Difficulty.VeryEasy;
@@ -308,8 +305,6 @@ namespace HeistGame
 
         private void RunGameLoop(int startRoom, Tutorial tutorial = null)
         {
-            Clock.Start();
-
             Clear();
 
             CurrentLevel = startRoom;
@@ -1571,7 +1566,7 @@ namespace HeistGame
                 ResetGame(true);
                 ControlsManager.FlushInputBuffer();
                 ScreenDisplayer.DisplayLoading();
-                Thread.Sleep(100);
+                ControlsManager.FlushInputBuffer();
                 RunGameLoop(0);
             }
         }
@@ -1613,7 +1608,7 @@ namespace HeistGame
             PlayerCharacter.SetStartingPosition(ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartX, ActiveCampaign.Levels[saveGame.CurrentLevel].PlayerStartY);
             ActiveCampaign.Levels[saveGame.CurrentLevel].Reset();
             ScreenDisplayer.DisplayLoading();
-            Thread.Sleep(100);
+            ControlsManager.FlushInputBuffer();
             RunGameLoop(saveGame.CurrentLevel);
         }
         #endregion;

@@ -62,9 +62,11 @@ namespace HeistGame
             }
         }
 
-        public static bool IsKeyPressedWithDelay(InputMap key)
+        public static bool IsKeyPressedWithDelay(InputMap key, int delay = -1)
         {
             short result = GetKeyState(key);
+
+            if (delay == -1) { delay = keystrokeDelay; }
 
             switch (result)
             {
@@ -78,7 +80,7 @@ namespace HeistGame
 
                 default:
                     // Pressed (and may be toggled on)
-                    if (timeSinceLastKeystroke >= keystrokeDelay) 
+                    if (timeSinceLastKeystroke >= delay) 
                     {
                         timeSinceLastKeystroke = 0;
                         return true; 
@@ -103,10 +105,6 @@ namespace HeistGame
 
                 case 1:
                     // Not pressed, but toggled on
-                    if (timeSinceLastPress >= timeBetweenTicks && keysPressed.Contains(key))
-                    {
-                        keysPressed.Remove(key);
-                    }
                     return false;
 
                 default:
@@ -123,8 +121,19 @@ namespace HeistGame
 
         public static void FlushInputBuffer()
         {
-            while (KeyAvailable) { ReadKey(true); }
-            keysPressed.Clear();
+            bool anyKeyPressed = true;
+
+            while (anyKeyPressed)
+            {
+                UpdateTick(Clock.Tick());
+                
+                anyKeyPressed = false;
+
+                for (int key = 0; key < 256; key++)
+                {
+                    if (IsKeyPressedContinuous((InputMap)key)) { anyKeyPressed = true; }
+                }
+            }
         }
 
         public static ControlState HandleInputs(Level level, Game game)

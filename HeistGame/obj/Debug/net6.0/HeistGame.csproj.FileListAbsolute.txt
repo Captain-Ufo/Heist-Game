@@ -48,3 +48,4 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Config\Config.i
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\Deep Cells.txt
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\High Security Confinement.txt
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Resources\HeistGame Icon.png
+D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Resources\HeistGame Icon.ico

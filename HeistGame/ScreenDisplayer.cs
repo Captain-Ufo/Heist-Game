@@ -497,8 +497,6 @@ namespace HeistGame
             if (text == null) { return; }
             if (string.IsNullOrEmpty(text[0])) { return; }
 
-            do { ReadKey(true); } while (KeyAvailable);
-
             StringBuilder sb = new StringBuilder();
 
             short windowWidth = (short)WindowWidth;
@@ -509,15 +507,23 @@ namespace HeistGame
 
             string[] resizedText = StringHelper.SplitStringAtLength(text, windowWidth - 4);
 
-            int maxLines = WindowHeight - frameSize;
+            int maxLines = windowHeight - frameSize;
             int firstLineToDisplay = 0;
             int lastLineToDisplay;
             int textStartLine = frameSize / 2;
-            int textEndLine = WindowHeight - 1 - frameSize / 2;
+            int textEndLine = windowHeight - 1 - (frameSize / 2);
             bool scrolling = resizedText.Length > windowHeight - frameSize;
             if (scrolling)
             {
-                lastLineToDisplay = maxLines;
+                if (isMessageLog)
+                {
+                    lastLineToDisplay = resizedText.Length - 1;
+                    firstLineToDisplay = lastLineToDisplay - maxLines;
+                }
+                else 
+                {
+                    lastLineToDisplay = maxLines;
+                }
             }
             else
             {
@@ -571,13 +577,17 @@ namespace HeistGame
                     }
                     else if (y >= textStartLine && y <= textEndLine)
                     {
-                        sb.Append("│ ");
-                        sb.Append(resizedText[firstLineToDisplay + y - textStartLine]);
-                        int spaces = WindowWidth - 1 - sb.Length;
-                        sb.Append(' ', spaces);
-                        sb.Append('│');
-                        textToDisplay[y] = sb.ToString();
-                        sb.Clear();
+                        int index = firstLineToDisplay + y - textStartLine;
+                        if (index < resizedText.Length)
+                        {
+                            sb.Append("│ ");
+                            sb.Append(resizedText[firstLineToDisplay + y - textStartLine]);
+                            int spaces = WindowWidth - 1 - sb.Length;
+                            sb.Append(' ', spaces);
+                            sb.Append('│');
+                            textToDisplay[y] = sb.ToString();
+                            sb.Clear();
+                        }
                     }
                     else
                     {

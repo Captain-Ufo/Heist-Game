@@ -59,9 +59,9 @@ namespace HeistGame
         /// <returns>The index of the chosen option, after the user selects one and hits enter</returns>
         public int Run(int xPos, int yPos, int optionsOffset, int lineStart, int lineEnd)
         {
-            ConsoleKey keyPressed;
             selectedIndex = 0;
             ResetColor();
+            ControlsManager.FlushInputBuffer();
 
             while (true)
             {
@@ -71,43 +71,32 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplayOptions(xPos, optionsOffset);
 
-                do
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
                 {
-                    ConsoleKeyInfo info = ReadKey(true);
-                    keyPressed = info.Key;
+                    selectedIndex--;
+                    if (selectedIndex < 0)
+                    {
+                        selectedIndex = options.Length - 1;
+                    }
+                    ctp.PlaySFX(1000, 100);
                 }
-                while (KeyAvailable);
-
-                switch (keyPressed)
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
                 {
-                    case ConsoleKey.UpArrow:
-                    case ConsoleKey.NumPad8:
-                    case ConsoleKey.W:
+                    selectedIndex++;
+                    if (selectedIndex == options.Length)
+                    {
+                        selectedIndex = 0;
+                    }
+                    ctp.PlaySFX(1000, 100);
+                }
 
-                        selectedIndex--;
-                        if (selectedIndex < 0)
-                        {
-                            selectedIndex = options.Length - 1;
-                        }
-                        ctp.PlaySFX(1000, 100); ;
-
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                    case ConsoleKey.NumPad2:
-                    case ConsoleKey.S:
-
-                        selectedIndex++;
-                        if (selectedIndex == options.Length)
-                        {
-                            selectedIndex = 0;
-                        }
-                        ctp.PlaySFX(1000, 100);
-                        
-                        break;
-                    case ConsoleKey.Enter:
-                        while (KeyAvailable) { ReadKey(true); }
-                        return selectedIndex;
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_RETURN, 150))
+                {
+                    return selectedIndex;
                 }
             }
         }
@@ -129,8 +118,7 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
-
-            ConsoleKey keyPressed;
+            ControlsManager.FlushInputBuffer();
 
             while (true)
             {
@@ -140,42 +128,34 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplayOptions(xPos, optionsOffset);
 
-                do
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
                 {
-                    ConsoleKeyInfo info = ReadKey(true);
-                    keyPressed = info.Key;
+                    selectedIndex--;
+                    if (selectedIndex < 0)
+                    {
+                        selectedIndex = options.Length - 1;
+                    }
+                    prompt = updatedPrompts[selectedIndex];
+                    ctp.PlaySFX(1000, 100);
                 }
-                while (KeyAvailable);
-
-                switch (keyPressed)
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
                 {
-                    case ConsoleKey.UpArrow:
-                    case ConsoleKey.NumPad8:
-                    case ConsoleKey.W:
+                    selectedIndex++;
+                    if (selectedIndex == options.Length)
+                    {
+                        selectedIndex = 0;
+                    }
+                    prompt = updatedPrompts[selectedIndex];
+                    ctp.PlaySFX(1000, 100);
+                }
 
-                        selectedIndex--;
-                        if (selectedIndex < 0)
-                        {
-                            selectedIndex = options.Length - 1;
-                        }
-                        prompt = updatedPrompts[selectedIndex];
-                        ctp.PlaySFX(1000, 100);
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                    case ConsoleKey.NumPad2:
-                    case ConsoleKey.S:
-
-                        selectedIndex++;
-                        if (selectedIndex == options.Length)
-                        {
-                            selectedIndex = 0;
-                        }
-                        prompt = updatedPrompts[selectedIndex];
-                        ctp.PlaySFX(1000, 100);
-                        break;
-                    case ConsoleKey.Enter:
-                        return selectedIndex;
+                if (ControlsManager.IsKeyPressedContinuous(InputMap.VK_RETURN))
+                {
+                    return selectedIndex;
                 }
             }
         }
@@ -198,8 +178,7 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
-
-            ConsoleKey keyPressed;
+            ControlsManager.FlushInputBuffer();
 
             int firstShownOption = 0;
             int lastShownOption;
@@ -221,74 +200,64 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
 
-                do
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
                 {
-                    ConsoleKeyInfo info = ReadKey(true);
-                    keyPressed = info.Key;
+                    selectedIndex--;
+                    if (selectedIndex < 0)
+                    {
+                        if (numberOfDisplayedOptions >= options.Length)
+                        {
+                            selectedIndex = options.Length - 1;
+                        }
+                        else
+                        {
+                            selectedIndex = lastShownOption;
+                        }
+                    }
+                    else if (selectedIndex < firstShownOption)
+                    {
+                        firstShownOption -= numberOfDisplayedOptions;
+                        lastShownOption = firstShownOption + numberOfDisplayedOptions - 1;
+
+                        if (firstShownOption < 0)
+                        {
+                            firstShownOption = 0;
+                            lastShownOption = numberOfDisplayedOptions - 1;
+                        }
+                    }
+
+                    ctp.PlaySFX(1000, 100);
                 }
-                while (KeyAvailable);
-
-                switch (keyPressed)
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
                 {
-
-                    case ConsoleKey.UpArrow:
-                    case ConsoleKey.NumPad8:
-                    case ConsoleKey.W:
-
-                        selectedIndex--;
-                        if (selectedIndex < 0)
+                    selectedIndex++;
+                    if (selectedIndex > lastShownOption)
+                    {
+                        if (selectedIndex < options.Length)
                         {
-                            if (numberOfDisplayedOptions >= options.Length)
+                            firstShownOption += numberOfDisplayedOptions;
+                            lastShownOption += numberOfDisplayedOptions;
+                            if (lastShownOption >= options.Length)
                             {
-                                selectedIndex = options.Length - 1;
-                            }
-                            else
-                            {
-                                selectedIndex = lastShownOption;
+                                Clear();
+                                lastShownOption = options.Length - 1;
                             }
                         }
-                        else if (selectedIndex < firstShownOption)
+                        else if (selectedIndex == options.Length)
                         {
-                            firstShownOption -= numberOfDisplayedOptions;
-                            lastShownOption = firstShownOption + numberOfDisplayedOptions - 1;
-
-                            if (firstShownOption < 0)
-                            {
-                                firstShownOption = 0;
-                                lastShownOption = numberOfDisplayedOptions - 1;
-                            }
+                            selectedIndex = firstShownOption;
                         }
+                    }
+                    ctp.PlaySFX(1000, 100);
+                }
 
-                        ctp.PlaySFX(1000, 100);
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                    case ConsoleKey.NumPad2:
-                    case ConsoleKey.S:
-
-                        selectedIndex++;
-                        if (selectedIndex > lastShownOption)
-                        {
-                            if (selectedIndex < options.Length)
-                            {
-                                firstShownOption += numberOfDisplayedOptions;
-                                lastShownOption += numberOfDisplayedOptions;
-                                if (lastShownOption >= options.Length)
-                                {
-                                    Clear();
-                                    lastShownOption = options.Length - 1;
-                                }
-                            }
-                            else if (selectedIndex == options.Length)
-                            {
-                                selectedIndex = firstShownOption;
-                            }
-                        }
-                        ctp.PlaySFX(1000, 100);
-                        break;
-                    case ConsoleKey.Enter:
-                        while (KeyAvailable) { ReadKey(true); }
-                        return selectedIndex;
+                if (ControlsManager.IsKeyPressedContinuous(InputMap.VK_RETURN))
+                {
+                    return selectedIndex;
                 }
             }
         }
@@ -312,8 +281,8 @@ namespace HeistGame
         {
             selectedIndex = 0;
             ResetColor();
+            ControlsManager.FlushInputBuffer();
 
-            ConsoleKey keyPressed;
             delete = false;
 
             int firstShownOption = 0;
@@ -336,81 +305,72 @@ namespace HeistGame
                 DisplayPrompt(xPos, yPos, lineStart, lineEnd);
                 DisplaySelectionOfOptions(xPos, optionsOffset, lineStart, lineEnd, firstShownOption, lastShownOption);
 
-                do
+                if (ControlsManager.IsKeyPressedContinuous(InputMap.VK_DELETE)||
+                    ControlsManager.IsKeyPressedContinuous(InputMap.VK_BACK))
                 {
-                    ConsoleKeyInfo info = ReadKey(true);
-                    keyPressed = info.Key;
+                    delete = true;
+                    ctp.PlaySFX(1000, 200);
+                    while (KeyAvailable) { ReadKey(true); }
+                    return selectedIndex;
                 }
-                while (KeyAvailable);
 
-                switch (keyPressed)
+                if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_UP, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_W, 150) ||
+                    ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD8, 150))
                 {
-                    case ConsoleKey.Backspace:
-                    case ConsoleKey.Delete:
-
-                        delete = true;
-                        ctp.PlaySFX(1000, 200);
-                        while (KeyAvailable) { ReadKey(true); }
-                        return selectedIndex;
-
-                    case ConsoleKey.UpArrow:
-                    case ConsoleKey.NumPad8:
-                    case ConsoleKey.W:
-
-                        selectedIndex--;
-                        if (selectedIndex < 0)
+                    selectedIndex--;
+                    if (selectedIndex < 0)
+                    {
+                        if (numberOfDisplayedOptions >= options.Length)
                         {
-                            if (numberOfDisplayedOptions >= options.Length)
+                            selectedIndex = options.Length - 1;
+                        }
+                        else
+                        {
+                            selectedIndex = lastShownOption;
+                        }
+                    }
+                    else if (selectedIndex < firstShownOption)
+                    {
+                        firstShownOption -= numberOfDisplayedOptions;
+                        lastShownOption = firstShownOption + numberOfDisplayedOptions - 1;
+
+                        if (firstShownOption < 0)
+                        {
+                            firstShownOption = 0;
+                            lastShownOption = numberOfDisplayedOptions - 1;
+                        }
+                    }
+
+                    ctp.PlaySFX(1000, 100);
+                }
+                else if (ControlsManager.IsKeyPressedWithDelay(InputMap.VK_DOWN, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_S, 150) ||
+                        ControlsManager.IsKeyPressedWithDelay(InputMap.VK_NUMPAD2, 150))
+                {
+                    selectedIndex++;
+                    if (selectedIndex > lastShownOption)
+                    {
+                        if (selectedIndex < options.Length)
+                        {
+                            firstShownOption += numberOfDisplayedOptions;
+                            lastShownOption += numberOfDisplayedOptions;
+                            if (lastShownOption >= options.Length)
                             {
-                                selectedIndex = options.Length - 1;
-                            }
-                            else
-                            {
-                                selectedIndex = lastShownOption;
+                                Clear();
+                                lastShownOption = options.Length - 1;
                             }
                         }
-                        else if (selectedIndex < firstShownOption)
+                        else if (selectedIndex == options.Length)
                         {
-                            firstShownOption -= numberOfDisplayedOptions;
-                            lastShownOption = firstShownOption + numberOfDisplayedOptions - 1;
-
-                            if (firstShownOption < 0)
-                            {
-                                firstShownOption = 0;
-                                lastShownOption = numberOfDisplayedOptions - 1;
-                            }
+                            selectedIndex = firstShownOption;
                         }
-
-                        ctp.PlaySFX(1000, 100);
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                    case ConsoleKey.NumPad2:
-                    case ConsoleKey.S:
-
-                        selectedIndex++;
-                        if (selectedIndex > lastShownOption)
-                        {
-                            if (selectedIndex < options.Length)
-                            {
-                                firstShownOption += numberOfDisplayedOptions;
-                                lastShownOption += numberOfDisplayedOptions;
-                                if (lastShownOption >= options.Length)
-                                {
-                                    Clear();
-                                    lastShownOption = options.Length - 1;
-                                }
-                            }
-                            else if (selectedIndex == options.Length)
-                            {
-                                selectedIndex = firstShownOption;
-                            }
-                        }
-                        ctp.PlaySFX(1000, 100);
-                        break;
-                    case ConsoleKey.Enter:
-                        while (KeyAvailable) { ReadKey(true); }
-                        return selectedIndex;
+                    }
+                    ctp.PlaySFX(1000, 100);
+                }
+                if (ControlsManager.IsKeyPressedContinuous(InputMap.VK_RETURN))
+                {
+                    return selectedIndex;
                 }
             }
         }
