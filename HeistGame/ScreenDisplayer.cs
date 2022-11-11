@@ -16,11 +16,14 @@ namespace HeistGame
     internal class ScreenDisplayer
     {
         private static UI ui;
-        private static UI_Label lable;
+        private static UI_Label label;
         private static SafeFileHandle safeFileHandle;
         private static MessageLog messageLog;
         private static int leftOffset;
         private static int topOffset;
+
+        private static int labelTimer;
+        private static int labelTick;
 
         //All these elements come from stackoverflow.com/questions/2754518/how-can-i-write-fast-colored-output-to-console.
         //Yeah, I'm code monkeying this and I have no regrets for now :P
@@ -82,7 +85,9 @@ namespace HeistGame
         public static void Initialise()
         {
             ui = new UI();
-            lable = new UI_Label();
+            label = new UI_Label();
+            labelTimer = 0;
+            labelTick = 800;
             leftOffset = WindowWidth / 2;
             topOffset = WindowHeight / 2;
             messageLog = new MessageLog();
@@ -138,7 +143,7 @@ namespace HeistGame
                     //Check if the tile is under a lable
                     else if (IsTileUnderLable(new Vector2(x, y)))
                     {
-                        c = lable.LabelTiles[new Vector2(x, y)];
+                        c = label.LabelTiles[new Vector2(x, y)];
                     }
 
                     else
@@ -386,17 +391,30 @@ namespace HeistGame
 
         public static void DisplayMessageOnLabel(string[] message)
         {
-            lable.ActivateLabel(message);
+            label.ActivateLabel(message);
+            labelTimer = 0;
+        }
+
+        public static void UpdateLableTick(int deltaTimeMS)
+        {
+            if (!label.IsActive) { return; }
+
+            labelTimer += deltaTimeMS;
+            if (labelTimer >= labelTick)
+            {
+                DeleteLabel();
+                labelTimer = 0;
+            }
         }
 
         public static void DeleteLabel()
         {
-            lable.Cancel();
+            label.Cancel();
         }
 
         public static bool IsTileUnderLable(Vector2 tile)
         {
-            return lable.LabelTiles.ContainsKey(tile);
+            return label.LabelTiles.ContainsKey(tile);
         }
 
         public static void DisplayAboutScreen(Game game)

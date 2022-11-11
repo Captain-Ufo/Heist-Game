@@ -99,6 +99,8 @@ namespace HeistGame
         {
             SettingsData settings = GetSettingsFromConfig();
 
+            TreatControlCAsInput = true;
+
             ConfigureConsole(settings.Name, settings.Font, settings.FontHeight, settings.FontWidth, settings.MaximizeOnStart,
                              settings.ConsoleWidth, settings.ConsoleHeight, settings.CenterWindow, false, false, true, true,
                              true);

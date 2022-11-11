@@ -59,6 +59,7 @@ namespace HeistGame
             level.ChangeElementAt(x, y, leverSymbol);
 
             game.PlayerCharacter.CalculateVisibleArea(level);
+            game.PlayerCharacter.SetNoise(1);
         }
 
         /// <summary>

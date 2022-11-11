@@ -187,7 +187,7 @@ namespace HeistGame
                     game.PlayerCharacter.ResetPeek(level);
                     game.CancelUnlocking();
 
-                    game.PlayerCharacter.MakeNoise(level, game);
+                    game.PlayerCharacter.MakeNoise(game);
                     State = ControlState.Yell;
                 }
                 else
@@ -250,7 +250,7 @@ namespace HeistGame
                 if (GetAsyncKeyState((short)InputMap.VK_CONTROL) != 0) { mode = MovementMode.sneaking; }
                 else if (GetAsyncKeyState((short)InputMap.VK_MENU) != 0) { mode = MovementMode.running; }
                 game.PlayerCharacter.ResetPeek(level);
-                game.PlayerCharacter.Move(direction, mode, level, game);
+                game.PlayerCharacter.Move(direction, mode, level);
             }
         }
 

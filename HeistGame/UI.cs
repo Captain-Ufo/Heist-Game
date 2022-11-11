@@ -141,7 +141,7 @@ namespace HeistGame
         {
             sb.Clear();
             sb.Append("[ ");
-            int visibilityLevel = player.Visibility / 5;
+            int visibilityLevel = player.Visibility;
             switch (visibilityLevel)
             {
                 default:
@@ -156,7 +156,7 @@ namespace HeistGame
                     ForegroundColor = ConsoleColor.DarkYellow;
                     sb.Append("▒▒▒▒");
                     break;
-                case 3:
+                case >= 3:
                     ForegroundColor = ConsoleColor.Yellow;
                     sb.Append("▓▓▓▓");
                     break;

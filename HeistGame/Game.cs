@@ -328,7 +328,7 @@ namespace HeistGame
 
                 int deltaTimeMS = Clock.Tick();
 
-                UpdateTicks(deltaTimeMS);
+                UpdateTicks(deltaTimeMS, ActiveCampaign.Levels[CurrentLevel]);
 
                 if (!HandleInputs(CurrentLevel))
                 {
@@ -347,7 +347,16 @@ namespace HeistGame
 
                 char elementAtPlayerPosition = ActiveCampaign.Levels[CurrentLevel].GetElementAt(PlayerCharacter.X, PlayerCharacter.Y);
 
-                if (elementAtPlayerPosition == SymbolsConfig.Treasure)
+                if (elementAtPlayerPosition == SymbolsConfig.HorizontalDoorVisual || 
+                    elementAtPlayerPosition == SymbolsConfig.VerticalDoorVisual)
+                {
+                    if (PlayerCharacter.HasMoved)
+                    {
+                        TunePlayer.PlaySFX(100, 100);
+                        PlayerCharacter.SetNoise(1);
+                    }
+                }
+                else if (elementAtPlayerPosition == SymbolsConfig.Treasure)
                 {
                     TunePlayer.PlaySFX(1000, 100);
                     ActiveCampaign.Levels[CurrentLevel].ChangeElementAt(PlayerCharacter.X, PlayerCharacter.Y, SymbolsConfig.Empty);
@@ -395,7 +404,7 @@ namespace HeistGame
                 if (ActiveUnlockable != null)
                 {
                     ActiveUnlockable.Unlock(deltaTimeMS, this);
-                    ActiveCampaign.Levels[CurrentLevel].AlertGuards(new Vector2(PlayerCharacter.X, PlayerCharacter.Y), 3);
+                    PlayerCharacter.SetNoise(1);
                 }
 
                 //Thread.Sleep(20);
@@ -425,11 +434,12 @@ namespace HeistGame
             }
         }
 
-        private void UpdateTicks(int deltaTimeMS)
+        private void UpdateTicks(int deltaTimeMS, Level level)
         {
-            PlayerCharacter.UpdateTick(deltaTimeMS);
+            PlayerCharacter.UpdateTick(deltaTimeMS, level);
             Selector.UpdateTick(deltaTimeMS);
             ControlsManager.UpdateTick(deltaTimeMS);
+            ScreenDisplayer.UpdateLableTick(deltaTimeMS);
         }
 
         private bool HandleInputs(int currentLevel)
@@ -526,8 +536,8 @@ namespace HeistGame
                 @"                           __.--|~|--.__                                 ,,;/;",
                 @"                         /~     | |    ;~\                            ,;;;/;;'",
                 @"                        /|      | |    ;~\\                        ,;;;;/;;;' ",
-                @"                       |/|      \_/   ;;;|\                      ,;;;;/;;;;'  ",
-                @"                       |/ \          ;;;/  )                   ,;;;;/;;;;;'   ",
+                @"                       |/|      \_/    ;;;|\                     ,;;;;/;;;;'  ",
+                @"                       |/ \           ;;;/ )                   ,;;;;/;;;;;'   ",
                 @"                   ___ | ______     ;_____ |___....__        ,;;;;/;;;;;'     ",
                 @"             ___.-~ \\(| \  (.\ \__/ /.) /:|)~   ~   \     ,;;;;/;;;;;'       ",
                 @"         /~~~    ~\    |  ~-.     |   .-~: |//  _.-~~--__,;;;;/;;;;;'         ",
@@ -724,7 +734,7 @@ namespace HeistGame
             SetCursorPosition(0, 2);
 
             int menuPos = WindowWidth / 2;
-            int MenuPromptSize = WindowWidth - 2;
+            int menuPromptSize = WindowWidth - 2;
 
             string[] gameOverArt =
                 {
@@ -742,53 +752,53 @@ namespace HeistGame
                     @"       |           |       / /             |        %o__o|         |      ",
                     @"                          / /     ,-~~,      Mm,   %               |      ",
                     @"       |          ____   / /    ,r/^V\,\    n  |  %    |           |      ",
-                    @"   ____|_______  |o  o|  \ \    ('_ ~ ( )   \ Y  %  ___|_______ ___|__ _  ",
+                    @"   ____|_______  |o  o| _\ \ __ ('_ ~ ( ) _ \ Y  %  ___|_______ ___|__ _  ",
                     @"             |   | c)%|   \/\   |=  =  ))    [_t%            |            ",
-                    @"             |   |o__%|   /  \   \ _(x)88     \ \            |            ",
-                    @"             |        %   \  |`-. \ _/|8       \ \           |   _/       ",
+                    @"             |   |o__%|   /  \   \ _(x)       \ \            |            ",
+                    @"             |        %   \  |`-. \ _/|        \ \           |   _/       ",
                     @"   _ _____ __|__ ____  %   \ !  ,%J___]>---.____\ \  ________|___\_____   ",
                     @"       |  \_       |    %,  \ `,% \  /   /'    (__/    |           |      ",
-                    @"       |    \      |     `%-%-%/|  \/   /  / =\|88                 |      ",
-                    @"                   |          | \      /   /888        |                  ",
-                    @"    ___|________ __|_______   |  '----'   |8  _________|_______ ___|__    ",
-                    @"             |           |     \          /8     |           |            ",
-                    @"             |           |     |         |8      |           |            ",
-                    @"             |           |     |         |8                  |            ",
-                    @"   _ _____ __|___ _______|____ /          \_ _    ________ __|__  ___ _   ",
-                    @"       |           |           J\:______/ \            |\__        |      ",
-                    @"                   |           |           |           | | \       |      ",
-                    @"       |           |          /            \           |           |      ",
-                    @"    ___|__ ________|_______  /     \_       \ _____ ___|__ ____ ___|__ _  ",
-                    @"             |           |  /      /88\      \   |           |            ",
-                    @"                         | /      /8   \      \  |           |            ",
-                    @"             |            /      /8  |  \      \                          ",
-                    @"   _ _____ __|__ ______  /      /8___|__ \      \  _ ________|__ _____ _  ",
-                    @"       |           |    /     .'8         '.     \     |           |      ",
-                    @"       | _         |   /     /8|            \     \    |                  ",
-                    @"       |  \_       |  /__ __/8 |           | \_____\   |           |      ",
-                    @"   ____|__/________  /   |888__|__ ____  __|__ 8|   \ _|_______ ___|__ _  ",
-                    @"             |      /   /8           |           \   \       |            ",
-                    @"                   /  .'8            |            '.  \      |            ",
-                    @"             |    /__/8  |           |             8\__\     |            ",
-                    @"     ____ __ |_  |  /8___|__ _____ __|__ ________|_ 8\  l __|__ _____ _   ",
-                    @"      |         /> /8          |           |         8\ <\         |      ",
-                    @" ____          />_/8           |   y       |          8\_<\          ____ ",
+                    @"       |    \      |     `%-%-%/|  \/   /  / =\|                   |      ",
+                    @"                   |        | | \      /   /  |        |                  ",
+                    @"    ___|________ __|_______ | |  '----'   |   |________|_______ ___|__    ",
+                    @"             |           |  |  \  \\      /   |  |           |            ",
+                    @"             |           |  |  |    !    |    |  |           |            ",
+                    @"             |           |  |  |         |    |              |            ",
+                    @"   _ _____ __|___ _______|__|  /   ;      \   |   ________ __|__  ___ _   ",
+                    @"       |           |        |  J\:__\___/ \   |        |\__        |      ",
+                    @"                   |        |  |           |  |        | | \       |      ",
+                    @"       |           |        | /            \  |        |           |      ",
+                    @"    ___|__ ________|_______ |/     \_       \ |____ ___|__ ____ ___|__ _  ",
+                    @"             |           |  /      /  \      \|  |           |            ",
+                    @"                         | /      /    \      \  |           |            ",
+                    @"             |            /      /      \      \                          ",
+                    @"   _ _____ __|__ ______  /      /        \      \  _ ________|__ _____ _  ",
+                    @"       |           |    /     .'          '.     \     |           |      ",
+                    @"       | _         |   /     /     ,        \     \    |                  ",
+                    @"       |  \_       |  /__ __/      :    .    \_____\   |           |      ",
+                    @"   ____|__/________  /   | _|   ,  ;    ;     | |   \ _|_______ ___|__ _  ",
+                    @"             |      /   /   |   l__!    ,   , |  \   \       |            ",
+                    @"                   /  .' |   ~__/  |__~~'~___/    '.  \      |            ",
+                    @"             |    /__/   |           |              \__\     |            ",
+                    @"     ____ __ |_  |  /____|__ _____ __|__ ________|___\  l __ |__ _____ _  ",
+                    @"      |         /> /           |           |          \ <\         |      ",
+                    @" ____          />_/            |   y       |           \_<\          ____ ",
                     @"|o  o|       ,%J__]            |   \       |           [__t %,      |o  o|",
-                    @"| c)%,      ,%> )(8__ ___ ___  |___/___ ___| ______ ___8)(  <%,    _,% (c|",
-                    @"|o__o`%-%-%' __ ]8                                      [ __  '%-%-%`o__o|",
+                    @"| c)%,      ,%> )( __ ___ ___  |___/___ ___| ______ ___ )(  <%,    _,% (c|",
+                    @"|o__o`%-%-%' __ ]                                       [ __  '%-%-%`o__o|",
                 };
 
             if (WindowWidth >= gameOverArt[0].Length + 42) //42 is the length of the restart prompt
             {
                 foreach (string s in gameOverArt)
                 {
-                    SetCursorPosition(WindowWidth - s.Length - 6, CursorTop);
+                    SetCursorPosition(WindowWidth - s.Length - 2, CursorTop);
                     WriteLine(s);
                 }
 
                 int freeSpace = WindowWidth - gameOverArt[0].Length;
                 menuPos = freeSpace / 2;
-                MenuPromptSize = freeSpace - 2;
+                menuPromptSize = freeSpace - 2;
             }
 
             string[] gameOverOutro =
@@ -808,7 +818,7 @@ namespace HeistGame
                 "÷ GAME OVER ÷",
             };
 
-            gameOverOutro = StringHelper.SplitStringAtLength(gameOverOutro, MenuPromptSize);
+            gameOverOutro = StringHelper.SplitStringAtLength(gameOverOutro, menuPromptSize);
 
             SetCursorPosition(menuPos, (WindowHeight / 3) - (gameOverOutro.Length / 2));
 
@@ -846,6 +856,27 @@ namespace HeistGame
         {
             TunePlayer.PlayGameWinTune();
 
+            Clear();
+
+            int menuPos = WindowWidth / 2;
+            int menuPromptSize = WindowWidth - 2;
+
+            if (WindowWidth >= SymbolsConfig.OutroArt[0].Length + 40) //40 is the length of the win prompt
+            {
+                SetCursorPosition(0, (WindowHeight / 2) - (SymbolsConfig.OutroArt.Length / 2));
+                ForegroundColor = ConsoleColor.Yellow;
+                foreach (string s in SymbolsConfig.OutroArt)
+                {
+                    SetCursorPosition(3, CursorTop);
+                    WriteLine(s);
+                }
+                ResetColor();
+
+                int freeSpace = WindowWidth - SymbolsConfig.OutroArt[0].Length - 6;
+                menuPos = SymbolsConfig.OutroArt[0].Length + (freeSpace / 2);
+                menuPromptSize = freeSpace - 4;
+            }
+
             string[] outro =
             {
                 "~·~ CONGRATULATIONS! ~·~",
@@ -877,17 +908,13 @@ namespace HeistGame
                 }
             }
 
-            Clear();
-
-            ForegroundColor = ConsoleColor.Yellow;
-            WriteLine(SymbolsConfig.OutroArt);
-            ResetColor();
+            outro = StringHelper.SplitStringAtLength(outro, menuPromptSize);
 
             SetCursorPosition(0, (WindowHeight / 3) - (outro.Length / 2) + 5);
 
             for (int i = 0; i < outro.Length; i++)
             {
-                SetCursorPosition(((WindowWidth / 3) * 2) - (outro[i].Length / 2), CursorTop);
+                SetCursorPosition(menuPos - (outro[i].Length / 2), CursorTop);
                 if (i == 0) { ForegroundColor = ConsoleColor.Green; }
                 WriteLine(outro[i]);
                 ResetColor();

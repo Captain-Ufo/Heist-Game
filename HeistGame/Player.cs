@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection.Emit;
 using static System.Console;
 
 namespace HeistGame
@@ -20,12 +22,13 @@ namespace HeistGame
         private int timeSinceLastMove;
         private int sightDistance;
         private int hearingDistance;
-        private int colorTick;
+        private int ModifiersTick;
         private ConsoleColor moveColor;
         private ConsoleColor sneakColor;
         private ConsoleColor runColor;
         private Directions peekDirection;
         private Vector2 peekOffset;
+        private int visibilityModifier;
 
         /// <summary>
         /// The symbols that indicates the player on screen
@@ -85,7 +88,7 @@ namespace HeistGame
             sneakColor = sneakCol;
             runColor = runCol;
             CurrentColor = sneakCol;
-            colorTick = -1;
+            ModifiersTick = -1;
 
             walkSpeed = 130;
             sneakSpeed = 220;
@@ -95,6 +98,7 @@ namespace HeistGame
             timeSinceLastMove = 0;
             sightDistance = 20;
             hearingDistance = 12;
+            visibilityModifier = 0;
 
             peekDirection = Directions.idle;
             peekOffset = new Vector2(0, 0);
@@ -111,15 +115,18 @@ namespace HeistGame
             Y = y;
         }
 
-        public void UpdateTick(int deltaTimeMS)
+        public void UpdateTick(int deltaTimeMS, Level level)
         {
             timeSinceLastMove += deltaTimeMS;
-            if (colorTick >= 0)
+            if (ModifiersTick >= 0)
             {
-                colorTick--;
-                if (colorTick == 0)
+                ModifiersTick--;
+                if (ModifiersTick == 0)
                 {
                     CurrentColor = sneakColor;
+                    Noise = 0;
+                    visibilityModifier = 0;
+                    SetVisibility(X, Y, level);
                 }
             }
         }
@@ -131,29 +138,35 @@ namespace HeistGame
         /// <param name="level">The level the player is moving in</param>
         /// <param name="game">The current game</param>
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
-        public void Move(Directions direction, MovementMode mode, Level level, Game game)
+        public void Move(Directions direction, MovementMode mode, Level level)
         {
+            int noiseChange = 0;
+            int visibilityChange = 0;
             if (mode == MovementMode.sneaking) 
             { 
                 CurrentColor = sneakColor;
-                colorTick = 2;
+                ModifiersTick = 2;
                 timeBetweenMoves = sneakSpeed;
             }
             else if (mode == MovementMode.walking)
             { 
                 CurrentColor = moveColor;
-                colorTick = 2;
+                noiseChange = 1;
+                visibilityChange = 1;
+                ModifiersTick = 2;
                 timeBetweenMoves = walkSpeed;
             }
             else
             { 
                 CurrentColor = runColor;
-                colorTick = 2;
+                noiseChange = 2;
+                visibilityChange = 2;
+                ModifiersTick = 2;
                 timeBetweenMoves = runSpeed;
             }
 
             if (timeSinceLastMove < timeBetweenMoves)
-            {
+            { 
                 return;
             }
 
@@ -189,6 +202,8 @@ namespace HeistGame
             CalculateHearingArea(level);
             HasMoved = true;
             SetVisibility(X, Y, level);
+            Noise = noiseChange;
+            visibilityModifier = visibilityChange;
             timeSinceLastMove = 0;
         }
 
@@ -241,15 +256,22 @@ namespace HeistGame
             peekOffset.X = 0;
             peekOffset.Y = 0;
             CalculateVisibleArea(level);
-            
         }
 
-        public void MakeNoise(Level level, Game game)
+        public void SetNoise (int value)
+        {
+            CurrentColor = moveColor;
+            Noise = value;
+            ModifiersTick = 2;
+        }
+
+        public void MakeNoise(Game game)
         {
             CurrentColor = runColor;
-            colorTick = 100;
+            Noise = 5;
+            ModifiersTick = 100;
             game.TunePlayer.PlaySFX(1000, 600);
-            level.AlertGuards(new Vector2(X, Y));
+            //level.AlertGuards(new Vector2(X, Y));
         }
 
         /// <summary>
@@ -393,14 +415,7 @@ namespace HeistGame
         {
             int visibilityLevel = level.GetLightLevelInItile(new Vector2(xPos, yPos));
 
-            if (visibilityLevel > 0)
-            {
-                Visibility = 5 * visibilityLevel;
-            }
-            else
-            {
-                Visibility = 1;
-            }
+            Visibility = visibilityLevel + visibilityModifier;
         }
     }
 
