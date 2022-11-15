@@ -32,7 +32,6 @@ namespace HeistGame
         protected int hearingTimer;
         protected int hearingTick;
         protected int alertTimer;
-        protected int alertTick;
         protected int previouslyHeardNoiseLevel;
 
         protected AIBehaviors behavior;
@@ -261,29 +260,25 @@ namespace HeistGame
         /// <param name="deltaTimeMS">frame timing, to handle movement speed</param>
         public virtual void UpdateBehavior(Level level, Game game, int deltaTimeMS)
         {
-            if (alertLevel > 15)
-            {
-                alertLevel = 15;
-            }
-
             timeSinceLastMove += deltaTimeMS;
+            sightTimer += deltaTimeMS;
+            hearingTimer += deltaTimeMS;
         }
 
-        protected bool UpdatePerception(Player player, Level level, int distance)
+        protected int GetPerceptionsAlarm(Player player, Level level, int distance)
         {
             Vector2 obstacle = new Vector2(-1, -1);
 
-            bool hasFoundPlayer = SpotPlayer(player, level, distance, ref obstacle);
+            int sightAlarm = SpotPlayer(player, level, distance, ref obstacle);
 
-            hasFoundPlayer = hasFoundPlayer || HearPlayer(player, distance, ref obstacle);
+            int hearingAlarm = HearPlayer(player, distance, ref obstacle);
 
-            return hasFoundPlayer;
+            return sightAlarm + hearingAlarm;
         }
 
-        //TODO: add timers to pace the speed at which alertLevel increases
-        protected bool SpotPlayer(Player player, Level level, int distance, ref Vector2 obstacle)
+        protected int SpotPlayer(Player player, Level level, int distance, ref Vector2 obstacle)
         {
-            bool seen = false;
+            int sightAlarm = 0;
 
             switch (Direction)
             {
@@ -300,7 +295,7 @@ namespace HeistGame
                                 break;
                             }
                         }
-                        seen = EvaluatePlayerVisibility(player, distance);
+                        sightAlarm = EvaluatePlayerVisibility(player, distance);
                         break;
                     }
                     else
@@ -321,7 +316,7 @@ namespace HeistGame
                                 break;
                             }
                         }
-                        seen = EvaluatePlayerVisibility(player, distance);
+                        sightAlarm = EvaluatePlayerVisibility(player, distance);
                         break;
                     }
                     else
@@ -342,7 +337,7 @@ namespace HeistGame
                                 break;
                             }
                         }
-                        seen = EvaluatePlayerVisibility(player, distance);
+                        sightAlarm = EvaluatePlayerVisibility(player, distance);
                         break;
                     }
                     else
@@ -363,7 +358,7 @@ namespace HeistGame
                                 break;
                             }
                         }
-                        seen = EvaluatePlayerVisibility(player, distance);
+                        sightAlarm = EvaluatePlayerVisibility(player, distance);
                         break;
                     }
                     else
@@ -371,14 +366,15 @@ namespace HeistGame
                         break;
                     }
             }
-            return seen;
+            return sightAlarm;
         }
 
-        protected bool HearPlayer(Player player, int distance, ref Vector2 obstacle)
+        protected int HearPlayer(Player player, int distance, ref Vector2 obstacle)
         {
-            if (distance > hearingDistance) { return false; }
+            if (distance > hearingDistance) { return 0; }
 
             int noiseModifier = 0;
+            int noiseAlarm = 0;
 
             if (obstacle.X != -1 && GetDistanceFromTile(obstacle) <= hearingDistance)
             {
@@ -386,154 +382,54 @@ namespace HeistGame
             }
 
             int noise = player.Noise - noiseModifier;
+            if (noise < 0) { noise = 0; }
 
-            if (hearingTimer >= hearingTick || noise != previouslyHeardNoiseLevel)
+            if (noise >= 3)
             {
-                alertLevel += noise;
+                return 15;
+            }
+            else if (hearingTimer >= hearingTick)
+            {
+                noiseAlarm += noise;
                 hearingTimer = 0;
             }
 
             previouslyHeardNoiseLevel = noise;
 
-            if (noise >= 3)
-            {
-                alertLevel = 15;
-                return true;
-            }
-
-            if (state == AIState.PreviouslyFoundPlayer && noise > 0)
-            {
-                return true;
-            }
-
-            return false;
+            return noiseAlarm;
         }
 
-        protected bool EvaluatePlayerVisibility(Player player, int distance)
+        protected int EvaluatePlayerVisibility(Player player, int distance)
         {
             switch (player.Visibility)
             {
                 case >= 3:
-                    alertLevel = 15;
-                    behavior = AIBehaviors.Chasing;
-                    return true;
+                    return 15;
                 case 2:
                     if (distance <= 10)
                     {
-                        alertLevel = 15; 
-                        behavior = AIBehaviors.Chasing;
-                        return true;
+                        return 15;
                     }
                     else if (sightTimer >= sightTick)
                     {
-                        alertLevel += player.Visibility * 2;
                         sightTimer = 0;
-                        return false;
+                        return player.Visibility * 2;
                     }
-                    return false;
+                    return 0;
                 case 1:
                     if (distance <= 5)
                     {
-                        alertLevel = 15;
-                        behavior = AIBehaviors.Chasing;
-                        return true;
+                        return 15;
                     }
                     else if (sightTimer >= sightTick)
                     { 
-                        alertLevel += player.Visibility * 2;
                         sightTimer = 0;
-                        return false;
+                        return player.Visibility * 2;
                     }
-                    return false;
+                    return 0;
             }
-            return false;
+            return 0;
         }
-
-        //protected bool SpotPlayer(Player player, Level level)
-        //{
-        //    int aggroDistance = player.Visibility;
-        //    if (aggroDistance <= 0) { aggroDistance = 1; }
-
-        //    switch (Direction)
-        //    {
-        //        case Directions.up:
-        //            if (player.Y <= Y && IsTileInRange(player.X, player.Y, aggroDistance))
-        //            {
-        //                Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
-
-        //                foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-        //                {
-        //                    if (!level.IsTileTransparent(tile.X, tile.Y))
-        //                    {
-        //                        return false;
-        //                    }
-        //                }
-        //                return true;
-        //            }
-        //            else
-        //            {
-        //                return false;
-        //            }
-
-        //        case Directions.right:
-        //            if (player.X >= X && IsTileInRange(player.X, player.Y, aggroDistance))
-        //            {
-        //                Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
-
-        //                foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-        //                {
-        //                    if (!level.IsTileTransparent(tile.X, tile.Y))
-        //                    {
-        //                        return false;
-        //                    }
-        //                }
-        //                return true;
-        //            }
-        //            else
-        //            {
-        //                return false;
-        //            }
-
-        //        case Directions.down:
-        //            if (player.Y >= Y && IsTileInRange(player.X, player.Y, aggroDistance))
-        //            {
-        //                Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
-
-        //                foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-        //                {
-        //                    if (!level.IsTileTransparent(tile.X, tile.Y))
-        //                    {
-        //                        return false;
-        //                    }
-        //                }
-        //                return true;
-        //            }
-        //            else
-        //            {
-        //                return false;
-        //            }
-
-        //        case Directions.left:
-        //            if (player.X <= X && IsTileInRange(player.X, player.Y, aggroDistance))
-        //            {
-        //                Vector2[] tilesBetweenGuardAndPlayer = Rasterizer.GetCellsAlongLine(this.X, this.Y, player.X, player.Y);
-
-        //                foreach (Vector2 tile in tilesBetweenGuardAndPlayer)
-        //                {
-        //                    if (!level.IsTileTransparent(tile.X, tile.Y))
-        //                    {
-        //                        return false;
-        //                    }
-        //                }
-        //                return true;
-        //            }
-        //            else
-        //            {
-        //                return false;
-        //            }
-        //    }
-        //    return false;
-        //}
         #endregion
 
         #region Utilities
