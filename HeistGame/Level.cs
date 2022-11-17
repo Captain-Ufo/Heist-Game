@@ -737,6 +737,7 @@ namespace HeistGame
         private void ResetKeys()
         {
             levelLock.ResetKeys(this);
+            IsLocked = levelLock.IsLocked();
         }
 
         private void ResetGuards()

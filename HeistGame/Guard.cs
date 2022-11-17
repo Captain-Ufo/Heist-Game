@@ -50,7 +50,6 @@ namespace HeistGame
             walkingSpeed = 200;
             searchingSpeed = 230;
             runningSpeed = 150;
-            hearingRange = 9;
             bribeTick = 60000; // 1 minute
             bribeTimer = 0;
 
