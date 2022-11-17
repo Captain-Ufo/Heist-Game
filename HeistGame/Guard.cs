@@ -49,7 +49,7 @@ namespace HeistGame
             searchPivotDuration = 30;
             walkingSpeed = 200;
             searchingSpeed = 230;
-            runningSpeed = 100;
+            runningSpeed = 150;
             hearingRange = 9;
             bribeTick = 60000; // 1 minute
             bribeTimer = 0;
@@ -142,8 +142,13 @@ namespace HeistGame
 
             int distance = GetDistanceFromTile(game.PlayerCharacter.X, game.PlayerCharacter.Y);
 
-            int previousAlertLevel = alertLevel; 
-            int alarm = GetPerceptionsAlarm(game.PlayerCharacter, level, distance);
+            int previousAlertLevel = alertLevel;
+            int alarm = 0;
+
+            if (!isBribed)
+            {
+                alarm = GetPerceptionsAlarm(game.PlayerCharacter, level, distance);
+            }
             alertLevel += alarm;
             if (alertLevel > previousAlertLevel)
             {
@@ -164,190 +169,77 @@ namespace HeistGame
 
             if (alertLevel == 15)
             {
-                NPCTileColor = ConsoleColor.Red;
-                //TODO: if alarm > 0, the player was spotted. Record their position and chase them
+                if (alarm > 0)
+                {
+                    if (previousAlertLevel < 5)
+                    {
+                        lastPatrolPoint = new Vector2(X, Y);
+                    }
+                    searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                    state = AIState.FoundPlayer;
+                    behavior = AIBehaviors.Chasing;
+                }
+                else if (state == AIState.FoundPlayer)
+                {
+                    if (X != searchTarget.X && Y != searchTarget.Y)
+                    {
+                        behavior = AIBehaviors.Chasing;
+                    }
+                    else
+                    {
+                        state = AIState.PreviouslyFoundPlayer;
+                        behavior = AIBehaviors.Searching;
+                    }
+                }
+                
                 //TODO: (once implemented) if player is violent, raise alertRestingLevel until it reaches 4
                 //if alarm is <= 0, if the guard is chasing, finish chasing until the guard has reached the recorded position
                 //once reached, switch to investigation mode
             }
-            else if (alertLevel >= 10)
+            else if (alertLevel >= 10 && alertLevel < 15)
             {
-                NPCTileColor = ConsoleColor.Yellow;
-                //TODO: Investigation mode
+                behavior = AIBehaviors.Searching;
             }
-            else if (alertLevel >= 5)
+            else if (alertLevel >= 5 && alertLevel < 10)
             {
-                NPCTileColor = ConsoleColor.Magenta;
-                //TODO: stop and turn towards the player's direction
+                behavior = AIBehaviors.Suspicious;
             }
-            else
+            else if (alertLevel < 5)
             {
                 NPCTileColor = ConsoleColor.DarkRed;
-                //TODO: insert logic for returning if not in patrol mode.
-                NormalBehavior(game);
+                if (state == AIState.FoundPlayer || state == AIState.PreviouslyFoundPlayer)
+                {
+                    behavior = AIBehaviors.Returning;
+                }
+                else
+                {
+                    behavior = AIBehaviors.Neutral;
+                }
             }
 
-            //if (Health  == 1) 
-            //{ 
-            //    behavior = AIBehaviors.Fleeing; 
-            //}
-            //else if (alertLevel <= 5)
-            //{
-            //    if (state == AIState.NotFoundPlayer)
-            //    {
-            //        behavior = AIBehaviors.Neutral;
-            //    }
-            //    else
-            //    {
-            //        behavior = AIBehaviors.Returning;
-            //    }
-            //}
-            //else if (alertLevel > 5 && alertLevel <= 10)
-            //{
-            //    if (state == AIState.NotFoundPlayer)
-            //    {
-            //        behavior = AIBehaviors.Suspicious;
-            //    }
-            //    else
-            //    {
-            //        behavior = AIBehaviors.Searching;
-            //    }
-            //}
-            //else if (alertLevel > 10 && alertLevel <= 15)
-            //{
-            //    if (state == AIState.NotFoundPlayer)
-            //    {
-            //        behavior = AIBehaviors.Alerted;
-            //    }
-            //    else
-            //    {
-            //        behavior = AIBehaviors.Searching;
-            //    }
-            //}
-            //else
-            //{
-            //    if (state == AIState.FoundPlayer)
-            //    {
-            //        behavior = AIBehaviors.Chasing;
-            //    }
-            //    else
-            //    {
-            //        state = AIState.PreviouslyFoundPlayer;
-            //        behavior = AIBehaviors.Searching;
-            //    }
-            //}
-            //
-            //switch (behavior)
-            //{
-            //    case AIBehaviors.Neutral:
-            //        NPCTileColor = ConsoleColor.DarkRed;
-            //        timeBetweenMoves = walkingSpeed;
-            //        if (patrolPath.Length > 0)
-            //        {
-            //            MoveTowards(Patrol(), game);
-            //        }
-            //        else
-            //        {
-            //            Pivot(pivotTimer, 20, 30);
-            //
-            //            if (pivotTimer == int.MaxValue) { pivotTimer = 0; }
-            //            else { pivotTimer += rng.Next(1, 5); }
-            //        }
-            //        lastPatrolPoint.X = X;
-            //        lastPatrolPoint.Y = Y;
-            //        state = AIState.NotFoundPlayer;
-            //        firstSighted = true;
-            //        break;
-            //    case AIBehaviors.Suspicious:
-            //        firstSighted = true;
-            //        break;
-            //    case AIBehaviors.Alerted:
-            //        NPCTileColor = ConsoleColor.Magenta;
-            //        firstSighted = true;
-            //        AlertedBehavior(game);
-            //        break;
-            //    case AIBehaviors.Searching:
-            //        state = AIState.PreviouslyFoundPlayer;
-            //        firstSighted = true;
-            //        AlertedBehavior(game);
-            //        break;
-            //    case AIBehaviors.Chasing:
-            //        if (firstSighted)
-            //        {
-            //            game.TunePlayer.PlaySFX(800, 600);
-            //            game.TimesSpotted++;
-            //        }
-            //        NPCTileColor = ConsoleColor.Red;
-            //        state = AIState.FoundPlayer;
-            //        searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
-            //        firstSighted = false;
-            //        timeBetweenMoves = runningSpeed;
-            //        MoveTowards(searchTarget, game);
-            //        break;
-            //    case AIBehaviors.Returning:
-            //        NPCTileColor = ConsoleColor.DarkRed;
-            //        firstSighted = true;
-            //        state = AIState.NotFoundPlayer;
-            //        ReturnToPatrol(game);
-            //        break;
-            //    case AIBehaviors.Fighting:
-            //        break;
-            //    case AIBehaviors.Fleeing:
-            //        break;
-            //}
-
-            //alertTimer += deltaTimeMS;
-            //if (alertTimer >= alertTick && alertLevel > alertRestingLevel)
-            //{
-            //    alertLevel--;
-            //    alertTimer = 0;
-            //}
-            //
-            //if (SpotPlayer())
-            //{
-            //    if (firstSighted)
-            //    {
-            //        game.TunePlayer.PlaySFX(800, 600);
-            //        game.TimesSpotted++;
-            //    }
-            //
-            //    NPCTileColor = ConsoleColor.Red;
-            //    searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
-            //    isAlerted = true;
-            //    firstSighted = false;
-            //    isReturning = false;
-            //    timeBetweenMoves = runningSpeed;
-            //    MoveTowards(searchTarget, game);
-            //}
-            //else if (isAlerted)
-            //{
-            //    NPCTileColor = ConsoleColor.Magenta;
-            //    firstSighted = true;
-            //    AlertedBehavior(game);
-            //}
-            //else if (isReturning)
-            //{
-            //    NPCTileColor = ConsoleColor.DarkRed;
-            //    ReturnToPatrol(game);
-            //}
-            //else
-            //{
-            //    NPCTileColor = ConsoleColor.DarkRed;
-            //    timeBetweenMoves = walkingSpeed;
-            //    if (patrolPath.Length > 0)
-            //    {
-            //        MoveTowards(Patrol(), game);
-            //    }
-            //    else
-            //    {
-            //        Pivot(pivotTimer, 20, 30);
-            //
-            //        if (pivotTimer == int.MaxValue) { pivotTimer = 0; }
-            //        else { pivotTimer += rng.Next(1, 5); }
-            //    }
-            //    lastPatrolPoint.X = X;
-            //    lastPatrolPoint.Y = Y;
-            //}
+            switch (behavior)
+            {
+                case AIBehaviors.Neutral:
+                    NPCTileColor = ConsoleColor.DarkRed;
+                    NormalBehavior(game);
+                    break;
+                case AIBehaviors.Suspicious:
+                    NPCTileColor = ConsoleColor.Magenta;
+                    //TODO: stop and turn towards the player's direction
+                    break;
+                case AIBehaviors.Chasing:
+                    NPCTileColor = ConsoleColor.Red;
+                    ChasePlayer(game);
+                    break;
+                case AIBehaviors.Searching:
+                    NPCTileColor = ConsoleColor.Yellow;
+                    Investigate(game);
+                    break;
+                case AIBehaviors.Returning:
+                    NPCTileColor = ConsoleColor.DarkRed;
+                    ReturnToPatrol(game);
+                    break;
+            }
         }
 
         private void NormalBehavior(Game game)
@@ -368,6 +260,19 @@ namespace HeistGame
             lastPatrolPoint.Y = Y;
         }
 
+        private void ChasePlayer(Game game)
+        {
+            if (firstSighted)
+            {
+                game.TunePlayer.PlaySFX(800, 600);
+                game.TimesSpotted++;
+            }
+
+            firstSighted = false;
+            timeBetweenMoves = runningSpeed;
+            MoveTowards(searchTarget, game);
+        }
+
         /// <summary>
         /// Prevents a Game Over
         /// </summary>
@@ -376,6 +281,8 @@ namespace HeistGame
             isBribed = true;
             behavior = AIBehaviors.Returning;
             state = AIState.NotFoundPlayer;
+            alertLevel = 0;
+            alertTimer = 0;
         }
 
         /// <summary>
@@ -408,8 +315,6 @@ namespace HeistGame
             alertTimer = 0;
             alertLevel = 0;
             alertRestingLevel = 0;
-            //isAlerted = false;
-            //isSearching = false;
             state = AIState.NotFoundPlayer;
             behavior = AIBehaviors.Neutral;
             pivotTimer = rng.Next(201);
@@ -434,7 +339,7 @@ namespace HeistGame
             TimesBribed++;
         }
 
-        private void AlertedBehavior(Game game)
+        private void Investigate(Game game)
         {
             if (timeSinceLastMove < timeBetweenMoves)
             {
@@ -495,7 +400,6 @@ namespace HeistGame
                 searchTarget.X = x;
                 searchTarget.Y = y;
 
-                behavior = AIBehaviors.Searching;
                 timeSinceLastMove -= timeBetweenMoves;
                 return;
             }
@@ -503,16 +407,6 @@ namespace HeistGame
 
             alertTimer++;
 
-            if (alertTimer > 350)
-            {
-                alertTimer = 0;
-                //isAlerted = false;
-                //isSearching = false;
-                NPCTileColor = ConsoleColor.DarkRed;
-                timeBetweenMoves = walkingSpeed;
-                behavior = AIBehaviors.Returning;
-                state = AIState.NotFoundPlayer;
-            }
             timeSinceLastMove -= timeBetweenMoves;
         }
 
@@ -527,6 +421,8 @@ namespace HeistGame
                     hasValidTarget = true;
                     searchTarget.X = rng.Next(X - 8, X + 9);
                     searchTarget.Y = rng.Next(Y - 8, Y + 9);
+
+                    //TODO: add check so that guards prefer dark tiles over fully lit ones.
 
                     Vector2[] tilesToTarget = Rasterizer.GetCellsAlongLine(this.X, this.Y, searchTarget.X, searchTarget.Y);
                     foreach(Vector2 tile in tilesToTarget)
@@ -544,6 +440,8 @@ namespace HeistGame
 
         private void ReturnToPatrol(Game game)
         {
+            timeBetweenMoves = walkingSpeed;
+
             if (X != lastPatrolPoint.X || Y != lastPatrolPoint.Y)
             {
                 MoveTowards(new Vector2(lastPatrolPoint.X, lastPatrolPoint.Y), game);
@@ -551,10 +449,13 @@ namespace HeistGame
             }
 
             behavior = AIBehaviors.Neutral;
+            state = AIState.NotFoundPlayer;
         }
 
         private void CatchPlayer(Game game)
         {
+            if (isBribed) { return; }
+
             switch (Direction)
             {
                 case Directions.up:
