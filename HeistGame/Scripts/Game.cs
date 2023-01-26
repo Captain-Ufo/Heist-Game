@@ -476,9 +476,10 @@ namespace HeistGame
         {
             if (Selector.IsActive) { Selector.Deactivate(); }
 
-            bool canBeBribed = DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.VeryEasy || guard.TimesBribed < 1;
+            bool canBeBribed = DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.VeryEasy ||
+                               guard.TimesBribed < 1;
 
-            if (!canBeBribed || DifficultyLevel == Difficulty.VeryHard || DifficultyLevel == Difficulty.Ironman || !AttemptBribe(guard.TimesBribed))
+            if (!canBeBribed || !AttemptBribe(guard.TimesBribed, guard.GuardArt))
             {
                 playerHasBeenCaught = true;
                 return;
@@ -505,7 +506,7 @@ namespace HeistGame
 
 
 
-        private bool AttemptBribe(int amountBribedBefore)
+        private bool AttemptBribe(int amountBribedBefore, int art)
         {
             ActiveUnlockable = null;
             ScreenDisplayer.DeleteLabel();
@@ -531,56 +532,10 @@ namespace HeistGame
             int menuPos = WindowWidth / 2;
             int menuPromptSize = WindowWidth - 2;
 
-            string[] guardArt =
-            {
-                @"                           __.--|~|--.__                                 ,,;/;",
-                @"                         /~     | |    ;~\                            ,;;;/;;'",
-                @"                        /|      | |    ;~\\                        ,;;;;/;;;' ",
-                @"                       |/|      \_/    ;;;|\                     ,;;;;/;;;;'  ",
-                @"                       |/ \           ;;;/ )                   ,;;;;/;;;;;'   ",
-                @"                   ___ | ______     ;_____ |___....__        ,;;;;/;;;;;'     ",
-                @"             ___.-~ \\(| \  (.\ \__/ /.) /:|)~   ~   \     ,;;;;/;;;;;'       ",
-                @"         /~~~    ~\    |  ~-.     |   .-~: |//  _.-~~--__,;;;;/;;;;;'         ",
-                @"        (.-~___     \.'|    | /-.__.-\|::::| //~       ,;;;;/;;;;;'           ",
-                @"        /      ~~--._ \|   /   ______ `\:: |/        ,;;;;/;;;;;'             ",
-                @"     .-|             ~~|   |  /''''''\ |:  |       ,;;;;/;;;;;'\              ",
-                @"    /                   \  |  ~`'~~''~ |  /      ,;;;;/;;;;;'-__;             ",
-                @"    /                   \  |  ~`'~~''~ |  /    ,;;;;/;;;;;'--__;              ",
-                @"   (        \             \| `\.____./'|/    ,;;;;/;;;;;'      '\             ",
-                @"  / \        \!             \888888888/    ,;;;;/;;;;;'     /    |            ",
-                @" |      ___--'|              \8888888/   ,;;;;/;;;;;'      |     |            ",
-                @"|`-._---       |               \888/   ,;;;;/;;;;;'              \            ",
-                @"|             /                  °   ,;;;;/;;;;;'  \              \__________ ",
-                @"(             )                 |  ,;;;;/;;;;;'      |        _.--~           ",
-                @" \          \/ \              ,  ;;;;;/;;;;;'       /(     .-~_..--~~~~~~~~~~ ",
-                @"  \__        '  `             ,;;;;;/;;;;;'        /  \  / /~                 ",
-                @" /          \'  |`._______ ,;;;;;;/;;;;;;'       /:    \/'/'       /|_/|   ``|",
-                @"| _.-~~~~-._ |   \ __   .,;;;;;;/;;;;;;' ~~~~~'  .'    | |       /~ (/\/    ||",
-                @"/~ _.-~~~-._\    /~/   ;;;;;;;/;;;;;;;'          |    | |       / ~/_-'|-   /|",
-                @"(/~         \| /' |   ;;;;;;/;;;;;;;;            ;   | |       (.-~;  /-   / |",
-                @"|            /___ `-,;;;;;/;;;;;;;;'            |   | |      ,/)  /  /-   /  |",
-                @" \            \  `-.`---/;;;;;;;;;' |          _'   |T|    /'('  /  /|- _/  //",
-                @"   \           /~~/ `-. |;;;;;''    ______.--~~ ~\  |u|  ,~)')  /   | \~-==// ",
-                @"     \      /~(   `-\  `-.`-;   /|    ))   __-####\ |a|   (,   /|    |  \     ",
-                @"       \  /~.  `-.   `-.( `-.`~~ /##############'~~)| |   '   / |    |   ~\   ",
-                @"        \(   \    `-._ /~)_/|  /############'       |X|      /  \     \_\  `\ ",
-                @"        ,~`\  `-._  / )#####|/############'   /     |i|  _--~ _/ | .-~~____--'",
-                @"       ,'\  `-._  ~)~~ `################'           |o| ((~>/~   \ (((' -_    ",
-                @"     ,'   `-.___)~~      `#############             |n|           ~-_     ~\_ ",
-                @" _.,'        ,'           `###########              |g|            _-~-__    (",
-                @"|  `-.     ,'              `#########       \       | |          ((.-~~~-~_--~",
-                @"`\    `-.;'                  `#####' | | '    ((.-~~                          ",
-                @"  `-._   )               \     |   |        .       |  \                 '    ",
-                @"      `~~_ /                  |    \                |  `--------------------- ",
-                @"                                                                              ",
-                @"       |/ ~                `.  |    \         .     | O    __.-------------- -",
-                @"                                                                              ",
-                @"        |                   \ ;      \              | _.- ~                   ",
-                @"                                                                              ",
-                @"        |                    |        |             |  /  |                   ",
-                @"                                                                              ",
-                @"         |                   |         |            |/ '  |  RN TX            ",
-            };
+            string[] guardArt;
+
+            if (art < 50) { guardArt = SymbolsConfig.GuardArt1; }
+            else { guardArt = SymbolsConfig.GuardArt2; }
 
             if (WindowWidth >= guardArt[0].Length + 36) // 36 is the size of the menu prompt
             {
@@ -672,6 +627,7 @@ namespace HeistGame
                         WriteLine(s);
                     }
                     ReadKey(true);
+                    ControlsManager.FlushInputs();
                     return false;
 
                 case 1:
@@ -832,12 +788,14 @@ namespace HeistGame
 
             TunePlayer.PlayGameOverTune();
 
-            if (CurrentLevel == 0 || DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.Hard || DifficultyLevel == Difficulty.Ironman)
+            if (CurrentLevel == 0 || DifficultyLevel == Difficulty.Easy || DifficultyLevel == Difficulty.Hard ||
+                DifficultyLevel == Difficulty.Ironman)
             {
                 RestartMenu(menuPos);
                 ResetGame(true);
             }
-            else if (DifficultyLevel == Difficulty.VeryEasy || DifficultyLevel == Difficulty.Normal || DifficultyLevel == Difficulty.VeryHard)
+            else if (DifficultyLevel == Difficulty.VeryEasy || DifficultyLevel == Difficulty.Normal ||
+                     DifficultyLevel == Difficulty.VeryHard)
             {
                 RetryMenu(menuPos);
                 ResetGame(false);
@@ -1388,7 +1346,8 @@ namespace HeistGame
         }
 
 
-
+        //TODO: found a bug at lower resolution: the menu jumps up and down depending on the option selected (likely connected to
+        //different sizes of the updating prompt)
         /// <summary>
         /// Menu to select difficulty level.
         /// </summary>

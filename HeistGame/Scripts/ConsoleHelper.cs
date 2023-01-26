@@ -75,6 +75,14 @@ namespace HeistGame
         [DllImport("kernel32")]
         private static extern IntPtr GetStdHandle(StdHandle index);
 
+        private const UInt32 StdOutputHandle = 0xFFFFFFF5;
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetStdHandle(UInt32 nStdHandle);
+        [DllImport("kernel32.dll")]
+        private static extern void SetStdHandle(UInt32 nStdHandle, IntPtr handle);
+        [DllImport("kernel32")]
+        static extern bool AllocConsole();
+
         [DllImport("kernel32.dll")]
         static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
 
@@ -97,6 +105,8 @@ namespace HeistGame
         /// </summary>
         public static void SetConsole()
         {
+            //CreateConsole();
+
             SettingsData settings = GetSettingsFromConfig();
 
             TreatControlCAsInput = true;
@@ -104,6 +114,24 @@ namespace HeistGame
             ConfigureConsole(settings.Name, settings.Font, settings.FontHeight, settings.FontWidth, settings.MaximizeOnStart,
                              settings.ConsoleWidth, settings.ConsoleHeight, settings.CenterWindow, false, false, true, true,
                              true);
+        }
+
+        public static void CreateConsole()
+        {
+            AllocConsole();
+
+            // stdout's handle seems to always be equal to 7
+            IntPtr defaultStdout = new IntPtr(7);
+            IntPtr currentStdout = GetStdHandle(StdOutputHandle);
+
+            if (currentStdout != defaultStdout)
+                // reset stdout
+                SetStdHandle(StdOutputHandle, defaultStdout);
+
+            // reopen stdout
+            TextWriter writer = new StreamWriter(Console.OpenStandardOutput())
+            { AutoFlush = true };
+            Console.SetOut(writer);
         }
 
         /// <summary>
@@ -125,7 +153,7 @@ namespace HeistGame
             IntPtr handle = GetConsoleWindow();
             IntPtr sysMenu = GetSystemMenu(handle, false);
 
-            OutputEncoding = System.Text.Encoding.Unicode;
+            OutputEncoding = InputEncoding = System.Text.Encoding.Unicode;
 
             if (handle == IntPtr.Zero)
             {

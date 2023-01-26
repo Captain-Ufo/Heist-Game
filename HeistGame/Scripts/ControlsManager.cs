@@ -2,11 +2,8 @@
 //Heist!, © Cristian Baldi 2022//
 /////////////////////////////////
 
-using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using static System.Console;
-using System.Diagnostics;
 
 namespace HeistGame
 {
@@ -247,8 +244,8 @@ namespace HeistGame
             {
                 State = ControlState.Move;
                 MovementMode mode = MovementMode.walking;
-                if (GetAsyncKeyState((short)InputMap.VK_CONTROL) != 0) { mode = MovementMode.sneaking; }
-                else if (GetAsyncKeyState((short)InputMap.VK_SHIFT) != 0) { mode = MovementMode.running; }
+                if (GetAsyncKeyState((short)InputMap.VK_SHIFT) != 0) { mode = MovementMode.sneaking; }
+                else if (GetAsyncKeyState((short)InputMap.VK_CONTROL) != 0) { mode = MovementMode.running; }
                 game.PlayerCharacter.ResetPeek(level);
                 game.PlayerCharacter.Move(direction, mode, level);
             }

@@ -280,6 +280,8 @@ namespace HeistGame
         {
             int sightAlarm = 0;
 
+            bool foundObstacle = false;
+
             switch (Direction)
             {
                 case Directions.up:
@@ -292,10 +294,14 @@ namespace HeistGame
                             if (!level.IsTileTransparent(tile.X, tile.Y))
                             {
                                 obstacle = tile;
+                                foundObstacle = true;
                                 break;
                             }
                         }
-                        sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        if (!foundObstacle)
+                        {
+                            sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        }
                         break;
                     }
                     else
@@ -313,10 +319,14 @@ namespace HeistGame
                             if (!level.IsTileTransparent(tile.X, tile.Y))
                             {
                                 obstacle = tile;
+                                foundObstacle = true;
                                 break;
                             }
                         }
-                        sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        if (!foundObstacle)
+                        {
+                            sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        }
                         break;
                     }
                     else
@@ -334,10 +344,14 @@ namespace HeistGame
                             if (!level.IsTileTransparent(tile.X, tile.Y))
                             {
                                 obstacle = tile;
+                                foundObstacle = true;
                                 break;
                             }
                         }
-                        sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        if (!foundObstacle)
+                        {
+                            sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        }
                         break;
                     }
                     else
@@ -355,10 +369,14 @@ namespace HeistGame
                             if (!level.IsTileTransparent(tile.X, tile.Y))
                             {
                                 obstacle = tile;
+                                foundObstacle = true;
                                 break;
                             }
                         }
-                        sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        if (!foundObstacle)
+                        {
+                            sightAlarm = EvaluatePlayerVisibility(player, distance);
+                        }
                         break;
                     }
                     else

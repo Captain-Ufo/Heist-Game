@@ -61,6 +61,7 @@ namespace HeistGame
         /// </summary>
         public int Visibility { get; private set; }
         public int Noise { get; private set; }
+        public bool IsViolent { get; private set; }
 
         /// <summary>
         /// Instantiates a Player object
@@ -82,6 +83,7 @@ namespace HeistGame
             SetVisibility(level.PlayerStartX, level.PlayerStartY, level);
 
             IsStill = true;
+            IsViolent = false;
 
             PlayerMarker = marker;
             moveColor = moveCol;
@@ -269,7 +271,7 @@ namespace HeistGame
         {
             CurrentColor = runColor;
             Noise = 5;
-            ModifiersTick = 100;
+            ModifiersTick = 2;
             game.TunePlayer.PlaySFX(1000, 600);
             //level.AlertGuards(new Vector2(X, Y));
         }

@@ -20,12 +20,11 @@ namespace HeistGame
         private Vector2 originPoint;
         private Vector2 searchTarget;
 
+        private bool isTurned;
         private bool isBribed;
         private int bribeTick;
         private int bribeTimer;
 
-        //private bool isAlerted;
-        //private bool isSearching;
         private bool firstSighted;
         private int searchPivotTimer;
         private int searchPivotDuration;
@@ -34,12 +33,12 @@ namespace HeistGame
         private int searchingSpeed;
         private int runningSpeed;
 
-        private int hearingRange;
-
         /// <summary>
         /// To be set depending on difficulty level. If true, it will prevent being bribed a second time
         /// </summary>
         public int TimesBribed { get; private set; }
+
+        public int GuardArt { get; private set; }
 
         /// <summary>
         /// Instantiates a Guard Object and sets its parameters
@@ -56,11 +55,11 @@ namespace HeistGame
             rng = new Random();
             nextPatrolPoint = 0;
             isBribed = false;
-            //isAlerted = false;
-            //isSearching = false;
+            isTurned = false;
             firstSighted = true;
-            //isReturning = false;
             TimesBribed = 0;
+
+            GuardArt = rng.Next(0, 100);
 
             sightDistance = 18;
             hearingDistance = 10;
@@ -130,6 +129,10 @@ namespace HeistGame
 
                 if (alertTimer <= 0)
                 {
+                    if (game.PlayerCharacter.IsViolent && alertRestingLevel < 4 ) 
+                    { 
+                        alertRestingLevel++; 
+                    }
                     alertLevel = alertRestingLevel;
                     alertTimer = 0;
                 }
@@ -151,7 +154,7 @@ namespace HeistGame
             alertLevel += alarm;
             if (alertLevel > previousAlertLevel)
             {
-                int timerLength = alertLevel * 1000;
+                int timerLength = alertLevel * 3000;
 
                 if (alertTimer < timerLength)
                 {
@@ -163,11 +166,12 @@ namespace HeistGame
             //further alarm until the alertTimer ticks down.
             if (alertLevel > 15) { alertLevel = 15; }
 
-            //TODO: if healths is low, turn on flee behavior no matter what.
+            //TODO: if health is low, turn on flee behavior no matter what.
             //TODO: temporary. Add some way to recover health. Maybe walk towards a healing point if available?
 
             if (alertLevel == 15)
             {
+                isTurned = false;
                 if (alarm > 0)
                 {
                     if (previousAlertLevel < 5)
@@ -188,23 +192,31 @@ namespace HeistGame
                     {
                         state = AIState.PreviouslyFoundPlayer;
                         behavior = AIBehaviors.Searching;
+                        firstSighted = true;
                     }
                 }
-                
-                //TODO: (once implemented) if player is violent, raise alertRestingLevel until it reaches 4
-                //if alarm is <= 0, if the guard is chasing, finish chasing until the guard has reached the recorded position
-                //once reached, switch to investigation mode
             }
             else if (alertLevel >= 10 && alertLevel < 15)
             {
+                if (previousAlertLevel < 5)
+                {
+                    lastPatrolPoint = new Vector2(X, Y);
+                }
+                searchTarget = new Vector2(game.PlayerCharacter.X, game.PlayerCharacter.Y);
+                isTurned = false;
                 behavior = AIBehaviors.Searching;
             }
             else if (alertLevel >= 5 && alertLevel < 10)
             {
+                if (alarm > 0)
+                {
+                    isTurned = false;
+                }
                 behavior = AIBehaviors.Suspicious;
             }
             else if (alertLevel < 5)
             {
+                isTurned = false;
                 NPCTileColor = ConsoleColor.DarkRed;
                 if (state == AIState.FoundPlayer || state == AIState.PreviouslyFoundPlayer)
                 {
@@ -224,7 +236,7 @@ namespace HeistGame
                     break;
                 case AIBehaviors.Suspicious:
                     NPCTileColor = ConsoleColor.Magenta;
-                    //TODO: stop and turn towards the player's direction
+                    SuspiciousBehavior(game);
                     break;
                 case AIBehaviors.Chasing:
                     NPCTileColor = ConsoleColor.Red;
@@ -239,6 +251,103 @@ namespace HeistGame
                     ReturnToPatrol(game);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Prevents a Game Over
+        /// </summary>
+        public void BribeGuard()
+        {
+            isBribed = true;
+            behavior = AIBehaviors.Returning;
+            state = AIState.NotFoundPlayer;
+            alertLevel = 0;
+            alertTimer = 0;
+        }
+
+        /// <summary>
+        /// Used to alert the guard while out of their line of sight
+        /// </summary>
+        /// <param name="expectedTarget">The place they'll investigate while alerted</param>
+        public void AlertGuard(Vector2 expectedTarget, int range = 0)
+        {
+            if (isBribed)
+            {
+                return;
+            }
+
+            if (range == 0) { range = hearingDistance; }
+
+            int horizontalHearingRange = range;
+            if (expectedTarget.X >= X - horizontalHearingRange && expectedTarget.X <= X + horizontalHearingRange &&
+                expectedTarget.Y >= Y - range && expectedTarget.Y <= Y + range)
+            {
+                searchTarget = expectedTarget;
+                timeBetweenMoves = runningSpeed;
+            }
+        }
+
+        /// <summary>
+        /// Resets the guard to start of level conditions.
+        /// </summary>
+        public override void Reset()
+        {
+            nextPatrolPoint = 0;
+            isBribed = false;
+            bribeTimer = 0;
+            alertTimer = 0;
+            alertLevel = 0;
+            alertRestingLevel = 0;
+            state = AIState.NotFoundPlayer;
+            behavior = AIBehaviors.Neutral;
+            pivotTimer = rng.Next(201);
+            searchPivotTimer = 20;
+            X = originPoint.X;
+            Y = originPoint.Y;
+            timeSinceLastMove = 0;
+            TimesBribed = 0;
+            ChoosePivotDirection();
+
+            Health = 10;
+            IsUnconscious = false;
+            IsDead = false;
+        }
+
+        private void UpdateBribe(int deltaTimeMS)
+        {
+            bribeTimer += deltaTimeMS;
+            if (bribeTimer < bribeTick) { return; }
+
+            isBribed = false;
+            TimesBribed++;
+        }
+
+        private void SuspiciousBehavior(Game game)
+        {
+            if (timeSinceLastMove >= timeBetweenMoves)
+            {
+                timeSinceLastMove -= timeBetweenMoves;
+            }
+
+            if (isTurned) { return; }
+
+            bool horizontal = false;
+            int xDistance = X - game.PlayerCharacter.X;
+            int yDistance = Y - game.PlayerCharacter.Y;
+
+            if (MathF.Abs(xDistance) > MathF.Abs(yDistance)) { horizontal = true; }
+            if (horizontal)
+            {
+                if (xDistance > 0) { Direction = Directions.left; }
+                else { Direction = Directions.right; }
+            }
+            else
+            {
+                if (yDistance > 0) { Direction = Directions.up; }
+                else { Direction = Directions.down; }
+            }
+            NPCMarker = npcMarkersLUT[(int)Direction];
+            isTurned = true;
         }
 
         private void NormalBehavior(Game game)
@@ -270,72 +379,6 @@ namespace HeistGame
             firstSighted = false;
             timeBetweenMoves = runningSpeed;
             MoveTowards(searchTarget, game);
-        }
-
-        /// <summary>
-        /// Prevents a Game Over
-        /// </summary>
-        public void BribeGuard()
-        {
-            isBribed = true;
-            behavior = AIBehaviors.Returning;
-            state = AIState.NotFoundPlayer;
-            alertLevel = 0;
-            alertTimer = 0;
-        }
-
-        /// <summary>
-        /// Used to alert the guard while out of their line of sight
-        /// </summary>
-        /// <param name="expectedTarget">The place they'll investigate while alerted</param>
-        public void AlertGuard(Vector2 expectedTarget, int range = 0)
-        {
-            if (isBribed)
-            {
-                return;
-            }
-
-            if (range == 0) { range = hearingRange; }
-
-            int horizontalHearingRange = range;
-            if (expectedTarget.X >= X - horizontalHearingRange && expectedTarget.X <= X + horizontalHearingRange &&
-                expectedTarget.Y >= Y - range && expectedTarget.Y <= Y + range)
-            {
-                searchTarget = expectedTarget;
-                timeBetweenMoves = runningSpeed;
-            }
-        }
-
-        public override void Reset()
-        {
-            nextPatrolPoint = 0;
-            isBribed = false;
-            bribeTimer = 0;
-            alertTimer = 0;
-            alertLevel = 0;
-            alertRestingLevel = 0;
-            state = AIState.NotFoundPlayer;
-            behavior = AIBehaviors.Neutral;
-            pivotTimer = rng.Next(201);
-            searchPivotTimer = 20;
-            X = originPoint.X;
-            Y = originPoint.Y;
-            timeSinceLastMove = 0;
-            TimesBribed = 0;
-            ChoosePivotDirection();
-
-            Health = 10;
-            IsUnconscious = false;
-            IsDead = false;
-        }
-
-        private void UpdateBribe(int deltaTimeMS)
-        {
-            bribeTimer += deltaTimeMS;
-            if (bribeTimer < bribeTick) { return; }
-
-            isBribed = false;
-            TimesBribed++;
         }
 
         private void Investigate(Game game)

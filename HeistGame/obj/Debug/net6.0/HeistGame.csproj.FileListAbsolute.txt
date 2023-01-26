@@ -49,3 +49,31 @@ D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\Deep Cel
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\High Security Confinement.txt
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Resources\HeistGame Icon.png
 D:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Resources\HeistGame Icon.ico
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.dll
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\refint\HeistGame.dll
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.pdb
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\HeistGame.exe
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Resources\HeistGame Icon.ico
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Config\Config.ini
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\Deep Cells.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\High Security Confinement.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\Labyrinth.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\Old Level 2.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\TestLevel.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\The Baron's Jails\CampaignConfig.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\The Baron's Jails\Deep Cells.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\The Baron's Jails\Guards Barracks.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\The Baron's Jails\High Security Confinement.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Levels\The Baron's Jails\Stolen Goods Vault.txt
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\Resources\HeistGame Icon.png
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\HeistGame.deps.json
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\HeistGame.runtimeconfig.json
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\HeistGame.dll
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\bin\Debug\net6.0\HeistGame.pdb
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.csproj.AssemblyReference.cache
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.GeneratedMSBuildEditorConfig.editorconfig
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.AssemblyInfoInputs.cache
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.AssemblyInfo.cs
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.csproj.CoreCompileInputs.cache
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\HeistGame.genruntimeconfig.cache
+F:\Giochi\Progetti\Plain C#\HeistGame\HeistGame\obj\Debug\net6.0\ref\HeistGame.dll
